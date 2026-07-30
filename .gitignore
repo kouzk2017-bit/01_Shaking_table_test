@@ -1,0 +1,35 @@
+# Large experimental datasets and generated analysis outputs
+**/data/
+**/results/
+
+# Archived source material and large supporting documents
+/legacy/
+**/documents/
+/drawings/
+
+# Deprecated build scripts kept only for local traceability
+/scripts/deprecated/
+
+# Python caches and local environments
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# MATLAB temporary and autosave files
+*.asv
+*.m~
+
+# Editor and operating-system files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Temporary and lock files
+*.tmp
+*.temp
+*.bak
+*.swp
+~$*

@@ -1,0 +1,11 @@
+{
+  "case_index": 22,
+  "case_name": "20151211-4(JMAKobe60%)",
+  "same_matrix_size": true,
+  "same_time_vector": true,
+  "same_variable_names": true,
+  "same_case_name": true,
+  "exact_numeric_match": true,
+  "max_absolute_difference": 0,
+  "pass": true
+}

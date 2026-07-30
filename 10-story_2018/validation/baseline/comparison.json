@@ -1,0 +1,9 @@
+{
+  "case": "20190109-2(JMAKobe100%)",
+  "npz_file_count": 6,
+  "npz_array_count": 34,
+  "csv_file_count": 15,
+  "same_npz_structure_and_values": true,
+  "same_csv_rows_bytes_and_content": true,
+  "pass": true
+}

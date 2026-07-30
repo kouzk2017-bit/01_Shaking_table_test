@@ -1,0 +1,352 @@
+{
+  "case": "20190109-2(JMAKobe100%)",
+  "result_directory": "C:\\PhD_research\\02_Projects\\01_Shaking_table_test\\10-story_2018\\results\\python\\20190109-2(JMAKobe100%)",
+  "npz_arrays": {
+    "acceleration.npz": {
+      "acceleration_x": {
+        "shape": [
+          5788,
+          11
+        ],
+        "dtype": "float64",
+        "sha256": "e47a7617da66ddc02296cde2fbad4fd7da5f7813751bc7fa472000f38df4b1bf"
+      },
+      "acceleration_x_raw": {
+        "shape": [
+          57880,
+          11
+        ],
+        "dtype": "float64",
+        "sha256": "de425dc1435e3eee0848a1f3c0983ae6cff4cc904ed30480a463ffcc05ec83f4"
+      },
+      "acceleration_y": {
+        "shape": [
+          5788,
+          11
+        ],
+        "dtype": "float64",
+        "sha256": "970d77fc9fb32541a50a41fd1a5354cadb9fc45f9314db518ffb6192d17336e2"
+      },
+      "acceleration_y_raw": {
+        "shape": [
+          57880,
+          11
+        ],
+        "dtype": "float64",
+        "sha256": "e5e17c4af4d67fc9159d6f49bac26d98e206ce26ae1df6d4ff250add37603daf"
+      },
+      "acceleration_z": {
+        "shape": [
+          5788,
+          11
+        ],
+        "dtype": "float64",
+        "sha256": "cbed4dac46b9d44225a774b3b9be1f2f5ed14e4af94420858b8d518b59360479"
+      },
+      "table_acceleration": {
+        "shape": [
+          5788,
+          3
+        ],
+        "dtype": "float64",
+        "sha256": "429270f010579daef230fd4fbe710a975caee3a0c8bf47462db133276b055fd7"
+      },
+      "time": {
+        "shape": [
+          5788
+        ],
+        "dtype": "float64",
+        "sha256": "e1b0d86538452a4a307dbbe138c0c803a58e8dbf555e490a503657cadd742124"
+      }
+    },
+    "figure_metrics.npz": {
+      "4F_contribution": {
+        "shape": [
+          4
+        ],
+        "dtype": "float64",
+        "sha256": "895b859d57d0dd567341ec41356207106cc8bee3f62dec889cc73d993be7e8cc"
+      },
+      "4F_peak_indices": {
+        "shape": [
+          4
+        ],
+        "dtype": "int64",
+        "sha256": "7cdad30a3ea41a100aecfa747aa6032243d9a9c18286282955b4a48e39e317e8"
+      },
+      "4F_peak_times": {
+        "shape": [
+          4
+        ],
+        "dtype": "float64",
+        "sha256": "13939816b052ba0ff70d952886e5dcdef787842139b4ef49a1faad5b559324bb"
+      },
+      "6F_contribution": {
+        "shape": [
+          4
+        ],
+        "dtype": "float64",
+        "sha256": "6b4209d5ace5cff519d86ae8533589b38b0cc6620421d65d6fc24a015bc3fc69"
+      },
+      "6F_peak_indices": {
+        "shape": [
+          4
+        ],
+        "dtype": "int64",
+        "sha256": "d6eb6ba2269d51dc29f3142240faf126ac79c39d869f78fc1b39d5d091b40c4b"
+      },
+      "6F_peak_times": {
+        "shape": [
+          4
+        ],
+        "dtype": "float64",
+        "sha256": "cbc5f795ebc83bfb2f0f91559b7e6e5974cf3d8307689b076c36184170deec49"
+      }
+    },
+    "joint_rotation.npz": {
+      "joint_rotation": {
+        "shape": [
+          5788,
+          6
+        ],
+        "dtype": "float64",
+        "sha256": "b1c9e9e157927c05df150aa258da9b0b366a35ec0d5f4ff351e88e37cb06f9be"
+      },
+      "time": {
+        "shape": [
+          5788
+        ],
+        "dtype": "float64",
+        "sha256": "e1b0d86538452a4a307dbbe138c0c803a58e8dbf555e490a503657cadd742124"
+      }
+    },
+    "rebar_strain.npz": {
+      "4f_beam": {
+        "shape": [
+          5788,
+          8
+        ],
+        "dtype": "float64",
+        "sha256": "f99ed4b70f2064de0ca145343fde2539d134dc5ee3be186a904a0df82c982e03"
+      },
+      "4f_beam_channels": {
+        "shape": [
+          8
+        ],
+        "dtype": "int64",
+        "sha256": "7404dba59f838bd857b1fe794287c919b72844133e858b9958e69062e70c9bc2"
+      },
+      "4f_column": {
+        "shape": [
+          5788,
+          8
+        ],
+        "dtype": "float64",
+        "sha256": "1bdbf174c0988c5a96c42bf370f9c84a9d21eb864428413dad973e0ff53ea024"
+      },
+      "4f_column_channels": {
+        "shape": [
+          8
+        ],
+        "dtype": "int64",
+        "sha256": "a7192ae90758d635daa93606b510a723e69318c64d22c32fb1ea7d6cefba9013"
+      },
+      "6f_beam": {
+        "shape": [
+          5788,
+          8
+        ],
+        "dtype": "float64",
+        "sha256": "15b723b7776e4cc946a0ee8acbd6520a32ae37de60929810cb12550d3cf2dcf7"
+      },
+      "6f_beam_channels": {
+        "shape": [
+          8
+        ],
+        "dtype": "int64",
+        "sha256": "d3d67209220e94dc1c642556f92f01c9f23a6ce346dfa87a3f582f45e3c7a626"
+      },
+      "6f_column": {
+        "shape": [
+          5788,
+          8
+        ],
+        "dtype": "float64",
+        "sha256": "65463894ddd3a8b2c3afd36da17b82849da1dc6b3817a06d6b3985328e23c8be"
+      },
+      "6f_column_channels": {
+        "shape": [
+          8
+        ],
+        "dtype": "int64",
+        "sha256": "b9960fce6fed1f4a256ec1fcf23239af7c6cb6a6da5eeee113a9691a8c1a926e"
+      },
+      "time": {
+        "shape": [
+          5788
+        ],
+        "dtype": "float64",
+        "sha256": "e1b0d86538452a4a307dbbe138c0c803a58e8dbf555e490a503657cadd742124"
+      }
+    },
+    "story_drift.npz": {
+      "absolute_displacement_x": {
+        "shape": [
+          5788,
+          10
+        ],
+        "dtype": "float64",
+        "sha256": "ea38c6e62aa7010a3702bfcda4615c349d7373698e8681a54a04d44a1b3b0b75"
+      },
+      "absolute_displacement_y": {
+        "shape": [
+          5788,
+          10
+        ],
+        "dtype": "float64",
+        "sha256": "2a91b7047c4f37abff9cfae3d40d51490931ec4a1112317dc0c14ba06e7e2193"
+      },
+      "story_displacement_x": {
+        "shape": [
+          5788,
+          10
+        ],
+        "dtype": "float64",
+        "sha256": "8ed6c1cf26ff53b6bca80e71f950573138e97a02c8ffb0f4ec17453db35722e0"
+      },
+      "story_displacement_y": {
+        "shape": [
+          5788,
+          10
+        ],
+        "dtype": "float64",
+        "sha256": "0976f034c3c0e8f56e9d6e23333eb8c66d288959a89c6b35c48991c85c1b5386"
+      },
+      "story_drift_x": {
+        "shape": [
+          5788,
+          10
+        ],
+        "dtype": "float64",
+        "sha256": "03871cb570108953d8dec523b31e6616b7cabae531593e890754bf0efc51c69d"
+      },
+      "story_drift_y": {
+        "shape": [
+          5788,
+          10
+        ],
+        "dtype": "float64",
+        "sha256": "b8f6389bfc66c042cf9dd907fddf900f85694eead26d58942dbda7de5eb4afb6"
+      },
+      "time": {
+        "shape": [
+          5788
+        ],
+        "dtype": "float64",
+        "sha256": "e1b0d86538452a4a307dbbe138c0c803a58e8dbf555e490a503657cadd742124"
+      }
+    },
+    "story_shear.npz": {
+      "shear_x": {
+        "shape": [
+          5788,
+          10
+        ],
+        "dtype": "float64",
+        "sha256": "5dd91f70c71f8a2197b5abf3edf6dbaf1b9d76d30960693b30c3119aaa08270d"
+      },
+      "shear_y": {
+        "shape": [
+          5788,
+          10
+        ],
+        "dtype": "float64",
+        "sha256": "f3e4d9defbc445f51b0094405dd20862d84d9346ac3af6c8773ce09b84294007"
+      },
+      "time": {
+        "shape": [
+          5788
+        ],
+        "dtype": "float64",
+        "sha256": "e1b0d86538452a4a307dbbe138c0c803a58e8dbf555e490a503657cadd742124"
+      }
+    }
+  },
+  "csv_files": {
+    "absolute_displacement_x.csv": {
+      "rows": 5789,
+      "bytes": 1139135,
+      "sha256": "76f217a67cc21f3a3644f35fe78c451ca09f9324b2e2c77c73929315f4423f8e"
+    },
+    "absolute_displacement_y.csv": {
+      "rows": 5789,
+      "bytes": 1146871,
+      "sha256": "334143b9fdb8878738af44316968dfb84f98a13af7e632b3d65424a52e65fd3e"
+    },
+    "floor_acceleration_x.csv": {
+      "rows": 5789,
+      "bytes": 1343136,
+      "sha256": "c5caf2746f5c31b37c76f54efc399e638b738c8a645e3ae32b44ab915405b050"
+    },
+    "floor_acceleration_y.csv": {
+      "rows": 5789,
+      "bytes": 1340174,
+      "sha256": "777e74fd3f99a6e78ac40f87a0ad4d9819c23b5e71bbad3b0f815787392c5ccf"
+    },
+    "floor_acceleration_z.csv": {
+      "rows": 5789,
+      "bytes": 1289141,
+      "sha256": "b19bf4aeacf72c0d06ecc48ad898ee84562e6022ca0caedd49faa2d56a78518e"
+    },
+    "joint_rotation.csv": {
+      "rows": 5789,
+      "bytes": 842066,
+      "sha256": "8a9f5520b7925bbc7dc447b836eaeff75e771b8091c3c2370597d509ae94bdee"
+    },
+    "rebar_strain_all.csv": {
+      "rows": 5789,
+      "bytes": 3839440,
+      "sha256": "93888839938ec7b252192539146a78892831977fcbad7f2f21c37d05664a5ec1"
+    },
+    "rebar_strain_selected.csv": {
+      "rows": 5789,
+      "bytes": 520317,
+      "sha256": "e746a9adefad10654e437faf5d8dfac45d4b4c400a66dc599b58a74b4aa3de47"
+    },
+    "story_displacement_x.csv": {
+      "rows": 5789,
+      "bytes": 1180934,
+      "sha256": "0629292d170582bf2153ad52886fb46e76645305e4f74c3440935c8ddeb3c12d"
+    },
+    "story_displacement_y.csv": {
+      "rows": 5789,
+      "bytes": 1151435,
+      "sha256": "7113554bcd8a5cbfb7641f33e3d05c0a65e3d220796eb1e160be63001a9c0e30"
+    },
+    "story_drift_x.csv": {
+      "rows": 5789,
+      "bytes": 1350383,
+      "sha256": "42da0a2a0c5a1909ebe641047bcb58eaf7f3fd4a67e12b8d4d7458ef70c2e6da"
+    },
+    "story_drift_y.csv": {
+      "rows": 5789,
+      "bytes": 1323828,
+      "sha256": "3027f60477822588a9adc8ffd6700fc827f2a1a58f7525346047fba62d0e5e6a"
+    },
+    "story_shear_x.csv": {
+      "rows": 5789,
+      "bytes": 1157263,
+      "sha256": "d0a584c999acfd98599dd38e5ffdef6ce8b8c48678aa0047f73f80be21a8dcd3"
+    },
+    "story_shear_y.csv": {
+      "rows": 5789,
+      "bytes": 1153162,
+      "sha256": "4e04e4cacc77576ea17c43d1a8de0f51b0ae804a9328cf8a4a99187c2c4e36f7"
+    },
+    "table_acceleration.csv": {
+      "rows": 5789,
+      "bytes": 392126,
+      "sha256": "a751ecc56ff0c432ca7a1f66c70a392e8e383c9154e971b5109dda11df8c182d"
+    }
+  }
+}

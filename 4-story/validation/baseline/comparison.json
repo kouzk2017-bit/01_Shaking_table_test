@@ -1,0 +1,10 @@
+{
+  "case_index": 14,
+  "case_name": "20101217-4(JRTakatori60%)",
+  "same_matrix_size": true,
+  "same_time_vector": true,
+  "same_variable_names": true,
+  "exact_numeric_match": true,
+  "max_absolute_difference": 0,
+  "pass": true
+}
