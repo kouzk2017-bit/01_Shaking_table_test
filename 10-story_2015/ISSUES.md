@@ -7,13 +7,6 @@
 - 影响：其他工况不会由该入口自动处理。
 - 后续条件：扩展工况前需确认 JB04、JB05、JB06、JB16 通道布局及残余应变继承关系。
 
-## ISSUE-002：钢筋应变成图依赖项目外公共代码
-
-- 状态：已知依赖
-- 现象：`plot_rebar_strain_results.m` 使用 `03_Common_Code/plotting/matlab/plot_style.m`。
-- 影响：计算结果不受影响，但独立复制本项目时成图入口可能缺少依赖。
-- 后续条件：需要独立分发时，将公共绘图依赖作为明确环境要求或打包副本。
-
 ## 非阻塞代码检查项
 
 MATLAB R2026a 静态检查共报告 23 条既有提示；`project_config.m`、`plot_rebar_strain_results.m`、`Fn_Resampling.m` 和 `function_gosa.m` 无提示。路径重构阶段未修改信号处理、人工修正或残余量继承算法。
@@ -25,7 +18,7 @@ MATLAB R2026a 静态检查共报告 23 条既有提示；`project_config.m`、`p
 - `Joint_Rad.m:26`：`NBRAK2`，存在不必要的方括号。
 - `Rebar_Strain.m:730`：`DEFNU`，局部函数可能未使用；`Rebar_Strain.m:795` 为代码分析器隐藏消息提示。
 
-## ISSUE-003：旧 MATLAB 目录暂留两个被占用副本
+## ISSUE-002：旧 MATLAB 目录暂留两个被占用副本
 
 - 状态：已解决（2026-07-29）
 - 原文件：`matlab/PLOTTING_WORKFLOW.md`、`matlab/plot_rebar_strain_results.m`

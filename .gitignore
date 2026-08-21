@@ -1,9 +1,23 @@
 # Large experimental datasets and generated analysis outputs
 **/data/
 **/results/
+!/results/
+!/results/README.md
+/results/archive/
+!/results/2015/
+/results/2015/*
+!/results/2018/
+/results/2018/*
 
 # Archived source material and large supporting documents
-/legacy/
+!/legacy/
+/legacy/*
+!/legacy/matlab_archive/
+/legacy/matlab_archive/*
+!/legacy/matlab_archive/10-story_2015/
+!/legacy/matlab_archive/10-story_2015/**
+!/legacy/matlab_archive/10-story_2018/
+!/legacy/matlab_archive/10-story_2018/**
 **/documents/
 /drawings/
 

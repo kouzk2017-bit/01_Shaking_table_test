@@ -3,13 +3,12 @@
 from __future__ import annotations
 
 from pathlib import Path
+import sys
 
-import matplotlib
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt
 import numpy as np
 
 from config import (
+    CASE_NAME,
     DATA_DIRECTORY,
     FIGURE_DIRECTORY,
     PLOT_END,
@@ -17,7 +16,11 @@ from config import (
     REBAR_CHANNELS,
     REBAR_PLOT_CHANNELS,
 )
-from plot_results import apply_style, format_axis, save
+
+COMMON_PYTHON = Path(__file__).resolve().parents[3] / "common" / "python"
+sys.path.insert(0, str(COMMON_PYTHON))
+
+from plot_csv_results import plot_rebar_strain_figure
 
 
 def _key(group: str) -> str:
@@ -34,16 +37,13 @@ def _trace(data: np.lib.npyio.NpzFile, group: str) -> np.ndarray:
 
 
 def _plot_floor(time: np.ndarray, beam: np.ndarray, column: np.ndarray, floor: int, stem: Path) -> None:
-    mask = (time >= PLOT_START) & (time <= PLOT_END)
-    fig, ax = plt.subplots(figsize=(6.0, 4.5))
-    ax.plot(time[mask], column[mask], color="#0000FF", label="Column longitudinal rebar")
-    ax.plot(time[mask], beam[mask], color="#FF0000", linestyle="--", label="Beam longitudinal rebar")
-    format_axis(ax, "Time (s)", r"$\epsilon/\epsilon_y$", legend=True)
-    ax.set_xlim(PLOT_START, PLOT_END)
-    ax.set_xticks(np.arange(PLOT_START, PLOT_END + 0.1, 5.0))
-    ax.set_ylim(-2.0, 8.0)
-    ax.set_yticks(np.arange(-2.0, 8.1, 1.0))
-    save(fig, stem)
+    plot_rebar_strain_figure(
+        time,
+        beam,
+        column,
+        stem,
+        time_window=(PLOT_START, PLOT_END),
+    )
 
 
 def process() -> list[Path]:
@@ -52,12 +52,11 @@ def process() -> list[Path]:
         raise FileNotFoundError(f"Run process_rebar_strain.py first: {source}")
     data = np.load(source)
     time = data["time"]
-    apply_style()
     generated: list[Path] = []
     for offset, floor in enumerate((4, 6), start=7):
-        stem = FIGURE_DIRECTORY / f"chart_{offset:03d}_2018 {floor}F Rebar Strain"
+        stem = FIGURE_DIRECTORY / f"chart_{offset:03d}_{CASE_NAME} {floor}F Rebar Strain"
         _plot_floor(time, _trace(data, f"{floor}F_beam"), _trace(data, f"{floor}F_column"), floor, stem)
-        generated.extend([stem.with_suffix(".png"), stem.with_suffix(".pdf")])
+        generated.append(stem.with_suffix(".png"))
     return generated
 
 

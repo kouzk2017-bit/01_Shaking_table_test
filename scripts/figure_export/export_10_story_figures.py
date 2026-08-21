@@ -1,11 +1,8 @@
-"""Export selected 2015 10-story figures as PNG files.
+"""Export the 2015 10-story 4F/6F result figures as 600 dpi PNG files.
 
-Charts 1--6 come from cached OOXML chart data in
-``deliverables/spreadsheets/10_story.xlsx``.  The 4F and 6F strain histories
-come from configurable cells in the migrated
-``10-story_2015/results/spreadsheets`` workbook.  Only the 2015 charts 1--6
-are exported.  The source workbooks are opened read-only and each result is
-saved as one 600 dpi PNG.
+All drift, joint-deformation, shear, and strain curves are read from workbook
+cells.  The contribution bars are recalculated from the selected time-history
+peaks; embedded Excel chart caches are not used.
 """
 
 from __future__ import annotations
@@ -18,34 +15,51 @@ import sys
 from xml.etree import ElementTree as ET
 from zipfile import ZipFile
 
+import matplotlib
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-from matplotlib.ticker import StrMethodFormatter
+import numpy as np
 
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 WORKSPACE_DIRECTORY = SCRIPT_DIRECTORY.parents[1]
-PHD_ROOT = WORKSPACE_DIRECTORY.parents[1]
-COMMON_PYTHON = PHD_ROOT / "03_Common_Code" / "plotting" / "python"
+COMMON_PYTHON = WORKSPACE_DIRECTORY / "common" / "python"
+ARCHIVED_2015_RESULTS = (
+    WORKSPACE_DIRECTORY
+    / "results"
+    / "archive"
+    / "2026-07-30_before_cleanup"
+    / "2015"
+)
 sys.path.insert(0, str(COMMON_PYTHON))
 
-from excel_chart_renderer import ChartData, read_excel_charts  # noqa: E402
-from plot_style import apply_plot_style, format_axis, resolve_plot_style  # noqa: E402
+from publication_style import (  # noqa: E402
+    COLORS,
+    apply_style,
+    format_axis,
+    save_figure,
+)
+from plot_csv_results import (  # noqa: E402
+    draw_contribution_bars,
+    draw_selected_peak_markers,
+    format_hysteresis_limits,
+    format_time_history_limits,
+    plot_rebar_strain_figure,
+    select_peaks,
+)
 
 
 DEFAULT_WORKBOOK = (
-    WORKSPACE_DIRECTORY / "deliverables" / "spreadsheets" / "10_story.xlsx"
+    ARCHIVED_2015_RESULTS / "deliverables" / "spreadsheets" / "10_story.xlsx"
 )
 DEFAULT_STRAIN_WORKBOOK = (
-    WORKSPACE_DIRECTORY
-    / "10-story_2015"
-    / "results"
+    ARCHIVED_2015_RESULTS
     / "spreadsheets"
     / "Strain_Grouped_75_104_180_184"
     / "Strain_Grouped_75_104_180_184_20151211-2(JMAKobe100%).xlsx"
 )
-DEFAULT_OUTPUT = (
-    WORKSPACE_DIRECTORY / "deliverables" / "figures" / "10_story_2015"
-)
+CASE_NAME_2015 = "20151211-2(JMAKobe100%)"
+DEFAULT_OUTPUT = WORKSPACE_DIRECTORY / "results" / "2015" / CASE_NAME_2015
 
 
 @dataclass(frozen=True)
@@ -54,7 +68,7 @@ class StrainSeries:
     excel_columns: tuple[str, str]
     source_columns: tuple[int, int]
     labels: tuple[str, str]
-    colors: tuple[str, str] = ("#D7191C", "#2166AC")
+    colors: tuple[str, str] = (COLORS["accent"], COLORS["primary"])
 
 
 # Only change this block when the strain source layout changes.
@@ -79,12 +93,12 @@ STRAIN_SERIES = (
 
 # Descriptive titles replace the workbook's blank chart titles.
 CHART_TITLES = {
-    1: "2015 4F Joint Deformation and Story Drift",
-    2: "2015 6F Joint Deformation and Story Drift",
-    3: "2015 4F Joint-Deformation Contribution",
-    4: "2015 6F Joint-Deformation Contribution",
-    5: "2015 4F Story Drift-Shear Force Relationship",
-    6: "2015 6F Story Drift-Shear Force Relationship",
+    1: f"{CASE_NAME_2015} 4F Joint Deformation and Story Drift",
+    2: f"{CASE_NAME_2015} 6F Joint Deformation and Story Drift",
+    3: f"{CASE_NAME_2015} 4F Joint-Deformation Contribution",
+    4: f"{CASE_NAME_2015} 6F Joint-Deformation Contribution",
+    5: f"{CASE_NAME_2015} 4F Story Drift-Shear Force Relationship",
+    6: f"{CASE_NAME_2015} 6F Story Drift-Shear Force Relationship",
 }
 
 
@@ -116,83 +130,74 @@ def _safe_name(value: str) -> str:
     return cleaned[:100] or "untitled"
 
 
-def _save_figure(fig, output_stem: Path) -> tuple[Path]:
-    """Save one publication-style 600 dpi PNG."""
-    style = resolve_plot_style("paper")
-    output_stem.parent.mkdir(parents=True, exist_ok=True)
-    fig.tight_layout()
-    png_path = output_stem.with_suffix(".png")
-    fig.savefig(png_path, dpi=style.dpi, bbox_inches="tight", facecolor="white")
-    plt.close(fig)
-    return (png_path,)
+def _save_figure(fig, output_stem: Path) -> tuple[Path, ...]:
+    """Save one publication figure as a 600 dpi PNG and vector PDF."""
+    return save_figure(fig, output_stem, formats=("png", "pdf"), mode="paper")
 
 
-def draw_embedded_chart(
-    chart: ChartData,
+def four_consecutive_peaks(
+    time: np.ndarray,
+    drift: np.ndarray,
+    direction: int,
+) -> np.ndarray:
+    """Return the shared first four significant, separated peaks."""
+    if direction not in (-1, 1):
+        raise ValueError("Peak direction must be -1 or 1")
+    selected, _ = select_peaks(
+        time,
+        drift,
+        mode="max" if direction > 0 else "min",
+        count=4,
+        time_window=(10.0, 30.0),
+        significance_fraction=0.30,
+        minimum_separation_s=0.50,
+    )
+    return selected
+
+
+def draw_time_history(
+    time: np.ndarray,
+    joint: np.ndarray,
+    drift: np.ndarray,
+    peaks: np.ndarray,
+    title: str,
     output_stem: Path,
- ) -> tuple[Path]:
-    style = apply_plot_style("paper")
+) -> tuple[Path]:
+    style = apply_style("paper")
     fig, ax = plt.subplots(figsize=style.figure_size)
-    primary_type = chart.chart_types[0]
-    colors = plt.rcParams["axes.prop_cycle"].by_key()["color"]
+    ax.plot(time, joint, color=COLORS["primary"], label="Joint deformation")
+    ax.plot(time, drift, color=COLORS["accent"], linestyle="--", label="Story drift")
+    format_axis(ax, xlabel="Time (s)", ylabel="Drift (rad)", title=title, legend=True)
+    format_time_history_limits(ax)
+    draw_selected_peak_markers(ax, time, drift, peaks, mode="min")
+    return _save_figure(fig, output_stem)
 
-    # Excel sometimes stores single-point helper series named "Series 3", etc.
-    # When named data series exist, omit those helper series from clean exports.
-    named_series = tuple(
-        series for series in chart.series
-        if not re.fullmatch(r"Series \d+", series.name, flags=re.IGNORECASE)
-    )
-    plot_series = named_series or chart.series
 
-    if primary_type == "barChart":
-        categories = tuple(str(value) for value in plot_series[0].x)
-        centers = list(range(len(categories)))
-        width = 0.35 / max(len(plot_series), 1)
-        for index, series in enumerate(plot_series):
-            offset = (index - (len(plot_series) - 1) / 2) * width
-            ax.bar(
-                [center + offset for center in centers], series.y,
-                width=width, label=series.name,
-            )
-        ax.set_xticks(centers, categories)
-    else:
-        for index, series in enumerate(plot_series):
-            is_story_drift = series.name.strip().lower() == "story drift"
-            color = "#D7191C" if is_story_drift else colors[index % len(colors)]
-            line_style = "--" if is_story_drift else "-"
-            ax.plot(
-                series.x,
-                series.y,
-                label=series.name,
-                color=color,
-                linestyle=line_style,
-            )
+def draw_contribution(
+    joint: np.ndarray,
+    drift: np.ndarray,
+    peaks: np.ndarray,
+    title: str,
+    output_stem: Path,
+) -> tuple[Path]:
+    style = apply_style("paper")
+    contribution = np.abs(joint[peaks] / drift[peaks])
+    fig, ax = plt.subplots(figsize=style.figure_size)
+    draw_contribution_bars(ax, contribution, labels="ABCD", title=title)
+    return _save_figure(fig, output_stem)
 
-    format_axis(
-        ax,
-        xlabel=chart.xlabel or None,
-        ylabel=chart.ylabel or None,
-        title=CHART_TITLES.get(chart.index, chart.title),
-        legend=len(plot_series) > 1,
-    )
-    # Keep both axis lines connected while giving all tick numbers more room.
-    ax.tick_params(axis="x", pad=10)
-    ax.tick_params(axis="y", pad=10)
-    if chart.x_limits[0] is not None or chart.x_limits[1] is not None:
-        ax.set_xlim(left=chart.x_limits[0], right=chart.x_limits[1])
-    if chart.y_limits[0] is not None or chart.y_limits[1] is not None:
-        ax.set_ylim(bottom=chart.y_limits[0], top=chart.y_limits[1])
 
-    if chart.index in {1, 2}:
-        # Drift time histories: use uncluttered integer ticks every five seconds.
-        ax.set_xlim(10, 30)
-        ax.set_xticks(range(10, 31, 5))
-        ax.xaxis.set_major_formatter(StrMethodFormatter("{x:.0f}"))
-    if chart.index in {5, 6}:
-        # Use identical drift ranges for direct comparison of the two loops.
-        ax.set_xlim(-0.04, 0.04)
-        ax.set_xticks([-0.04, -0.02, 0.00, 0.02, 0.04])
-
+def draw_hysteresis(
+    drift: np.ndarray,
+    shear: np.ndarray,
+    title: str,
+    output_stem: Path,
+) -> tuple[Path]:
+    style = apply_style("paper")
+    fig, ax = plt.subplots(figsize=style.figure_size)
+    ax.plot(drift, shear, color=COLORS["primary"])
+    format_axis(ax, xlabel="Story drift (rad)", ylabel="Shear force (kN)", title=title, legend=False)
+    format_hysteresis_limits(ax)
     return _save_figure(fig, output_stem)
 
 
@@ -297,29 +302,13 @@ def draw_strain_figure(
     case_name: str,
     output_stem: Path,
 ) -> tuple[Path]:
-    style = apply_plot_style("paper")
-    fig, ax = plt.subplots(figsize=style.figure_size)
-    for values, label, _source_column, color in zip(
-        series_values, series.labels, series.source_columns, series.colors
-    ):
-        ax.plot(time_values, values, label=label, color=color)
-
-    format_axis(
-        ax,
-        xlabel="Time (s)",
-        ylabel=r"$\epsilon/\epsilon_y$",
+    return plot_rebar_strain_figure(
+        np.asarray(time_values, dtype=float),
+        np.asarray(series_values[0], dtype=float),
+        np.asarray(series_values[1], dtype=float),
+        output_stem,
         title=f"{case_name} - {series.member}",
-        legend=True,
     )
-    # Match the spacing used by the other figures without moving either axis line.
-    ax.tick_params(axis="x", pad=10)
-    ax.tick_params(axis="y", pad=10)
-    ax.legend(loc="upper right", frameon=False, fontsize=style.legend_size)
-    ax.set_xlim(10, 30)
-    ax.set_xticks(range(10, 31, 5))
-    ax.set_ylim(-3, 8)
-    ax.set_yticks(range(-3, 9))
-    return _save_figure(fig, output_stem)
 
 
 def render_mode(
@@ -340,20 +329,80 @@ def render_mode(
     output_dir.mkdir(parents=True, exist_ok=True)
     outputs: list[Path] = []
 
-    available_charts = read_excel_charts(workbook)
-    available_indices = {chart.index for chart in available_charts}
-    missing_indices = sorted(chart_indices - available_indices)
-    if missing_indices:
-        raise ValueError(f"Requested chart indices do not exist: {missing_indices}")
+    drift_columns = read_numeric_columns(
+        workbook,
+        "Drift_2015",
+        ("A", "B", "C", "E", "F", "G"),
+        4,
+    )
+    joint_time = np.asarray(drift_columns["A"], dtype=float)
+    drift_time = np.asarray(drift_columns["E"], dtype=float)
+    if joint_time.shape != drift_time.shape or not np.allclose(joint_time, drift_time, rtol=0.0, atol=1e-12):
+        raise ValueError("2015 joint-deformation and story-drift time axes do not match")
 
-    for chart in available_charts:
-        if chart.index not in chart_indices:
-            continue
-        if "ε/εy" in chart.ylabel or "strain" in chart.title.lower():
-            continue
-        title = CHART_TITLES.get(chart.index, chart.title)
-        stem = output_dir / f"chart_{chart.index:03d}_{_safe_name(title)}"
-        outputs.extend(draw_embedded_chart(chart, stem))
+    shear_columns = read_numeric_columns(
+        workbook,
+        "Drift_Shear_2015",
+        ("B", "C", "F", "G"),
+        4,
+    )
+    floor_columns = {
+        4: ("B", "F", "B", "F"),
+        6: ("C", "G", "C", "G"),
+    }
+    for offset, floor in enumerate((4, 6)):
+        joint_column, drift_column, hysteresis_drift_column, shear_column = floor_columns[floor]
+        joint = np.asarray(drift_columns[joint_column], dtype=float)
+        drift = np.asarray(drift_columns[drift_column], dtype=float)
+        peaks = four_consecutive_peaks(drift_time, drift, direction=-1)
+
+        time_chart_index = 1 + offset
+        if time_chart_index in chart_indices:
+            title = CHART_TITLES[time_chart_index]
+            outputs.extend(
+                draw_time_history(
+                    drift_time,
+                    joint,
+                    drift,
+                    peaks,
+                    title,
+                    output_dir / f"chart_{time_chart_index:03d}_{_safe_name(title)}",
+                )
+            )
+
+        contribution_chart_index = 3 + offset
+        if contribution_chart_index in chart_indices:
+            title = CHART_TITLES[contribution_chart_index]
+            outputs.extend(
+                draw_contribution(
+                    joint,
+                    drift,
+                    peaks,
+                    title,
+                    output_dir / f"chart_{contribution_chart_index:03d}_{_safe_name(title)}",
+                )
+            )
+
+        hysteresis_chart_index = 5 + offset
+        if hysteresis_chart_index in chart_indices:
+            title = CHART_TITLES[hysteresis_chart_index]
+            outputs.extend(
+                draw_hysteresis(
+                    np.asarray(shear_columns[hysteresis_drift_column], dtype=float),
+                    np.asarray(shear_columns[shear_column], dtype=float),
+                    title,
+                    output_dir / f"chart_{hysteresis_chart_index:03d}_{_safe_name(title)}",
+                )
+            )
+
+        contribution = np.abs(joint[peaks] / drift[peaks])
+        print(
+            f"2015 {floor}F peaks: "
+            + ", ".join(
+                f"{label}={drift_time[index]:.2f}s ({value:.1%})"
+                for label, index, value in zip("ABCD", peaks, contribution)
+            )
+        )
 
     requested_columns = [time_column]
     for strain_series in STRAIN_SERIES:
@@ -365,7 +414,7 @@ def render_mode(
         data_start_row,
     )
     time_values = column_data[time_column.upper()]
-    case_name = "20151211-2(JMAKobe100%)"
+    case_name = CASE_NAME_2015
     for strain_series in STRAIN_SERIES:
         values = tuple(column_data[column] for column in strain_series.excel_columns)
         stem = output_dir / f"{case_name}_{strain_series.member}"

@@ -1,49 +1,47 @@
-# 2018 E-Defense 10-story Python processing
+# 2018 ten-story Python workflow
 
-This directory processes only case 20: `20190109-2(JMAKobe100%)`.
-Existing MATLAB files and MATLAB-generated results are not modified.
-
-From this directory, run with Python 3 available in the active environment:
+`run_pipeline.py` is the active entry for all ten raw-data-complete loading
+cases. Raw files under `data/raw/` are read only. Results are written under
+the workspace-level `results/2018/<case>/` directory.
 
 ```powershell
-python run_case20.py
+python run_pipeline.py --list-cases
+python run_pipeline.py --case 20
+python run_pipeline.py --all-loading
+python plot_from_csv.py --case 20
+python run_pipeline.py --case 20 --then-plot
+python validate_against_matlab.py --case 20
 ```
 
-The workflow is intentionally separated into calculation modules:
+The calculation stage writes CSV files directly for floor/table acceleration,
+story shear, story displacement/drift, absolute and accumulated displacement,
+joint rotation and, where JB04/JB05/JB06 exist, rebar strain. `plot_from_csv.py`
+reads only CSV files; raw data, Excel and NPZ files are not plotting inputs. Use
+it by itself after changing figure format, axes, colours or font sizes.
+`--then-plot` is only an explicit convenience for a full raw-to-figure rerun.
+All plotting entries share `common/python/publication_style.py`; the default
+`paper` mode writes matching 600 dpi PNG and vector PDF files.
 
-- `process_acceleration.py`: 1F--RF and table acceleration
-- `process_story_shear.py`: 1F--10F story shear
-- `process_story_drift.py`: story displacement, story drift, absolute displacement
-- `process_joint_rotation.py`: JNT1--JNT6 rotations
-- `plot_results.py`: six 4F/6F publication figures
-- `export_tabular.py`: CSV tables and processing metadata
-- `process_rebar_strain.py`: 4F/6F longitudinal-rebar strain calculation
-- `plot_rebar_strain.py`: 4F/6F publication-style rebar-strain figures
+Peak selection and figure appearance are kept in the shared
+`common/config/plot_config.json`. The 2018
+rule selects the four highest local positive-drift peaks in 10--30 s, applies no
+minimum time separation, and labels the selected samples A--D chronologically.
+The contribution is `abs(joint rotation / story drift) * 100`. Each plot run
+writes the exact samples to `csv/selected_peaks.csv` and source hashes to
+`plot_metadata.json`. Optional manual times can be added per case and floor in
+`manual_peak_times_s`.
 
-All results are written below:
+```json
+"manual_peak_times_s": {
+  "20190109-2(JMAKobe100%)": {"4F": [13.00, 14.00, 16.00, 18.00]}
+}
+```
 
-`../../results/python/20190109-2(JMAKobe100%)/`
+Case 20 deterministic outputs match the archived MATLAB workbooks. Its old
+accumulated-displacement sheets used a stale `residual_disp_7.mat` that differs
+from the current MATLAB algorithm from the first loading case. The Python
+workflow therefore rebuilds the residual chain from raw data and records the
+historical state mismatch in `validation_against_matlab.json`.
 
-## Legacy manual corrections retained
-
-1. NW/SE horizontal acceleration replacement is applied only when their
-   difference exceeds `1 m/s2`; the larger absolute value is replaced.
-2. The old `j==3` acceleration interval around `18.398--18.998 s` is
-   replaced with the corresponding `29.999 s` value for 2F--RF.
-3. 8F NW bottom X displacement is replaced by 8F NW top X.
-4. 10F SE bottom X displacement is replaced by 10F SE top X.
-5. Story displacement uses the four-gauge NW/SE top/bottom average.
-6. Story shear is low-pass filtered at 50 Hz before 100 Hz output.
-
-## Rebar-strain treatment
-
-1. Only case 20 is used; previous-case residual strain is not inherited because
-   the earlier cases do not contain the same JB04/JB06 acquisition layout.
-2. The mean of the first 1 s is subtracted independently from every channel.
-3. No high-pass filter is applied, so the plastic residual-strain plateau is kept.
-4. The legacy mirrored-FFT method resamples 1000 Hz data to 100 Hz.
-5. Strain is normalized by the 2015 yield strain of 2000 microstrain.
-6. All longitudinal candidates are exported; stirrup channels are excluded.
-7. Publication plots currently use JB04 CH41/CH14 for the 4F beam/column and
-   JB06 CH52/CH61 for the 6F beam/column. These choices were selected by matching
-   peak timing and rise/fall direction and are editable in `config.py`.
+The older `run_case20.py` modules remain temporarily for provenance of earlier
+Python results, but they are not the formal workflow.

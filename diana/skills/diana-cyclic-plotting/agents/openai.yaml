@@ -1,0 +1,4 @@
+interface:
+  display_name: "DIANA Cyclic Plotting"
+  short_description: "Process DIANA cyclic-test CSV data and prepare comparison plots."
+  default_prompt: "Use $diana-cyclic-plotting to process the current DIANA CSV exports and prepare the cyclic comparison data."
