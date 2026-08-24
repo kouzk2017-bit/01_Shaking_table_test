@@ -20,6 +20,10 @@ record the first as the canonical response and treat the rest as duplicate
 instrumentation. If any value differs, preserve the raw file and require an explicit
 mapping.
 
+## Curve-source registry
+
+`prepare_cyclic_comparison_data.py` regenerates `results/diana/cyclic_axial_force_comparison/curve-source-registry.csv` on every non-dry processing run after validating the current raw exports. The filterable registry is the maintained record of each curve's selected response, node/element metadata, duplicate-column status, case-ID filter, output CSV, and conversion or normalization.
+
 ## Derived columns
 
 | Output column | Definition | Unit |

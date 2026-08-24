@@ -78,15 +78,18 @@ def case_id(row: dict[str, str]) -> int:
     return int(match.group(1))
 
 
-def first_response_column(headers: Iterable[str], rows: list[dict[str, str]]) -> str:
-    """Return the first response only after every populated response column matches."""
+def verified_response_columns(
+    headers: Iterable[str],
+    rows: list[dict[str, str]],
+) -> tuple[str, ...]:
+    """Return verified identical response columns, preserving export order."""
     identifiers = {"case label", "case id", "load factor"}
-    columns = [
+    columns = tuple(
         header
         for header in headers
         if header not in identifiers
         and any(as_float(row.get(header)) is not None for row in rows)
-    ]
+    )
     if not columns:
         raise ValueError("No populated response column found")
     canonical = columns[0]
@@ -110,7 +113,12 @@ def first_response_column(headers: Iterable[str], rows: list[dict[str, str]]) ->
                 f"Populated response columns differ: {canonical!r} and {header!r}; "
                 f"explicit mapping required (first mismatching case ID: {mismatch})"
             )
-    return canonical
+    return columns
+
+
+def first_response_column(headers: Iterable[str], rows: list[dict[str, str]]) -> str:
+    """Return the canonical first response after generic duplicate verification."""
+    return verified_response_columns(headers, rows)[0]
 
 def indexed_rows(rows: list[dict[str, str]]) -> dict[int, dict[str, str]]:
     values = {case_id(row): row for row in rows}
@@ -236,6 +244,74 @@ def prepare_joint_stirrup_condition(
     print(f"Wrote {len(prepared)} rows: {output}")
     return output
 
+
+CURVE_SOURCE_REGISTRY = (
+    Path(__file__).resolve().parents[3]
+    / "results"
+    / "diana"
+    / "cyclic_axial_force_comparison"
+    / "curve-source-registry.csv"
+)
+CONDITION_LABELS = {
+    "origin": "原轴力",
+    "50pct_axial_force": "50%减轴力",
+}
+
+
+def _node_element_metadata(header: str) -> tuple[str, str]:
+    match = re.search(r"node\s+(\d+)\s+element\s+(\d+)", header, re.IGNORECASE)
+    return (match.group(1), match.group(2)) if match else ("", "")
+
+
+def _registry_row(
+    raw_root: Path,
+    condition: Condition,
+    curve: str,
+    filename: str,
+    output_csv: str,
+    conversion: str,
+) -> dict[str, str]:
+    source = raw_root / condition.name / filename
+    headers, rows = load_diana_rows(source)
+    columns = verified_response_columns(headers, rows)
+    selected = columns[0]
+    node_tag, element_tag = _node_element_metadata(selected)
+    return {
+        "工况": CONDITION_LABELS[condition.name],
+        "工况代码": condition.name,
+        "曲线": curve,
+        "原始CSV": source.relative_to(raw_root.parent.parent).as_posix(),
+        "处理后CSV": f"data/processed/{condition.name}/{output_csv}",
+        "选用响应列": selected,
+        "节点": node_tag,
+        "单元": element_tag,
+        "有效响应列数": str(len(columns)),
+        "重复响应列": "; ".join(columns[1:]),
+        "重复列核验": "所有Load-step逐行完全一致",
+        "保留工况步": "11–850",
+        "排除工况步": "1–10（轴力加载）",
+        "换算/归一化": conversion,
+    }
+
+
+def write_curve_source_registry(raw_root: Path) -> Path:
+    """Rewrite the filterable skill-owned curve mapping registry from raw exports."""
+    rows: list[dict[str, str]] = []
+    for condition in CONDITIONS:
+        rows.extend((
+            _registry_row(raw_root, condition, "层剪力—层间位移角", condition.shear_file, "cyclic_response.csv", "剪力 N → kN；层间位移角 = load factor × 0.025 rad"),
+            _registry_row(raw_root, condition, "梁纵筋应变", condition.beam_file, "cyclic_response.csv", "应变 / 0.002"),
+            _registry_row(raw_root, condition, "柱纵筋应变", condition.column_file, "cyclic_response.csv", "应变 / 0.002"),
+            _registry_row(raw_root, condition, "节点箍筋应变", JOINT_STIRRUP_FILES[condition.name], "joint_stirrup_response.csv", "EXX / 0.002"),
+        ))
+    CURVE_SOURCE_REGISTRY.parent.mkdir(parents=True, exist_ok=True)
+    with CURVE_SOURCE_REGISTRY.open("w", newline="", encoding="utf-8-sig") as stream:
+        writer = csv.DictWriter(stream, fieldnames=list(rows[0]))
+        writer.writeheader()
+        writer.writerows(rows)
+    print(f"Updated curve-source registry: {CURVE_SOURCE_REGISTRY}")
+    return CURVE_SOURCE_REGISTRY
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--dry-run", action="store_true", help="Validate inputs without writing CSV files")
@@ -246,6 +322,8 @@ def main() -> int:
     for condition in CONDITIONS:
         prepare_condition(raw_root, processed_root, condition, args.dry_run)
         prepare_joint_stirrup_condition(raw_root, processed_root, condition, args.dry_run)
+    if not args.dry_run:
+        write_curve_source_registry(raw_root)
     return 0
 
 

@@ -29,6 +29,10 @@ Run `diana/code/python/prepare_cyclic_comparison_data.py --dry-run` before any
 processing change. Run it without `--dry-run` to produce the two standardized
 `cyclic_response.csv` files. It does not generate figures.
 
+## Curve-source registry
+
+Every non-dry processing run must refresh `results/diana/cyclic_axial_force_comparison/curve-source-registry.csv`. It is a filterable CSV and records, for both conditions, each plotted response's raw CSV, selected response column, node and element identifiers, duplicate-column verification, case-ID filter, output CSV, and unit/normalization or derived-value rules. Do not hand-edit it or reuse a stale mapping.
+
 ## Plotting requirements
 
 When the user asks for figures, make one overlaid original-versus-reduced-axial-force
