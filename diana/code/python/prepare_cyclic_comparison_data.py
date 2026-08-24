@@ -79,13 +79,38 @@ def case_id(row: dict[str, str]) -> int:
 
 
 def first_response_column(headers: Iterable[str], rows: list[dict[str, str]]) -> str:
-    """Select the first populated DIANA response column after identifier fields."""
+    """Return the first response only after every populated response column matches."""
     identifiers = {"case label", "case id", "load factor"}
-    for header in headers:
-        if header not in identifiers and any(as_float(row.get(header)) is not None for row in rows):
-            return header
-    raise ValueError("No populated response column found")
-
+    columns = [
+        header
+        for header in headers
+        if header not in identifiers
+        and any(as_float(row.get(header)) is not None for row in rows)
+    ]
+    if not columns:
+        raise ValueError("No populated response column found")
+    canonical = columns[0]
+    canonical_values = [as_float(row.get(canonical)) for row in rows]
+    if any(value is None for value in canonical_values):
+        raise ValueError(f"Missing response data in canonical column {canonical!r}")
+    for header in columns[1:]:
+        values = [as_float(row.get(header)) for row in rows]
+        if any(value is None for value in values):
+            raise ValueError(f"Missing response data in column {header!r}")
+        mismatch = next(
+            (
+                case_id(row)
+                for row, first, other in zip(rows, canonical_values, values)
+                if first != other
+            ),
+            None,
+        )
+        if mismatch is not None:
+            raise ValueError(
+                f"Populated response columns differ: {canonical!r} and {header!r}; "
+                f"explicit mapping required (first mismatching case ID: {mismatch})"
+            )
+    return canonical
 
 def indexed_rows(rows: list[dict[str, str]]) -> dict[int, dict[str, str]]:
     values = {case_id(row): row for row in rows}
@@ -148,6 +173,69 @@ def prepare_condition(raw_root: Path, processed_root: Path, condition: Condition
     return output
 
 
+
+JOINT_STIRRUP_FILES = {
+    "origin": "Joint_stirrup_strain_origin.csv",
+    "50pct_axial_force": "Joint_stirrup_strain_50%axialforce.csv",
+}
+JOINT_STIRRUP_COLUMNS = (
+    "EXX node 2375 element 1359",
+    "EXX node 2375 element 1360",
+)
+
+
+def prepare_joint_stirrup_condition(
+    raw_root: Path,
+    processed_root: Path,
+    condition: Condition,
+    dry_run: bool,
+) -> Path:
+    """Standardize the canonical first response after exact duplicate checking."""
+    source = raw_root / condition.name / JOINT_STIRRUP_FILES[condition.name]
+    headers, rows = load_diana_rows(source)
+    missing = [column for column in JOINT_STIRRUP_COLUMNS if column not in headers]
+    if missing:
+        raise ValueError(f"Missing joint-stirrup response columns in {source}: {missing}")
+    first, duplicate = JOINT_STIRRUP_COLUMNS
+    mismatches = [
+        case_id(row)
+        for row in rows
+        if as_float(row.get(first)) != as_float(row.get(duplicate))
+    ]
+    if mismatches:
+        raise ValueError(
+            f"Joint-stirrup response columns differ in {source}; explicit mapping required "
+            f"(first mismatching case ID: {mismatches[0]})"
+        )
+    by_case = indexed_rows(rows)
+    cyclic_cases = sorted(case for case in by_case if case > AXIAL_LOAD_STEPS)
+    if not cyclic_cases:
+        raise ValueError(f"No cyclic joint-stirrup cases remain for {condition.name}")
+    prepared = [
+        {
+            "case_id": identifier,
+            "node_tag": 2375,
+            "joint_stirrup_exx": as_float(by_case[identifier].get(first)),
+        }
+        for identifier in cyclic_cases
+    ]
+    if any(row["joint_stirrup_exx"] is None for row in prepared):
+        raise ValueError(f"Missing joint-stirrup response data in {condition.name}")
+    output = processed_root / condition.name / "joint_stirrup_response.csv"
+    if dry_run:
+        print(
+            f"Validated {condition.name} joint stirrup: {len(prepared)} cyclic rows; "
+            f"node=2375; canonical={first}; duplicate={duplicate}"
+        )
+        return output
+    output.parent.mkdir(parents=True, exist_ok=True)
+    with output.open("w", newline="", encoding="utf-8") as stream:
+        writer = csv.DictWriter(stream, fieldnames=list(prepared[0]))
+        writer.writeheader()
+        writer.writerows(prepared)
+    print(f"Wrote {len(prepared)} rows: {output}")
+    return output
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--dry-run", action="store_true", help="Validate inputs without writing CSV files")
@@ -157,6 +245,7 @@ def main() -> int:
     processed_root = workspace / "diana" / "data" / "processed"
     for condition in CONDITIONS:
         prepare_condition(raw_root, processed_root, condition, args.dry_run)
+        prepare_joint_stirrup_condition(raw_root, processed_root, condition, args.dry_run)
     return 0
 
 

@@ -134,6 +134,41 @@ def draw_beam_column_comparison(
     )
 
 
+
+
+def draw_joint_stirrup_comparison(output_directory: Path) -> tuple[Path, ...]:
+    """Overlay the canonical first node-2375 stirrup response for both conditions."""
+    style = apply_style("paper")
+    fig, ax = plt.subplots(figsize=figure_size("paper"))
+    for condition, label, color, line_style in CONDITIONS:
+        source = WORKSPACE / "diana" / "data" / "processed" / condition / "joint_stirrup_response.csv"
+        table = read_table(source)
+        ax.plot(
+            table["case_id"],
+            table["joint_stirrup_exx"] / 0.002,
+            color=color,
+            linestyle=line_style,
+            label=label,
+        )
+    ax.axhline(1.0, color=COLORS["zero"], linestyle=":", linewidth=style.reference_line_width, zorder=0)
+    ax.axhline(-1.0, color=COLORS["zero"], linestyle=":", linewidth=style.reference_line_width, zorder=0)
+    lower, upper = ax.get_ylim()
+    ax.set_yticks(np.arange(np.floor(lower), np.ceil(upper) + 1.0, 1.0))
+    format_axis(
+        ax,
+        xlabel="Analysis step",
+        ylabel=r"Joint stirrup strain, $\epsilon_{\mathrm{xx}}/\epsilon_{\mathrm{y}}$",
+        legend=True,
+        legend_location="best",
+    )
+    add_panel_label(ax, "(f)")
+    return save_figure(
+        fig,
+        output_directory / "06_joint_stirrup_strain_vs_case_id",
+        formats=("svg", "png"),
+        mode="paper",
+    )
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -171,6 +206,7 @@ def main() -> int:
             "05_beam_column_strain_50pct_axial_force",
         )
     )
+    created.extend(draw_joint_stirrup_comparison(args.output_directory))
     print(f"Created {len(created)} files in {args.output_directory}")
     return 0
 

@@ -18,7 +18,10 @@ files under `diana/data/processed/`.
 - For all later records, derive story drift as
   `load factor * 0.025 rad`. This follows 6.5625 mm per 0.1 load-factor increment
   and a 2625 mm story height.
-- Use the first populated response column from each export. Normalize beam and
+- For every exported CSV, identify all populated response columns and verify them
+  over every Load-step before selecting a response. If they are exactly
+  identical, treat them as duplicate instrumentation and retain the first column.
+  Stop and request an explicit mapping if any values differ. Normalize beam and
   column strain by 0.002.
 - Convert DIANA story shear from N to kN.
 

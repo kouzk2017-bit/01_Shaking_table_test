@@ -14,6 +14,12 @@ only rows whose `case label` starts with `Load-step`.
 The first ten case IDs are the axial-force application stage. They are excluded
 from cyclic-response tables and figures.
 
+For every export, identify all populated response columns and compare them over
+every Load-step before selecting a response. If they are exactly identical,
+record the first as the canonical response and treat the rest as duplicate
+instrumentation. If any value differs, preserve the raw file and require an explicit
+mapping.
+
 ## Derived columns
 
 | Output column | Definition | Unit |
