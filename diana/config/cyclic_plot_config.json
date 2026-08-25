@@ -7,7 +7,7 @@
     "axial_load_steps_to_exclude": 10,
     "story_height_mm": 2625.0,
     "displacement_per_load_factor_mm": 65.625,
-    "drift_per_load_factor_rad": 0.025,
+    "drift_per_load_factor_rad": 0.005,
     "yield_strain": 0.002
   },
   "plots": [

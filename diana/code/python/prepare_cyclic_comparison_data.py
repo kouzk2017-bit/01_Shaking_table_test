@@ -16,7 +16,7 @@ from typing import Iterable
 
 
 AXIAL_LOAD_STEPS = 10
-DRIFT_PER_LOAD_FACTOR_RAD = 0.025
+DRIFT_PER_LOAD_FACTOR_RAD = 0.005
 YIELD_STRAIN = 0.002
 STEP_PATTERN = re.compile(r"Load-step\s+(\d+)")
 
@@ -299,7 +299,7 @@ def write_curve_source_registry(raw_root: Path) -> Path:
     rows: list[dict[str, str]] = []
     for condition in CONDITIONS:
         rows.extend((
-            _registry_row(raw_root, condition, "层剪力—层间位移角", condition.shear_file, "cyclic_response.csv", "剪力 N → kN；层间位移角 = load factor × 0.025 rad"),
+            _registry_row(raw_root, condition, "层剪力—层间位移角", condition.shear_file, "cyclic_response.csv", "剪力 N → kN；层间位移角 = load factor × 0.005 rad"),
             _registry_row(raw_root, condition, "梁纵筋应变", condition.beam_file, "cyclic_response.csv", "应变 / 0.002"),
             _registry_row(raw_root, condition, "柱纵筋应变", condition.column_file, "cyclic_response.csv", "应变 / 0.002"),
             _registry_row(raw_root, condition, "节点箍筋应变", JOINT_STIRRUP_FILES[condition.name], "joint_stirrup_response.csv", "EXX / 0.002"),

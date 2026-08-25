@@ -30,13 +30,13 @@ mapping.
 | --- | --- | --- |
 | `case_id` | DIANA case ID; parse `Load-step N` when absent | - |
 | `load_factor` | DIANA load factor | - |
-| `story_drift_rad` | `load_factor * 0.025` | rad |
+| `story_drift_rad` | `load_factor * 0.005` | rad |
 | `story_shear_kN` | first populated shear response / 1000 | kN |
 | `beam_strain_over_0p002` | first populated beam strain / 0.002 | - |
 | `column_strain_over_0p002` | first populated column strain / 0.002 | - |
 
-The 0.025 rad scale equals 65.625 mm / 2625 mm. Equivalently, each 0.1
-load-factor increment represents 6.5625 mm and 0.0025 rad.
+The 0.005 rad scale equals 65.625 mm / 2625 mm. Equivalently, each 0.1
+load-factor increment represents 1.3125 mm and 0.0005 rad.
 
 ## Figure outputs
 
