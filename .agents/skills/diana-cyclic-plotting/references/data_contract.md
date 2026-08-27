@@ -8,6 +8,8 @@ Each condition directory under `diana/data/raw/` contains:
 - a column longitudinal-strain CSV;
 - a story-shear CSV.
 
+`origin` is the fixed baseline. Process one selected variant at a time and compare it only with `origin`; additional variants do not require a skill change. Use a short English condition code and title-case display label derived from the variant folder name.
+
 DIANA exports a first units row after the column headers. Ignore it and retain
 only rows whose `case label` starts with `Load-step`.
 
@@ -40,16 +42,16 @@ load-factor increment represents 1.3125 mm and 0.0005 rad.
 
 ## Figure outputs
 
-Generate five comparison figures: story shear versus story drift, beam
-longitudinal strain ratio versus analysis step, column longitudinal strain ratio
-versus analysis step, and separate beam-versus-column strain comparisons for the
-original and reduced-axial-force conditions.
-Export each as SVG for PowerPoint and 600 dpi PNG for paper layout; do not
-produce PDF unless the user explicitly asks. Use y-axis ticks at 1.0 increments
+For `origin` and the selected variant, generate story shear versus story drift, beam longitudinal-strain ratio versus analysis step, column longitudinal-strain ratio versus analysis step, and separate beam-versus-column strain figures.
+Export every figure as SVG for PowerPoint and 600 dpi PNG for paper layout to the same `results/diana/<comparison-name>/` directory, including joint-deformation-angle figures; do not create a joint-angle subfolder or produce PDF unless the user explicitly asks. Use y-axis ticks at 1.0 increments
 for every strain figure and highlight the $-1$ and $+1$ yield-ratio lines.
+
+## Comparison result package
+
+Each `results/diana/<variant_code>_comparison/` directory is a complete, self-contained comparison package. Keep all numbered figures (01–08) and a `curve-source-registry.csv` filtered to `origin` plus that variant in this directory. Do not create a figure-type subfolder or add the variant name to individual figure filenames.
 
 ## Integrity checks
 
-- Both conditions must have the same cyclic case-ID range before overlaying.
+- `origin` and the selected variant must have the same cyclic case-ID range before overlaying.
 - Fail if a required response is blank or a case ID is duplicated.
 - Preserve the raw exports and treat `data/processed/` as reproducible output.

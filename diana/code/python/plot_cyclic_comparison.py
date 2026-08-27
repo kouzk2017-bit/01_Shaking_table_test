@@ -1,4 +1,4 @@
-"""Draw original-versus-reduced-axial-force DIANA cyclic comparison figures."""
+"""Draw original-versus-changed-column-rebar DIANA cyclic comparison figures."""
 
 from __future__ import annotations
 
@@ -26,7 +26,7 @@ from publication_style import (  # noqa: E402
 
 CONDITIONS = (
     ("origin", "Original axial force", COLORS["primary"], "-"),
-    ("50pct_axial_force", "50% reduced column axial force", COLORS["accent"], "--"),
+    ("changed_column_longitudinal_rebar", "Changed column longitudinal rebar", COLORS["accent"], "--"),
 )
 OUTPUTS = (
     ("01_story_shear_vs_story_drift", "story_drift_rad", "story_shear_kN", "Story drift (rad)", "Story shear (kN)", "(a)"),
@@ -137,7 +137,7 @@ def draw_beam_column_comparison(
 
 
 def draw_joint_stirrup_comparison(output_directory: Path) -> tuple[Path, ...]:
-    """Overlay the canonical first node-2375 stirrup response for both conditions."""
+    """Overlay the canonical joint-stirrup response for the configured conditions."""
     style = apply_style("paper")
     fig, ax = plt.subplots(figsize=figure_size("paper"))
     for condition, label, color, line_style in CONDITIONS:
@@ -174,7 +174,7 @@ def main() -> int:
     parser.add_argument(
         "--output-directory",
         type=Path,
-        default=WORKSPACE / "results" / "diana" / "cyclic_axial_force_comparison",
+        required=True,
     )
     args = parser.parse_args()
     missing = [
@@ -201,9 +201,9 @@ def main() -> int:
     created.extend(
         draw_beam_column_comparison(
             args.output_directory,
-            "50pct_axial_force",
+            "changed_column_longitudinal_rebar",
             "(e)",
-            "05_beam_column_strain_50pct_axial_force",
+            "05_beam_column_strain_changed_column_longitudinal_rebar",
         )
     )
     created.extend(draw_joint_stirrup_comparison(args.output_directory))

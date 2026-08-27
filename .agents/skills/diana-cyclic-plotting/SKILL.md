@@ -1,6 +1,6 @@
 ---
 name: diana-cyclic-plotting
-description: "Process DIANA cyclic-loading CSV exports and prepare original-versus-reduced-axial-force comparison plots, including four-node joint deformation angle. Use for this project's DIANA beam/column strain, story-shear, and specified joint-node displacement data; do not use for unrelated DIANA export schemas."
+description: "Process DIANA cyclic-loading CSV exports and compare any selected variant condition against the origin baseline, including four-node joint deformation angle. Use for this project's DIANA beam/column strain, story-shear, and specified joint-node displacement data; do not use for unrelated DIANA export schemas."
 ---
 
 # Diana Cyclic Plotting
@@ -9,21 +9,16 @@ Use this skill for the DIANA data workflow in this repository. Raw exports stay
 under `diana/data/raw/` and are never edited. Plotting reads only the standardized
 files under `diana/data/processed/`.
 
-## Current data contract
+## Reusable condition workflow
 
-- Conditions: `origin` and `50pct_axial_force`.
-- Each condition has one story-shear CSV plus beam and column longitudinal-strain
-  CSV exports.
-- Omit case IDs 1--10 because they apply axial force.
-- For all later records, derive story drift as
-  `load factor * 0.005 rad`. This follows 1.3125 mm per 0.1 load-factor increment
-  and a 2625 mm story height.
-- For every exported CSV, identify all populated response columns and verify them
-  over every Load-step before selecting a response. If they are exactly
-  identical, treat them as duplicate instrumentation and retain the first column.
-  Stop and request an explicit mapping if any values differ. Normalize beam and
-  column strain by 0.002.
-- Convert DIANA story shear from N to kN.
+- `origin` is the sole baseline condition. Each requested variant is compared only with `origin`; do not alter the skill when another variant is added.
+- Keep raw exports in `diana/data/raw/<folder>/` unchanged. Write reproducible outputs under `diana/data/processed/<condition_code>/`.
+- On each new variant, inspect every CSV header and all Load-step rows. Infer the unique `NX` export as story shear, the unique `EZZ` export as column longitudinal strain, and the `TDtX`/`TDtZ` pair as joint displacement data.
+- For multiple `EXX` exports, infer beam versus joint-stirrup use only when the headers or the established baseline mapping make it unambiguous. If it remains ambiguous, stop and ask the user for the mapping; never guess.
+- Derive a short English condition code and display label from the folder name. Use title case in legends (for example, `changed_column_longitudinal_rebar` → `Changed Column Rebar`). Ask only when the translation would be materially ambiguous.
+- Exclude case IDs 1–10. Derive story drift as `load factor * 0.005 rad`, convert story shear from N to kN, and normalize steel strain by 0.002.
+- Verify every populated response column over every Load-step. Retain the first only when all populated alternatives are exactly identical; otherwise request an explicit mapping.
+
 ## Four-node joint deformation angle
 
 For the joint displacement exports named `TDtX_nodes_620_623_636_639.csv` and
@@ -40,19 +35,17 @@ For the joint displacement exports named `TDtX_nodes_620_623_636_639.csv` and
   shortening.
 - Write the derived table to
   `diana/data/processed/<condition>/joint_deformation_angle.csv`; never modify
-  raw exports. The `50pct_axial_force` node exports currently reside under its
-  processed directory and may be read from there when no raw copy is present.
+  raw exports. Use the selected variant's node exports; when they are absent, request their location rather than substituting another condition.
 
 When plotting joint deformation angle, exclude load steps 1--10 and verify its
 remaining load-step range matches `cyclic_response.csv`. Write two figures to
-`results/diana/joint_deformation_angle/`: joint angle versus analysis step, and
+the same `results/diana/<comparison-name>/` directory used by the cyclic-response figures: joint angle versus analysis step, and
 joint angle (solid) versus story drift (dashed). Both figures overlay the
-`origin` and `50pct_axial_force` conditions, use radian units, and export SVG
+`origin` and the selected variant condition, use radian units, and export SVG
 and 600 dpi PNG.
 
 Run `diana/code/python/prepare_cyclic_comparison_data.py --dry-run` before any
-processing change. Run it without `--dry-run` to produce the two standardized
-`cyclic_response.csv` files. It does not generate figures.
+processing change. Run it without `--dry-run` to produce standardized `cyclic_response.csv` files. It does not generate figures.
 
 ## Curve-source registry
 
@@ -60,22 +53,8 @@ Every non-dry processing run must refresh `results/diana/cyclic_axial_force_comp
 
 ## Plotting requirements
 
-When the user asks for figures, make one overlaid original-versus-reduced-axial-force
-comparison for each of the following:
+When the user asks for figures, compare `origin` with the selected variant condition. Generate story shear versus story drift, beam longitudinal-strain ratio versus analysis step, column longitudinal-strain ratio versus analysis step, per-condition beam-versus-column strain figures, and joint-stirrup strain when its mapping is available.
 
-1. story shear (kN) versus story drift (rad);
-2. beam longitudinal strain divided by 0.002 versus case ID;
-3. column longitudinal strain divided by 0.002 versus case ID.
-4. beam and column strain ratios in separate figures for each condition;
+Keep the two compared conditions on identical axes, exclude the first ten axial-load cases, and export SVG plus 600 dpi PNG to one shared `results/diana/<variant_code>_comparison/` directory. This directory is the complete result package for one variant: do not split it by figure type, and do not encode the condition name in individual figure stems. Pass that exact directory to both plotting commands. Use the existing sequence: `01`–`06` for cyclic-response figures, `07_joint_deformation_angle_by_step`, and `08_joint_deformation_angle_vs_story_drift`. Include a `curve-source-registry.csv` containing only `origin` and the selected variant. Use integer strain-ratio ticks and yield reference lines at -1 and +1. Use upright subscripts in $\epsilon_{\mathrm{s}}/\epsilon_{\mathrm{y}}$ and label the x-axis `Analysis step`.
 
-Keep the two conditions on identical axes within each figure. Do not include the
-first ten axial-load cases. Write figures only to `results/diana/<comparison-name>/`
-as SVG (PPT) and 600 dpi PNG (paper), leaving inputs untouched.
-
-For every strain figure, use integer y-axis ticks at an interval of 1 and show
-the yield reference lines at -1 and +1, rather than emphasizing the zero line.
-Use upright subscripts in $\epsilon_{\mathrm{s}}/\epsilon_{\mathrm{y}}$, label the x-axis
-only `Analysis step`, and use only lettered panel labels.
-
-Read [the source and output schema](references/data_contract.md) before changing
-input mapping, derived values, or plotting semantics.
+Read [the source and output schema](references/data_contract.md) before selecting mappings, deriving outputs, or plotting.

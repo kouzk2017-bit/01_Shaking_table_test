@@ -24,6 +24,7 @@ STEP_PATTERN = re.compile(r"Load-step\s+(\d+)")
 @dataclass(frozen=True)
 class Condition:
     name: str
+    raw_folder: str
     beam_file: str
     column_file: str
     shear_file: str
@@ -32,15 +33,24 @@ class Condition:
 CONDITIONS = (
     Condition(
         name="origin",
-        beam_file="Beam_rebar_strain_origin.csv",
-        column_file="Column_rebar_strain_origin.csv",
-        shear_file="story_shear_force_origin.csv",
+        raw_folder="origin",
+        beam_file="EXX_node_1628.csv",
+        column_file="EZZ_node_1985.csv",
+        shear_file="NX_node_524.csv",
     ),
     Condition(
         name="50pct_axial_force",
-        beam_file="Beam_rebar_strain_50%axialforce.csv",
-        column_file="Column_rebar_strain_50%axialforce.csv",
-        shear_file="story_shear_force_50%axialforce.csv",
+        raw_folder="50pct_axial_force",
+        beam_file="EXX_node_1628.csv",
+        column_file="EZZ_node_1985.csv",
+        shear_file="NX_node_524.csv",
+    ),
+    Condition(
+        name="changed_column_longitudinal_rebar",
+        raw_folder="改变柱纵筋",
+        beam_file="EXX_node_1628.csv",
+        column_file="EZZ_node_1845.csv",
+        shear_file="NX_node_524.csv",
     ),
 )
 
@@ -129,7 +139,7 @@ def indexed_rows(rows: list[dict[str, str]]) -> dict[int, dict[str, str]]:
 
 def prepare_condition(raw_root: Path, processed_root: Path, condition: Condition, dry_run: bool) -> Path:
     """Create one aligned, plot-ready response table for a loading condition."""
-    source = raw_root / condition.name
+    source = raw_root / condition.raw_folder
     beam_headers, beam_rows = load_diana_rows(source / condition.beam_file)
     column_headers, column_rows = load_diana_rows(source / condition.column_file)
     shear_headers, shear_rows = load_diana_rows(source / condition.shear_file)
@@ -177,20 +187,32 @@ def prepare_condition(raw_root: Path, processed_root: Path, condition: Condition
         writer = csv.DictWriter(stream, fieldnames=list(prepared[0]))
         writer.writeheader()
         writer.writerows(prepared)
+
+    individual_outputs = {
+        "beam_rebar_response.csv": ("beam_strain", "beam_strain_over_0p002"),
+        "column_rebar_response.csv": ("column_strain", "column_strain_over_0p002"),
+        "story_shear_response.csv": ("story_shear_kN",),
+    }
+    shared_columns = ("case_id", "load_factor", "story_drift_rad")
+    for filename, response_columns in individual_outputs.items():
+        response_output = output.parent / filename
+        fieldnames = [*shared_columns, *response_columns]
+        with response_output.open("w", newline="", encoding="utf-8") as stream:
+            writer = csv.DictWriter(stream, fieldnames=fieldnames)
+            writer.writeheader()
+            writer.writerows({key: row[key] for key in fieldnames} for row in prepared)
+        print(f"Wrote {len(prepared)} rows: {response_output}")
+
     print(f"Wrote {len(prepared)} rows: {output}")
     return output
 
 
 
-JOINT_STIRRUP_FILES = {
-    "origin": "Joint_stirrup_strain_origin.csv",
-    "50pct_axial_force": "Joint_stirrup_strain_50%axialforce.csv",
+JOINT_STIRRUP_SOURCES = {
+    "origin": ("EXX_node_2375.csv", 2375, "EXX node 2375 element 1359", "EXX node 2375 element 1360"),
+    "50pct_axial_force": ("EXX_node_2375.csv", 2375, "EXX node 2375 element 1359", "EXX node 2375 element 1360"),
+    "changed_column_longitudinal_rebar": ("EXX_node_2151.csv", 2151, "EXX node 2151 element 1143", "EXX node 2151 element 1144"),
 }
-JOINT_STIRRUP_COLUMNS = (
-    "EXX node 2375 element 1359",
-    "EXX node 2375 element 1360",
-)
-
 
 def prepare_joint_stirrup_condition(
     raw_root: Path,
@@ -199,12 +221,13 @@ def prepare_joint_stirrup_condition(
     dry_run: bool,
 ) -> Path:
     """Standardize the canonical first response after exact duplicate checking."""
-    source = raw_root / condition.name / JOINT_STIRRUP_FILES[condition.name]
+    filename, node_tag, first, duplicate = JOINT_STIRRUP_SOURCES[condition.name]
+    source = raw_root / condition.raw_folder / filename
     headers, rows = load_diana_rows(source)
-    missing = [column for column in JOINT_STIRRUP_COLUMNS if column not in headers]
+    missing = [column for column in (first, duplicate) if column not in headers]
     if missing:
         raise ValueError(f"Missing joint-stirrup response columns in {source}: {missing}")
-    first, duplicate = JOINT_STIRRUP_COLUMNS
+
     mismatches = [
         case_id(row)
         for row in rows
@@ -222,7 +245,7 @@ def prepare_joint_stirrup_condition(
     prepared = [
         {
             "case_id": identifier,
-            "node_tag": 2375,
+            "node_tag": node_tag,
             "joint_stirrup_exx": as_float(by_case[identifier].get(first)),
         }
         for identifier in cyclic_cases
@@ -233,7 +256,7 @@ def prepare_joint_stirrup_condition(
     if dry_run:
         print(
             f"Validated {condition.name} joint stirrup: {len(prepared)} cyclic rows; "
-            f"node=2375; canonical={first}; duplicate={duplicate}"
+            f"node={node_tag}; canonical={first}; duplicate={duplicate}"
         )
         return output
     output.parent.mkdir(parents=True, exist_ok=True)
@@ -241,6 +264,8 @@ def prepare_joint_stirrup_condition(
         writer = csv.DictWriter(stream, fieldnames=list(prepared[0]))
         writer.writeheader()
         writer.writerows(prepared)
+
+
     print(f"Wrote {len(prepared)} rows: {output}")
     return output
 
@@ -249,12 +274,12 @@ CURVE_SOURCE_REGISTRY = (
     Path(__file__).resolve().parents[3]
     / "results"
     / "diana"
-    / "cyclic_axial_force_comparison"
     / "curve-source-registry.csv"
 )
 CONDITION_LABELS = {
     "origin": "原轴力",
     "50pct_axial_force": "50%减轴力",
+    "changed_column_longitudinal_rebar": "改变柱纵筋",
 }
 
 
@@ -271,7 +296,7 @@ def _registry_row(
     output_csv: str,
     conversion: str,
 ) -> dict[str, str]:
-    source = raw_root / condition.name / filename
+    source = raw_root / condition.raw_folder / filename
     headers, rows = load_diana_rows(source)
     columns = verified_response_columns(headers, rows)
     selected = columns[0]
@@ -299,10 +324,10 @@ def write_curve_source_registry(raw_root: Path) -> Path:
     rows: list[dict[str, str]] = []
     for condition in CONDITIONS:
         rows.extend((
-            _registry_row(raw_root, condition, "层剪力—层间位移角", condition.shear_file, "cyclic_response.csv", "剪力 N → kN；层间位移角 = load factor × 0.005 rad"),
-            _registry_row(raw_root, condition, "梁纵筋应变", condition.beam_file, "cyclic_response.csv", "应变 / 0.002"),
-            _registry_row(raw_root, condition, "柱纵筋应变", condition.column_file, "cyclic_response.csv", "应变 / 0.002"),
-            _registry_row(raw_root, condition, "节点箍筋应变", JOINT_STIRRUP_FILES[condition.name], "joint_stirrup_response.csv", "EXX / 0.002"),
+            _registry_row(raw_root, condition, "层剪力—层间位移角", condition.shear_file, "story_shear_response.csv", "剪力 N → kN；层间位移角 = load factor × 0.005 rad"),
+            _registry_row(raw_root, condition, "梁纵筋应变", condition.beam_file, "beam_rebar_response.csv", "应变 / 0.002"),
+            _registry_row(raw_root, condition, "柱纵筋应变", condition.column_file, "column_rebar_response.csv", "应变 / 0.002"),
+            _registry_row(raw_root, condition, "节点箍筋应变", JOINT_STIRRUP_SOURCES[condition.name][0], "joint_stirrup_response.csv", "EXX / 0.002"),
         ))
     CURVE_SOURCE_REGISTRY.parent.mkdir(parents=True, exist_ok=True)
     with CURVE_SOURCE_REGISTRY.open("w", newline="", encoding="utf-8-sig") as stream:
