@@ -15,10 +15,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-CONDITIONS = {
-    "origin": {"label": "Original axial force", "color": "#0072B2"},
-    "changed_column_longitudinal_rebar": {"label": "Changed column longitudinal rebar", "color": "#D55E00"},
-}
+CONDITIONS = {}
 
 
 def read_condition(processed_dir: Path, condition: str) -> dict[str, np.ndarray]:
@@ -68,7 +65,14 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--processed-dir", type=Path, default=Path("diana/data/processed"))
     parser.add_argument("--output-dir", type=Path, required=True)
+    parser.add_argument("--variant", default="changed_column_longitudinal_rebar")
+    parser.add_argument("--variant-label", default="Changed Column Longitudinal Rebar")
     args = parser.parse_args()
+    global CONDITIONS
+    CONDITIONS = {
+        "origin": {"label": "Original", "color": "#0072B2"},
+        args.variant: {"label": args.variant_label, "color": "#D55E00"},
+    }
 
     data = {condition: read_condition(args.processed_dir, condition) for condition in CONDITIONS}
     ranges = {condition: (frame["load_step"].min(), frame["load_step"].max()) for condition, frame in data.items()}

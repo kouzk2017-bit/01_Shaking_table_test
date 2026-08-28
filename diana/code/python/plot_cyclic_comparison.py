@@ -24,10 +24,7 @@ from publication_style import (  # noqa: E402
 )
 
 
-CONDITIONS = (
-    ("origin", "Original axial force", COLORS["primary"], "-"),
-    ("changed_column_longitudinal_rebar", "Changed column longitudinal rebar", COLORS["accent"], "--"),
-)
+CONDITIONS = ()
 OUTPUTS = (
     ("01_story_shear_vs_story_drift", "story_drift_rad", "story_shear_kN", "Story drift (rad)", "Story shear (kN)", "(a)"),
     ("02_beam_longitudinal_strain_vs_case_id", "case_id", "beam_strain_over_0p002", "Analysis step", r"Beam longitudinal strain, $\epsilon_{\mathrm{s}}/\epsilon_{\mathrm{y}}$", "(b)"),
@@ -176,7 +173,14 @@ def main() -> int:
         type=Path,
         required=True,
     )
+    parser.add_argument("--variant", default="changed_column_longitudinal_rebar")
+    parser.add_argument("--variant-label", default="Changed Column Longitudinal Rebar")
     args = parser.parse_args()
+    global CONDITIONS
+    CONDITIONS = (
+        ("origin", "Original", COLORS["primary"], "-"),
+        (args.variant, args.variant_label, COLORS["accent"], "--"),
+    )
     missing = [
         condition
         for condition, *_ in CONDITIONS
@@ -201,9 +205,9 @@ def main() -> int:
     created.extend(
         draw_beam_column_comparison(
             args.output_directory,
-            "changed_column_longitudinal_rebar",
+            args.variant,
             "(e)",
-            "05_beam_column_strain_changed_column_longitudinal_rebar",
+            "05_beam_column_strain_variant",
         )
     )
     created.extend(draw_joint_stirrup_comparison(args.output_directory))

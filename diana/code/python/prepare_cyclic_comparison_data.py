@@ -52,6 +52,13 @@ CONDITIONS = (
         column_file="EZZ_node_1845.csv",
         shear_file="NX_node_524.csv",
     ),
+    Condition(
+        name="four_layer_stirrups",
+        raw_folder="四层箍筋",
+        beam_file="EXX_node_1628.csv",
+        column_file="EZZ_node_1985.csv",
+        shear_file="NX_node_524.csv",
+    ),
 )
 
 
@@ -212,6 +219,7 @@ JOINT_STIRRUP_SOURCES = {
     "origin": ("EXX_node_2375.csv", 2375, "EXX node 2375 element 1359", "EXX node 2375 element 1360"),
     "50pct_axial_force": ("EXX_node_2375.csv", 2375, "EXX node 2375 element 1359", "EXX node 2375 element 1360"),
     "changed_column_longitudinal_rebar": ("EXX_node_2151.csv", 2151, "EXX node 2151 element 1143", "EXX node 2151 element 1144"),
+    "four_layer_stirrups": ("EXX_node_2375.csv", 2375, "EXX node 2375 element 1359", "EXX node 2375 element 1360"),
 }
 
 def prepare_joint_stirrup_condition(
@@ -280,6 +288,7 @@ CONDITION_LABELS = {
     "origin": "原轴力",
     "50pct_axial_force": "50%减轴力",
     "changed_column_longitudinal_rebar": "改变柱纵筋",
+    "four_layer_stirrups": "四层箍筋",
 }
 
 
