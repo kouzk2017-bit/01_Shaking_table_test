@@ -1,4 +1,4 @@
-"""Draw original-versus-changed-column-rebar DIANA cyclic comparison figures."""
+"""Draw origin-versus-selected-variant DIANA cyclic comparison figures."""
 
 from __future__ import annotations
 
@@ -173,8 +173,8 @@ def main() -> int:
         type=Path,
         required=True,
     )
-    parser.add_argument("--variant", default="changed_column_longitudinal_rebar")
-    parser.add_argument("--variant-label", default="Changed Column Longitudinal Rebar")
+    parser.add_argument("--variant", default="j16_l")
+    parser.add_argument("--variant-label", default="J16-L")
     args = parser.parse_args()
     global CONDITIONS
     CONDITIONS = (

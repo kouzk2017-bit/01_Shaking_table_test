@@ -1,7 +1,7 @@
 """Plot DIANA joint deformation angle and its comparison with story drift.
 
-The first figure compares the joint deformation angles of the original and
-changed-column-longitudinal-rebar conditions. The second compares joint angle (solid) and story
+The first figure compares the joint deformation angles of the origin and the
+selected variant condition. The second compares joint angle (solid) and story
 drift (dashed) for both conditions. Steps 1--10 are excluded.
 """
 
@@ -65,8 +65,8 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--processed-dir", type=Path, default=Path("diana/data/processed"))
     parser.add_argument("--output-dir", type=Path, required=True)
-    parser.add_argument("--variant", default="changed_column_longitudinal_rebar")
-    parser.add_argument("--variant-label", default="Changed Column Longitudinal Rebar")
+    parser.add_argument("--variant", default="j16_l")
+    parser.add_argument("--variant-label", default="J16-L")
     args = parser.parse_args()
     global CONDITIONS
     CONDITIONS = {
