@@ -19,6 +19,7 @@ AXIAL_LOAD_STEPS = 10
 DRIFT_PER_LOAD_FACTOR_RAD = 0.005
 YIELD_STRAIN = 0.002
 STEP_PATTERN = re.compile(r"Load-step\s+(\d+)")
+LOAD_FACTOR_PATTERN = re.compile(r"Load-factor\s+(-?[\d.]+(?:[eE][+-]?\d+)?)")
 
 
 @dataclass(frozen=True)
@@ -33,7 +34,7 @@ class Condition:
 CONDITIONS = (
     Condition(
         name="origin",
-        raw_folder="origin",
+        raw_folder="origin_2015",
         beam_file="EXX_node_1628.csv",
         column_file="EZZ_node_1985.csv",
         shear_file="NX_node_524.csv",
@@ -59,6 +60,27 @@ CONDITIONS = (
         column_file="EZZ_node_1985.csv",
         shear_file="NX_node_524.csv",
     ),
+    Condition(
+        name="j16_m",
+        raw_folder="J16-M",
+        beam_file="EXX_node_1628.csv",
+        column_file="EZZ_node_1845.csv",
+        shear_file="NX_node_524.csv",
+    ),
+    Condition(
+        name="j16_h",
+        raw_folder="J16-H",
+        beam_file="EXX_node_1628.csv",
+        column_file="EZZ_node_1845.csv",
+        shear_file="NX_node_524.csv",
+    ),
+    Condition(
+        name="v2018",
+        raw_folder="origin_2018",
+        beam_file="EXX_node_1377.csv",
+        column_file="EZZ_node_1843.csv",
+        shear_file="NX_node_109.csv",
+    ),
 )
 
 
@@ -82,6 +104,17 @@ def load_diana_rows(path: Path) -> tuple[list[str], list[dict[str, str]]]:
     if not rows:
         raise ValueError(f"No DIANA Load-step rows found in {path}")
     return headers, rows
+
+
+def load_factor(row: dict[str, str]) -> float:
+    """Use the shear file's load-factor column when present, else parse the case label."""
+    explicit = as_float(row.get("load factor"))
+    if explicit is not None:
+        return explicit
+    match = LOAD_FACTOR_PATTERN.search(row.get("case label", ""))
+    if not match:
+        raise ValueError(f"Cannot determine load factor from {row.get('case label')!r}")
+    return float(match.group(1))
 
 
 def case_id(row: dict[str, str]) -> int:
@@ -165,16 +198,16 @@ def prepare_condition(raw_root: Path, processed_root: Path, condition: Condition
     prepared: list[dict[str, float | int]] = []
     for identifier in analysis_cases:
         shear_row = shear_by_case[identifier]
-        load_factor = as_float(shear_row.get("load factor"))
+        derived_load_factor = load_factor(shear_row)
         beam_strain = as_float(beam_by_case[identifier].get(beam_column))
         column_strain = as_float(column_by_case[identifier].get(column_column))
         shear_force_n = as_float(shear_row.get(shear_column))
-        if None in (load_factor, beam_strain, column_strain, shear_force_n):
+        if None in (derived_load_factor, beam_strain, column_strain, shear_force_n):
             raise ValueError(f"Missing response data at case {identifier} in {condition.name}")
         prepared.append({
             "case_id": identifier,
-            "load_factor": load_factor,
-            "story_drift_rad": load_factor * DRIFT_PER_LOAD_FACTOR_RAD,
+            "load_factor": derived_load_factor,
+            "story_drift_rad": derived_load_factor * DRIFT_PER_LOAD_FACTOR_RAD,
             "story_shear_kN": shear_force_n / 1000.0,
             "beam_strain": beam_strain,
             "beam_strain_over_0p002": beam_strain / YIELD_STRAIN,
@@ -220,6 +253,9 @@ JOINT_STIRRUP_SOURCES = {
     "j16_l": ("EXX_node_2151.csv", 2151, "EXX node 2151 element 1143", "EXX node 2151 element 1144"),
     "j12_h": ("EXX_node_2381.csv", 2381, "EXX node 2381 element 1364", "EXX node 2381 element 1365"),
     "j12_m": ("EXX_node_2375.csv", 2375, "EXX node 2375 element 1359", "EXX node 2375 element 1360"),
+    "j16_m": ("EXX_node_2151.csv", 2151, "EXX node 2151 element 1143", "EXX node 2151 element 1144"),
+    "j16_h": ("EXX_node_2151.csv", 2151, "EXX node 2151 element 1143", "EXX node 2151 element 1144"),
+    "v2018": ("EXX_node_2178.csv", 2178, "EXX node 2178 element 1252", "EXX node 2178 element 1253"),
 }
 
 def prepare_joint_stirrup_condition(
@@ -289,6 +325,9 @@ CONDITION_LABELS = {
     "j16_l": "J16-L",
     "j12_h": "J12-H",
     "j12_m": "J12-M",
+    "j16_m": "J16-M",
+    "j16_h": "J16-H",
+    "v2018": "2018 Validation",
 }
 
 

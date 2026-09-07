@@ -25,15 +25,10 @@ import numpy as np
 import pandas as pd
 
 
-NODES = (620, 623, 636, 639)
-DIAGONAL_1 = (623, 636)
-DIAGONAL_2 = (620, 639)
-
-
-def read_displacements(path: Path, direction: str) -> pd.DataFrame:
+def read_displacements(path: Path, direction: str, nodes: tuple[int, int, int, int]) -> pd.DataFrame:
     """Read a DIANA displacement export, skipping its units row."""
     frame = pd.read_csv(path, skiprows=[1])
-    required = ["case label", "load factor"] + [f"TDt{direction} node {node}" for node in NODES]
+    required = ["case label", "load factor"] + [f"TDt{direction} node {node}" for node in nodes]
     missing = [column for column in required if column not in frame.columns]
     if missing:
         raise ValueError(f"{path.name} is missing required columns: {missing}")
@@ -42,7 +37,7 @@ def read_displacements(path: Path, direction: str) -> pd.DataFrame:
     frame = frame[frame["case label"].astype(str).str.startswith("Load-step")].copy()
     frame["load_step"] = frame["case label"].str.extract(r"Load-step\s+(\d+)")[0].astype(int)
     frame = frame.drop(columns="case label")
-    frame = frame.rename(columns={f"TDt{direction} node {node}": f"u{direction.lower()}_{node}_mm" for node in NODES})
+    frame = frame.rename(columns={f"TDt{direction} node {node}": f"u{direction.lower()}_{node}_mm" for node in nodes})
     return frame
 
 
@@ -65,7 +60,7 @@ def main() -> None:
     parser.add_argument(
         "--input-dir",
         type=Path,
-        default=Path("diana/data/raw/origin"),
+        default=Path("diana/data/raw/origin_2015"),
         help="Directory containing TDtX_nodes_620_623_636_639.csv and TDtZ_nodes_620_623_636_639.csv.",
     )
     parser.add_argument(
@@ -76,28 +71,48 @@ def main() -> None:
     )
     parser.add_argument("--a-mm", type=float, default=350.0, help="Joint width a in mm.")
     parser.add_argument("--b-mm", type=float, default=350.0, help="Joint height b in mm.")
+    parser.add_argument("--upper-left", type=int, default=623, help="Node id at the upper-left corner.")
+    parser.add_argument("--upper-right", type=int, default=620, help="Node id at the upper-right corner.")
+    parser.add_argument("--lower-left", type=int, default=639, help="Node id at the lower-left corner.")
+    parser.add_argument("--lower-right", type=int, default=636, help="Node id at the lower-right corner.")
+    parser.add_argument(
+        "--node-file-suffix",
+        default=None,
+        help="Override the '..._nodes_<a>_<b>_<c>_<d>.csv' suffix if it does not match "
+        "upper-left_upper-right_lower-left_lower-right in that order (rare).",
+    )
     args = parser.parse_args()
 
-    x_data = read_displacements(args.input_dir / "TDtX_nodes_620_623_636_639.csv", "X")
-    z_data = read_displacements(args.input_dir / "TDtZ_nodes_620_623_636_639.csv", "Z")
+    upper_left, upper_right, lower_left, lower_right = (
+        args.upper_left, args.upper_right, args.lower_left, args.lower_right,
+    )
+    nodes = (upper_left, upper_right, lower_left, lower_right)
+    diagonal_1 = (upper_left, lower_right)
+    diagonal_2 = (upper_right, lower_left)
+    diagonal_1_label = f"diagonal_{upper_left}_{lower_right}"
+    diagonal_2_label = f"diagonal_{upper_right}_{lower_left}"
+    suffix = args.node_file_suffix or f"{upper_right}_{upper_left}_{lower_right}_{lower_left}"
+
+    x_data = read_displacements(args.input_dir / f"TDtX_nodes_{suffix}.csv", "X", nodes)
+    z_data = read_displacements(args.input_dir / f"TDtZ_nodes_{suffix}.csv", "Z", nodes)
     data = x_data.merge(z_data, on=["load_step", "load factor"], validate="one_to_one")
 
     # Coordinates use +X to the right and +Z upward.
-    diagonal_results(data, *DIAGONAL_1, args.a_mm, -args.b_mm, "diagonal_623_636")
-    diagonal_results(data, *DIAGONAL_2, -args.a_mm, -args.b_mm, "diagonal_620_639")
+    diagonal_results(data, *diagonal_1, args.a_mm, -args.b_mm, diagonal_1_label)
+    diagonal_results(data, *diagonal_2, -args.a_mm, -args.b_mm, diagonal_2_label)
 
     initial_diagonal_mm = np.hypot(args.a_mm, args.b_mm)
     data["deformation_angle_rad"] = (
         initial_diagonal_mm / (2.0 * args.a_mm * args.b_mm)
-        * (data["diagonal_623_636_reading_mm"] - data["diagonal_620_639_reading_mm"])
+        * (data[f"{diagonal_1_label}_reading_mm"] - data[f"{diagonal_2_label}_reading_mm"])
     )
 
     output_columns = [
         "load_step", "load factor",
-        "diagonal_623_636_relative_x_mm", "diagonal_623_636_relative_z_mm",
-        "diagonal_623_636_reading_mm", "diagonal_623_636_length_mm", "diagonal_623_636_length_change_mm",
-        "diagonal_620_639_relative_x_mm", "diagonal_620_639_relative_z_mm",
-        "diagonal_620_639_reading_mm", "diagonal_620_639_length_mm", "diagonal_620_639_length_change_mm",
+        f"{diagonal_1_label}_relative_x_mm", f"{diagonal_1_label}_relative_z_mm",
+        f"{diagonal_1_label}_reading_mm", f"{diagonal_1_label}_length_mm", f"{diagonal_1_label}_length_change_mm",
+        f"{diagonal_2_label}_relative_x_mm", f"{diagonal_2_label}_relative_z_mm",
+        f"{diagonal_2_label}_reading_mm", f"{diagonal_2_label}_length_mm", f"{diagonal_2_label}_length_change_mm",
         "deformation_angle_rad",
     ]
     args.output.parent.mkdir(parents=True, exist_ok=True)

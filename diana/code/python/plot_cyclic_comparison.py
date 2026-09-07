@@ -32,6 +32,21 @@ OUTPUTS = (
 )
 
 
+def integer_strain_ticks(lower: float, upper: float, max_ticks: int = 14) -> np.ndarray:
+    """Return evenly spaced integer ticks, widening the step so wide-range
+    strain-ratio figures (e.g. J16-H, which can exceed +/-20 eps_y) don't
+    render an unreadably dense y-axis."""
+    span = np.ceil(upper) - np.floor(lower)
+    step = 1
+    for candidate in (1, 2, 5, 10, 20, 25, 50, 100):
+        step = candidate
+        if span / step <= max_ticks:
+            break
+    start = np.floor(lower / step) * step
+    stop = np.ceil(upper / step) * step + step
+    return np.arange(start, stop, step)
+
+
 def read_table(path: Path) -> dict[str, np.ndarray]:
     """Load one standardized response table as numeric arrays."""
     with path.open(newline="", encoding="utf-8") as stream:
@@ -74,7 +89,7 @@ def draw_comparison(
         ax.axhline(-1.0, color=COLORS["zero"], linestyle="--", linewidth=style.reference_line_width, zorder=0)
         ax.set_xlim(11, 850)
         lower, upper = ax.get_ylim()
-        ax.set_yticks(np.arange(np.floor(lower), np.ceil(upper) + 1.0, 1.0))
+        ax.set_yticks(integer_strain_ticks(lower, upper))
     format_axis(ax, xlabel=x_label, ylabel=y_label, legend=True, legend_location="best")
     add_panel_label(ax, panel_label)
     return save_figure(
@@ -114,7 +129,7 @@ def draw_beam_column_comparison(
     ax.axhline(-1.0, color=COLORS["zero"], linestyle="--", linewidth=style.reference_line_width, zorder=0)
     ax.set_xlim(11, 850)
     lower, upper = ax.get_ylim()
-    ax.set_yticks(np.arange(np.floor(lower), np.ceil(upper) + 1.0, 1.0))
+    ax.set_yticks(integer_strain_ticks(lower, upper))
     format_axis(
         ax,
         xlabel="Analysis step",
@@ -150,7 +165,7 @@ def draw_joint_stirrup_comparison(output_directory: Path) -> tuple[Path, ...]:
     ax.axhline(1.0, color=COLORS["zero"], linestyle=":", linewidth=style.reference_line_width, zorder=0)
     ax.axhline(-1.0, color=COLORS["zero"], linestyle=":", linewidth=style.reference_line_width, zorder=0)
     lower, upper = ax.get_ylim()
-    ax.set_yticks(np.arange(np.floor(lower), np.ceil(upper) + 1.0, 1.0))
+    ax.set_yticks(integer_strain_ticks(lower, upper))
     format_axis(
         ax,
         xlabel="Analysis step",
@@ -175,10 +190,12 @@ def main() -> int:
     )
     parser.add_argument("--variant", default="j16_l")
     parser.add_argument("--variant-label", default="J16-L")
+    parser.add_argument("--baseline", default="origin", help="Processed condition code to use as the baseline curve.")
+    parser.add_argument("--baseline-label", default="Original", help="Legend label for the baseline curve.")
     args = parser.parse_args()
     global CONDITIONS
     CONDITIONS = (
-        ("origin", "Original", COLORS["primary"], "-"),
+        (args.baseline, args.baseline_label, COLORS["primary"], "-"),
         (args.variant, args.variant_label, COLORS["accent"], "--"),
     )
     missing = [
@@ -197,7 +214,7 @@ def main() -> int:
     created.extend(
         draw_beam_column_comparison(
             args.output_directory,
-            "origin",
+            args.baseline,
             "(d)",
             "04_beam_column_strain_origin",
         )

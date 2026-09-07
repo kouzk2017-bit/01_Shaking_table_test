@@ -67,10 +67,12 @@ def main() -> None:
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--variant", default="j16_l")
     parser.add_argument("--variant-label", default="J16-L")
+    parser.add_argument("--baseline", default="origin", help="Processed condition code to use as the baseline curve.")
+    parser.add_argument("--baseline-label", default="Original", help="Legend label for the baseline curve.")
     args = parser.parse_args()
     global CONDITIONS
     CONDITIONS = {
-        "origin": {"label": "Original", "color": "#0072B2"},
+        args.baseline: {"label": args.baseline_label, "color": "#0072B2"},
         args.variant: {"label": args.variant_label, "color": "#D55E00"},
     }
 
