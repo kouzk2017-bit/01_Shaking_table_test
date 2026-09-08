@@ -1,0 +1,1931 @@
+{
+  "specimen": "2015 E-Defense ten-story RC wall-frame; fixed-base initial-state trial",
+  "units": "N-mm-tonne-s",
+  "geometry": {
+    "x_grid_mm": [
+      0,
+      4000,
+      8000,
+      12000
+    ],
+    "y_grid_mm": [
+      0,
+      3100,
+      4900,
+      8000
+    ],
+    "story_heights_mm": [
+      2800,
+      2600,
+      2600,
+      2600,
+      2550,
+      2550,
+      2550,
+      2500,
+      2500,
+      2500
+    ],
+    "slab_thickness_mm": 130,
+    "gravity_mm_s2": 9800,
+    "input_axis_map": {
+      "x": {
+        "source_column": 1,
+        "sign": 1,
+        "source": "measured AY, drawing Y, long plan direction"
+      },
+      "y": {
+        "source_column": 0,
+        "sign": 1,
+        "source": "measured AX, drawing X, short wall direction"
+      }
+    }
+  },
+  "stories": [
+    {
+      "story": 1,
+      "floor_label": "2F",
+      "weight_kN": 946,
+      "concrete": {
+        "fc_mpa": 68.7,
+        "ec_mpa": 35100
+      },
+      "columns": {
+        "C1": {
+          "b_x_mm": 550,
+          "b_y_mm": 550,
+          "rebar_count": 20,
+          "bar_diameter_mm": 22,
+          "bars_per_short_face": 5,
+          "intermediate_bars_per_long_face": 5
+        },
+        "C2": {
+          "b_x_mm": 550,
+          "b_y_mm": 550,
+          "rebar_count": 16,
+          "bar_diameter_mm": 22,
+          "bars_per_short_face": 4,
+          "intermediate_bars_per_long_face": 4
+        },
+        "C3": {
+          "b_x_mm": 230,
+          "b_y_mm": 450,
+          "rebar_count": 8,
+          "bar_diameter_mm": 19,
+          "bars_per_short_face": 2,
+          "intermediate_bars_per_long_face": 2
+        }
+      },
+      "beams": {
+        "G1": {
+          "width_mm": 350,
+          "depth_mm": 550,
+          "bar_diameter_mm": 22,
+          "top_counts_i_mid_j": [
+            6,
+            3,
+            5
+          ],
+          "bottom_counts_i_mid_j": [
+            5,
+            3,
+            4
+          ]
+        },
+        "G2": {
+          "width_mm": 350,
+          "depth_mm": 550,
+          "bar_diameter_mm": 22,
+          "top_counts_i_mid_j": [
+            5,
+            3,
+            5
+          ],
+          "bottom_counts_i_mid_j": [
+            5,
+            3,
+            5
+          ]
+        },
+        "G3": {
+          "width_mm": 350,
+          "depth_mm": 550,
+          "bar_diameter_mm": 22,
+          "top_counts_i_mid_j": [
+            6,
+            3,
+            5
+          ],
+          "bottom_counts_i_mid_j": [
+            5,
+            3,
+            4
+          ]
+        },
+        "G4": {
+          "width_mm": 230,
+          "depth_mm": 420,
+          "bar_diameter_mm": 22,
+          "top_counts_i_mid_j": [
+            3,
+            4,
+            4
+          ],
+          "bottom_counts_i_mid_j": [
+            3,
+            4,
+            4
+          ]
+        },
+        "G5": {
+          "width_mm": 230,
+          "depth_mm": 420,
+          "bar_diameter_mm": 22,
+          "top_counts_i_mid_j": [
+            4,
+            3,
+            4
+          ],
+          "bottom_counts_i_mid_j": [
+            4,
+            3,
+            4
+          ]
+        },
+        "G6": {
+          "width_mm": 230,
+          "depth_mm": 420,
+          "bar_diameter_mm": 22,
+          "top_counts_i_mid_j": [
+            3,
+            4,
+            4
+          ],
+          "bottom_counts_i_mid_j": [
+            3,
+            4,
+            4
+          ]
+        },
+        "G7": {
+          "width_mm": 300,
+          "depth_mm": 470,
+          "bar_diameter_mm": 19,
+          "top_counts_i_mid_j": [
+            4,
+            3,
+            3
+          ],
+          "bottom_counts_i_mid_j": [
+            4,
+            3,
+            3
+          ]
+        },
+        "G8": {
+          "width_mm": 300,
+          "depth_mm": 470,
+          "bar_diameter_mm": 19,
+          "top_counts_i_mid_j": [
+            3,
+            3,
+            3
+          ],
+          "bottom_counts_i_mid_j": [
+            3,
+            3,
+            3
+          ]
+        },
+        "G9": {
+          "width_mm": 300,
+          "depth_mm": 470,
+          "bar_diameter_mm": 19,
+          "top_counts_i_mid_j": [
+            4,
+            3,
+            3
+          ],
+          "bottom_counts_i_mid_j": [
+            4,
+            3,
+            3
+          ]
+        }
+      }
+    },
+    {
+      "story": 2,
+      "floor_label": "3F",
+      "weight_kN": 845,
+      "concrete": {
+        "fc_mpa": 72.0,
+        "ec_mpa": 36700
+      },
+      "columns": {
+        "C1": {
+          "b_x_mm": 500,
+          "b_y_mm": 550,
+          "rebar_count": 16,
+          "bar_diameter_mm": 22,
+          "bars_per_short_face": 4,
+          "intermediate_bars_per_long_face": 4
+        },
+        "C2": {
+          "b_x_mm": 500,
+          "b_y_mm": 550,
+          "rebar_count": 12,
+          "bar_diameter_mm": 22,
+          "bars_per_short_face": 3,
+          "intermediate_bars_per_long_face": 3
+        },
+        "C3": {
+          "b_x_mm": 230,
+          "b_y_mm": 450,
+          "rebar_count": 8,
+          "bar_diameter_mm": 19,
+          "bars_per_short_face": 2,
+          "intermediate_bars_per_long_face": 2
+        }
+      },
+      "beams": {
+        "G1": {
+          "width_mm": 350,
+          "depth_mm": 550,
+          "bar_diameter_mm": 22,
+          "top_counts_i_mid_j": [
+            6,
+            3,
+            5
+          ],
+          "bottom_counts_i_mid_j": [
+            5,
+            3,
+            4
+          ]
+        },
+        "G2": {
+          "width_mm": 350,
+          "depth_mm": 550,
+          "bar_diameter_mm": 22,
+          "top_counts_i_mid_j": [
+            5,
+            3,
+            5
+          ],
+          "bottom_counts_i_mid_j": [
+            5,
+            3,
+            5
+          ]
+        },
+        "G3": {
+          "width_mm": 350,
+          "depth_mm": 550,
+          "bar_diameter_mm": 22,
+          "top_counts_i_mid_j": [
+            6,
+            3,
+            5
+          ],
+          "bottom_counts_i_mid_j": [
+            5,
+            3,
+            4
+          ]
+        },
+        "G4": {
+          "width_mm": 230,
+          "depth_mm": 420,
+          "bar_diameter_mm": 22,
+          "top_counts_i_mid_j": [
+            3,
+            4,
+            4
+          ],
+          "bottom_counts_i_mid_j": [
+            3,
+            4,
+            4
+          ]
+        },
+        "G5": {
+          "width_mm": 230,
+          "depth_mm": 420,
+          "bar_diameter_mm": 22,
+          "top_counts_i_mid_j": [
+            4,
+            3,
+            4
+          ],
+          "bottom_counts_i_mid_j": [
+            4,
+            3,
+            4
+          ]
+        },
+        "G6": {
+          "width_mm": 230,
+          "depth_mm": 420,
+          "bar_diameter_mm": 22,
+          "top_counts_i_mid_j": [
+            3,
+            4,
+            4
+          ],
+          "bottom_counts_i_mid_j": [
+            3,
+            4,
+            4
+          ]
+        },
+        "G7": {
+          "width_mm": 300,
+          "depth_mm": 470,
+          "bar_diameter_mm": 19,
+          "top_counts_i_mid_j": [
+            4,
+            3,
+            4
+          ],
+          "bottom_counts_i_mid_j": [
+            4,
+            3,
+            4
+          ]
+        },
+        "G8": {
+          "width_mm": 300,
+          "depth_mm": 470,
+          "bar_diameter_mm": 19,
+          "top_counts_i_mid_j": [
+            3,
+            3,
+            3
+          ],
+          "bottom_counts_i_mid_j": [
+            3,
+            3,
+            3
+          ]
+        },
+        "G9": {
+          "width_mm": 300,
+          "depth_mm": 470,
+          "bar_diameter_mm": 19,
+          "top_counts_i_mid_j": [
+            4,
+            3,
+            4
+          ],
+          "bottom_counts_i_mid_j": [
+            4,
+            3,
+            4
+          ]
+        }
+      }
+    },
+    {
+      "story": 3,
+      "floor_label": "4F",
+      "weight_kN": 826,
+      "concrete": {
+        "fc_mpa": 57.6,
+        "ec_mpa": 33800
+      },
+      "columns": {
+        "C1": {
+          "b_x_mm": 500,
+          "b_y_mm": 500,
+          "rebar_count": 12,
+          "bar_diameter_mm": 22,
+          "bars_per_short_face": 3,
+          "intermediate_bars_per_long_face": 3
+        },
+        "C2": {
+          "b_x_mm": 500,
+          "b_y_mm": 500,
+          "rebar_count": 12,
+          "bar_diameter_mm": 22,
+          "bars_per_short_face": 3,
+          "intermediate_bars_per_long_face": 3
+        },
+        "C3": {
+          "b_x_mm": 230,
+          "b_y_mm": 450,
+          "rebar_count": 6,
+          "bar_diameter_mm": 19,
+          "bars_per_short_face": 2,
+          "intermediate_bars_per_long_face": 1
+        }
+      },
+      "beams": {
+        "G1": {
+          "width_mm": 350,
+          "depth_mm": 550,
+          "bar_diameter_mm": 22,
+          "top_counts_i_mid_j": [
+            5,
+            3,
+            5
+          ],
+          "bottom_counts_i_mid_j": [
+            5,
+            3,
+            4
+          ]
+        },
+        "G2": {
+          "width_mm": 350,
+          "depth_mm": 550,
+          "bar_diameter_mm": 22,
+          "top_counts_i_mid_j": [
+            5,
+            3,
+            5
+          ],
+          "bottom_counts_i_mid_j": [
+            4,
+            3,
+            4
+          ]
+        },
+        "G3": {
+          "width_mm": 350,
+          "depth_mm": 550,
+          "bar_diameter_mm": 22,
+          "top_counts_i_mid_j": [
+            5,
+            3,
+            5
+          ],
+          "bottom_counts_i_mid_j": [
+            5,
+            3,
+            4
+          ]
+        },
+        "G4": {
+          "width_mm": 230,
+          "depth_mm": 420,
+          "bar_diameter_mm": 22,
+          "top_counts_i_mid_j": [
+            3,
+            4,
+            4
+          ],
+          "bottom_counts_i_mid_j": [
+            3,
+            4,
+            4
+          ]
+        },
+        "G5": {
+          "width_mm": 230,
+          "depth_mm": 420,
+          "bar_diameter_mm": 22,
+          "top_counts_i_mid_j": [
+            4,
+            3,
+            4
+          ],
+          "bottom_counts_i_mid_j": [
+            4,
+            3,
+            4
+          ]
+        },
+        "G6": {
+          "width_mm": 230,
+          "depth_mm": 420,
+          "bar_diameter_mm": 22,
+          "top_counts_i_mid_j": [
+            3,
+            4,
+            4
+          ],
+          "bottom_counts_i_mid_j": [
+            3,
+            4,
+            4
+          ]
+        },
+        "G7": {
+          "width_mm": 300,
+          "depth_mm": 470,
+          "bar_diameter_mm": 19,
+          "top_counts_i_mid_j": [
+            4,
+            3,
+            4
+          ],
+          "bottom_counts_i_mid_j": [
+            4,
+            3,
+            4
+          ]
+        },
+        "G8": {
+          "width_mm": 300,
+          "depth_mm": 470,
+          "bar_diameter_mm": 19,
+          "top_counts_i_mid_j": [
+            3,
+            3,
+            3
+          ],
+          "bottom_counts_i_mid_j": [
+            3,
+            3,
+            3
+          ]
+        },
+        "G9": {
+          "width_mm": 300,
+          "depth_mm": 470,
+          "bar_diameter_mm": 19,
+          "top_counts_i_mid_j": [
+            4,
+            3,
+            4
+          ],
+          "bottom_counts_i_mid_j": [
+            4,
+            3,
+            4
+          ]
+        }
+      }
+    },
+    {
+      "story": 4,
+      "floor_label": "5F",
+      "weight_kN": 808,
+      "concrete": {
+        "fc_mpa": 48.1,
+        "ec_mpa": 30200
+      },
+      "columns": {
+        "C1": {
+          "b_x_mm": 500,
+          "b_y_mm": 500,
+          "rebar_count": 10,
+          "bar_diameter_mm": 22,
+          "bars_per_short_face": 3,
+          "intermediate_bars_per_long_face": 2
+        },
+        "C2": {
+          "b_x_mm": 500,
+          "b_y_mm": 500,
+          "rebar_count": 12,
+          "bar_diameter_mm": 22,
+          "bars_per_short_face": 3,
+          "intermediate_bars_per_long_face": 3
+        },
+        "C3": {
+          "b_x_mm": 230,
+          "b_y_mm": 450,
+          "rebar_count": 6,
+          "bar_diameter_mm": 19,
+          "bars_per_short_face": 2,
+          "intermediate_bars_per_long_face": 1
+        }
+      },
+      "beams": {
+        "G1": {
+          "width_mm": 350,
+          "depth_mm": 550,
+          "bar_diameter_mm": 22,
+          "top_counts_i_mid_j": [
+            5,
+            3,
+            4
+          ],
+          "bottom_counts_i_mid_j": [
+            4,
+            3,
+            4
+          ]
+        },
+        "G2": {
+          "width_mm": 350,
+          "depth_mm": 550,
+          "bar_diameter_mm": 22,
+          "top_counts_i_mid_j": [
+            5,
+            3,
+            5
+          ],
+          "bottom_counts_i_mid_j": [
+            4,
+            3,
+            4
+          ]
+        },
+        "G3": {
+          "width_mm": 350,
+          "depth_mm": 550,
+          "bar_diameter_mm": 22,
+          "top_counts_i_mid_j": [
+            5,
+            3,
+            4
+          ],
+          "bottom_counts_i_mid_j": [
+            4,
+            3,
+            4
+          ]
+        },
+        "G4": {
+          "width_mm": 230,
+          "depth_mm": 370,
+          "bar_diameter_mm": 19,
+          "top_counts_i_mid_j": [
+            3,
+            4,
+            4
+          ],
+          "bottom_counts_i_mid_j": [
+            3,
+            4,
+            4
+          ]
+        },
+        "G5": {
+          "width_mm": 230,
+          "depth_mm": 370,
+          "bar_diameter_mm": 19,
+          "top_counts_i_mid_j": [
+            4,
+            3,
+            4
+          ],
+          "bottom_counts_i_mid_j": [
+            4,
+            3,
+            4
+          ]
+        },
+        "G6": {
+          "width_mm": 230,
+          "depth_mm": 370,
+          "bar_diameter_mm": 19,
+          "top_counts_i_mid_j": [
+            3,
+            4,
+            4
+          ],
+          "bottom_counts_i_mid_j": [
+            3,
+            4,
+            4
+          ]
+        },
+        "G7": {
+          "width_mm": 300,
+          "depth_mm": 470,
+          "bar_diameter_mm": 19,
+          "top_counts_i_mid_j": [
+            4,
+            3,
+            4
+          ],
+          "bottom_counts_i_mid_j": [
+            4,
+            3,
+            4
+          ]
+        },
+        "G8": {
+          "width_mm": 300,
+          "depth_mm": 470,
+          "bar_diameter_mm": 19,
+          "top_counts_i_mid_j": [
+            3,
+            3,
+            3
+          ],
+          "bottom_counts_i_mid_j": [
+            3,
+            3,
+            3
+          ]
+        },
+        "G9": {
+          "width_mm": 300,
+          "depth_mm": 470,
+          "bar_diameter_mm": 19,
+          "top_counts_i_mid_j": [
+            4,
+            3,
+            4
+          ],
+          "bottom_counts_i_mid_j": [
+            4,
+            3,
+            4
+          ]
+        }
+      }
+    },
+    {
+      "story": 5,
+      "floor_label": "6F",
+      "weight_kN": 806,
+      "concrete": {
+        "fc_mpa": 45.5,
+        "ec_mpa": 30100
+      },
+      "columns": {
+        "C1": {
+          "b_x_mm": 500,
+          "b_y_mm": 500,
+          "rebar_count": 10,
+          "bar_diameter_mm": 22,
+          "bars_per_short_face": 3,
+          "intermediate_bars_per_long_face": 2
+        },
+        "C2": {
+          "b_x_mm": 500,
+          "b_y_mm": 500,
+          "rebar_count": 12,
+          "bar_diameter_mm": 22,
+          "bars_per_short_face": 3,
+          "intermediate_bars_per_long_face": 3
+        },
+        "C3": {
+          "b_x_mm": 230,
+          "b_y_mm": 450,
+          "rebar_count": 6,
+          "bar_diameter_mm": 19,
+          "bars_per_short_face": 2,
+          "intermediate_bars_per_long_face": 1
+        }
+      },
+      "beams": {
+        "G1": {
+          "width_mm": 350,
+          "depth_mm": 550,
+          "bar_diameter_mm": 22,
+          "top_counts_i_mid_j": [
+            5,
+            3,
+            4
+          ],
+          "bottom_counts_i_mid_j": [
+            4,
+            3,
+            3
+          ]
+        },
+        "G2": {
+          "width_mm": 350,
+          "depth_mm": 550,
+          "bar_diameter_mm": 22,
+          "top_counts_i_mid_j": [
+            5,
+            3,
+            5
+          ],
+          "bottom_counts_i_mid_j": [
+            4,
+            3,
+            4
+          ]
+        },
+        "G3": {
+          "width_mm": 350,
+          "depth_mm": 550,
+          "bar_diameter_mm": 22,
+          "top_counts_i_mid_j": [
+            5,
+            3,
+            4
+          ],
+          "bottom_counts_i_mid_j": [
+            4,
+            3,
+            3
+          ]
+        },
+        "G4": {
+          "width_mm": 230,
+          "depth_mm": 370,
+          "bar_diameter_mm": 19,
+          "top_counts_i_mid_j": [
+            3,
+            4,
+            4
+          ],
+          "bottom_counts_i_mid_j": [
+            3,
+            4,
+            4
+          ]
+        },
+        "G5": {
+          "width_mm": 230,
+          "depth_mm": 370,
+          "bar_diameter_mm": 19,
+          "top_counts_i_mid_j": [
+            4,
+            3,
+            4
+          ],
+          "bottom_counts_i_mid_j": [
+            4,
+            3,
+            4
+          ]
+        },
+        "G6": {
+          "width_mm": 230,
+          "depth_mm": 370,
+          "bar_diameter_mm": 19,
+          "top_counts_i_mid_j": [
+            3,
+            4,
+            4
+          ],
+          "bottom_counts_i_mid_j": [
+            3,
+            4,
+            4
+          ]
+        },
+        "G7": {
+          "width_mm": 300,
+          "depth_mm": 470,
+          "bar_diameter_mm": 19,
+          "top_counts_i_mid_j": [
+            4,
+            3,
+            4
+          ],
+          "bottom_counts_i_mid_j": [
+            4,
+            3,
+            4
+          ]
+        },
+        "G8": {
+          "width_mm": 300,
+          "depth_mm": 470,
+          "bar_diameter_mm": 19,
+          "top_counts_i_mid_j": [
+            3,
+            3,
+            3
+          ],
+          "bottom_counts_i_mid_j": [
+            3,
+            3,
+            3
+          ]
+        },
+        "G9": {
+          "width_mm": 300,
+          "depth_mm": 470,
+          "bar_diameter_mm": 19,
+          "top_counts_i_mid_j": [
+            4,
+            3,
+            4
+          ],
+          "bottom_counts_i_mid_j": [
+            4,
+            3,
+            4
+          ]
+        }
+      }
+    },
+    {
+      "story": 6,
+      "floor_label": "7F",
+      "weight_kN": 977,
+      "concrete": {
+        "fc_mpa": 42.1,
+        "ec_mpa": 29600
+      },
+      "columns": {
+        "C1": {
+          "b_x_mm": 500,
+          "b_y_mm": 500,
+          "rebar_count": 10,
+          "bar_diameter_mm": 22,
+          "bars_per_short_face": 3,
+          "intermediate_bars_per_long_face": 2
+        },
+        "C2": {
+          "b_x_mm": 500,
+          "b_y_mm": 500,
+          "rebar_count": 12,
+          "bar_diameter_mm": 22,
+          "bars_per_short_face": 3,
+          "intermediate_bars_per_long_face": 3
+        },
+        "C3": {
+          "b_x_mm": 230,
+          "b_y_mm": 450,
+          "rebar_count": 6,
+          "bar_diameter_mm": 19,
+          "bars_per_short_face": 2,
+          "intermediate_bars_per_long_face": 1
+        }
+      },
+      "beams": {
+        "G1": {
+          "width_mm": 350,
+          "depth_mm": 550,
+          "bar_diameter_mm": 22,
+          "top_counts_i_mid_j": [
+            4,
+            3,
+            4
+          ],
+          "bottom_counts_i_mid_j": [
+            4,
+            3,
+            3
+          ]
+        },
+        "G2": {
+          "width_mm": 350,
+          "depth_mm": 550,
+          "bar_diameter_mm": 22,
+          "top_counts_i_mid_j": [
+            4,
+            3,
+            4
+          ],
+          "bottom_counts_i_mid_j": [
+            4,
+            3,
+            4
+          ]
+        },
+        "G3": {
+          "width_mm": 350,
+          "depth_mm": 550,
+          "bar_diameter_mm": 22,
+          "top_counts_i_mid_j": [
+            4,
+            3,
+            4
+          ],
+          "bottom_counts_i_mid_j": [
+            4,
+            3,
+            3
+          ]
+        },
+        "G4": {
+          "width_mm": 230,
+          "depth_mm": 370,
+          "bar_diameter_mm": 19,
+          "top_counts_i_mid_j": [
+            3,
+            4,
+            4
+          ],
+          "bottom_counts_i_mid_j": [
+            3,
+            4,
+            4
+          ]
+        },
+        "G5": {
+          "width_mm": 230,
+          "depth_mm": 370,
+          "bar_diameter_mm": 19,
+          "top_counts_i_mid_j": [
+            4,
+            3,
+            4
+          ],
+          "bottom_counts_i_mid_j": [
+            4,
+            3,
+            4
+          ]
+        },
+        "G6": {
+          "width_mm": 230,
+          "depth_mm": 370,
+          "bar_diameter_mm": 19,
+          "top_counts_i_mid_j": [
+            3,
+            4,
+            4
+          ],
+          "bottom_counts_i_mid_j": [
+            3,
+            4,
+            4
+          ]
+        },
+        "G7": {
+          "width_mm": 400,
+          "depth_mm": 470,
+          "bar_diameter_mm": 19,
+          "top_counts_i_mid_j": [
+            5,
+            3,
+            5
+          ],
+          "bottom_counts_i_mid_j": [
+            5,
+            4,
+            6
+          ]
+        },
+        "G8": {
+          "width_mm": 400,
+          "depth_mm": 470,
+          "bar_diameter_mm": 19,
+          "top_counts_i_mid_j": [
+            5,
+            5,
+            5
+          ],
+          "bottom_counts_i_mid_j": [
+            6,
+            6,
+            6
+          ]
+        },
+        "G9": {
+          "width_mm": 400,
+          "depth_mm": 470,
+          "bar_diameter_mm": 19,
+          "top_counts_i_mid_j": [
+            5,
+            3,
+            5
+          ],
+          "bottom_counts_i_mid_j": [
+            5,
+            4,
+            6
+          ]
+        }
+      },
+      "concrete_upper": {
+        "fc_mpa": 54.6,
+        "ec_mpa": 34433.333333333336
+      },
+      "upper_pour_starts_above_floor_mm": 1060
+    },
+    {
+      "story": 7,
+      "floor_label": "8F",
+      "weight_kN": 744,
+      "concrete": {
+        "fc_mpa": 49.0,
+        "ec_mpa": 32600
+      },
+      "columns": {
+        "C1": {
+          "b_x_mm": 500,
+          "b_y_mm": 500,
+          "rebar_count": 10,
+          "bar_diameter_mm": 22,
+          "bars_per_short_face": 3,
+          "intermediate_bars_per_long_face": 2
+        },
+        "C2": {
+          "b_x_mm": 500,
+          "b_y_mm": 500,
+          "rebar_count": 10,
+          "bar_diameter_mm": 22,
+          "bars_per_short_face": 3,
+          "intermediate_bars_per_long_face": 2
+        },
+        "C3": {
+          "b_x_mm": 230,
+          "b_y_mm": 450,
+          "rebar_count": 6,
+          "bar_diameter_mm": 19,
+          "bars_per_short_face": 2,
+          "intermediate_bars_per_long_face": 1
+        }
+      },
+      "beams": {
+        "G1": {
+          "width_mm": 300,
+          "depth_mm": 500,
+          "bar_diameter_mm": 19,
+          "top_counts_i_mid_j": [
+            5,
+            3,
+            4
+          ],
+          "bottom_counts_i_mid_j": [
+            4,
+            3,
+            3
+          ]
+        },
+        "G2": {
+          "width_mm": 300,
+          "depth_mm": 500,
+          "bar_diameter_mm": 19,
+          "top_counts_i_mid_j": [
+            5,
+            3,
+            5
+          ],
+          "bottom_counts_i_mid_j": [
+            4,
+            3,
+            4
+          ]
+        },
+        "G3": {
+          "width_mm": 300,
+          "depth_mm": 500,
+          "bar_diameter_mm": 19,
+          "top_counts_i_mid_j": [
+            5,
+            3,
+            4
+          ],
+          "bottom_counts_i_mid_j": [
+            4,
+            3,
+            3
+          ]
+        },
+        "G4": {
+          "width_mm": 230,
+          "depth_mm": 370,
+          "bar_diameter_mm": 19,
+          "top_counts_i_mid_j": [
+            3,
+            3,
+            3
+          ],
+          "bottom_counts_i_mid_j": [
+            3,
+            3,
+            3
+          ]
+        },
+        "G5": {
+          "width_mm": 230,
+          "depth_mm": 370,
+          "bar_diameter_mm": 19,
+          "top_counts_i_mid_j": [
+            3,
+            3,
+            3
+          ],
+          "bottom_counts_i_mid_j": [
+            3,
+            3,
+            3
+          ]
+        },
+        "G6": {
+          "width_mm": 230,
+          "depth_mm": 370,
+          "bar_diameter_mm": 19,
+          "top_counts_i_mid_j": [
+            3,
+            3,
+            3
+          ],
+          "bottom_counts_i_mid_j": [
+            3,
+            3,
+            3
+          ]
+        },
+        "G7": {
+          "width_mm": 300,
+          "depth_mm": 470,
+          "bar_diameter_mm": 19,
+          "top_counts_i_mid_j": [
+            3,
+            3,
+            3
+          ],
+          "bottom_counts_i_mid_j": [
+            3,
+            3,
+            3
+          ]
+        },
+        "G8": {
+          "width_mm": 300,
+          "depth_mm": 470,
+          "bar_diameter_mm": 19,
+          "top_counts_i_mid_j": [
+            3,
+            3,
+            3
+          ],
+          "bottom_counts_i_mid_j": [
+            3,
+            3,
+            3
+          ]
+        },
+        "G9": {
+          "width_mm": 300,
+          "depth_mm": 470,
+          "bar_diameter_mm": 19,
+          "top_counts_i_mid_j": [
+            3,
+            3,
+            3
+          ],
+          "bottom_counts_i_mid_j": [
+            3,
+            3,
+            3
+          ]
+        }
+      }
+    },
+    {
+      "story": 8,
+      "floor_label": "9F",
+      "weight_kN": 722,
+      "concrete": {
+        "fc_mpa": 51.9,
+        "ec_mpa": 32900
+      },
+      "columns": {
+        "C1": {
+          "b_x_mm": 500,
+          "b_y_mm": 500,
+          "rebar_count": 8,
+          "bar_diameter_mm": 19,
+          "bars_per_short_face": 3,
+          "intermediate_bars_per_long_face": 1
+        },
+        "C2": {
+          "b_x_mm": 500,
+          "b_y_mm": 500,
+          "rebar_count": 10,
+          "bar_diameter_mm": 19,
+          "bars_per_short_face": 3,
+          "intermediate_bars_per_long_face": 2
+        },
+        "C3": {
+          "b_x_mm": 230,
+          "b_y_mm": 450,
+          "rebar_count": 6,
+          "bar_diameter_mm": 19,
+          "bars_per_short_face": 2,
+          "intermediate_bars_per_long_face": 1
+        }
+      },
+      "beams": {
+        "G1": {
+          "width_mm": 300,
+          "depth_mm": 500,
+          "bar_diameter_mm": 19,
+          "top_counts_i_mid_j": [
+            4,
+            3,
+            4
+          ],
+          "bottom_counts_i_mid_j": [
+            3,
+            3,
+            3
+          ]
+        },
+        "G2": {
+          "width_mm": 300,
+          "depth_mm": 500,
+          "bar_diameter_mm": 19,
+          "top_counts_i_mid_j": [
+            4,
+            3,
+            4
+          ],
+          "bottom_counts_i_mid_j": [
+            3,
+            3,
+            3
+          ]
+        },
+        "G3": {
+          "width_mm": 300,
+          "depth_mm": 500,
+          "bar_diameter_mm": 19,
+          "top_counts_i_mid_j": [
+            4,
+            3,
+            4
+          ],
+          "bottom_counts_i_mid_j": [
+            3,
+            3,
+            3
+          ]
+        },
+        "G4": {
+          "width_mm": 230,
+          "depth_mm": 370,
+          "bar_diameter_mm": 19,
+          "top_counts_i_mid_j": [
+            3,
+            3,
+            3
+          ],
+          "bottom_counts_i_mid_j": [
+            3,
+            3,
+            3
+          ]
+        },
+        "G5": {
+          "width_mm": 230,
+          "depth_mm": 370,
+          "bar_diameter_mm": 19,
+          "top_counts_i_mid_j": [
+            3,
+            3,
+            3
+          ],
+          "bottom_counts_i_mid_j": [
+            3,
+            3,
+            3
+          ]
+        },
+        "G6": {
+          "width_mm": 230,
+          "depth_mm": 370,
+          "bar_diameter_mm": 19,
+          "top_counts_i_mid_j": [
+            3,
+            3,
+            3
+          ],
+          "bottom_counts_i_mid_j": [
+            3,
+            3,
+            3
+          ]
+        },
+        "G7": {
+          "width_mm": 300,
+          "depth_mm": 470,
+          "bar_diameter_mm": 19,
+          "top_counts_i_mid_j": [
+            3,
+            3,
+            3
+          ],
+          "bottom_counts_i_mid_j": [
+            3,
+            3,
+            3
+          ]
+        },
+        "G8": {
+          "width_mm": 300,
+          "depth_mm": 470,
+          "bar_diameter_mm": 19,
+          "top_counts_i_mid_j": [
+            3,
+            3,
+            3
+          ],
+          "bottom_counts_i_mid_j": [
+            3,
+            3,
+            3
+          ]
+        },
+        "G9": {
+          "width_mm": 300,
+          "depth_mm": 470,
+          "bar_diameter_mm": 19,
+          "top_counts_i_mid_j": [
+            3,
+            3,
+            3
+          ],
+          "bottom_counts_i_mid_j": [
+            3,
+            3,
+            3
+          ]
+        }
+      }
+    },
+    {
+      "story": 9,
+      "floor_label": "10F",
+      "weight_kN": 797,
+      "concrete": {
+        "fc_mpa": 43.9,
+        "ec_mpa": 32400
+      },
+      "columns": {
+        "C1": {
+          "b_x_mm": 500,
+          "b_y_mm": 500,
+          "rebar_count": 8,
+          "bar_diameter_mm": 19,
+          "bars_per_short_face": 3,
+          "intermediate_bars_per_long_face": 1
+        },
+        "C2": {
+          "b_x_mm": 500,
+          "b_y_mm": 500,
+          "rebar_count": 10,
+          "bar_diameter_mm": 19,
+          "bars_per_short_face": 3,
+          "intermediate_bars_per_long_face": 2
+        },
+        "C3": {
+          "b_x_mm": 230,
+          "b_y_mm": 450,
+          "rebar_count": 6,
+          "bar_diameter_mm": 16,
+          "bars_per_short_face": 2,
+          "intermediate_bars_per_long_face": 1
+        }
+      },
+      "beams": {
+        "G1": {
+          "width_mm": 300,
+          "depth_mm": 500,
+          "bar_diameter_mm": 19,
+          "top_counts_i_mid_j": [
+            4,
+            3,
+            3
+          ],
+          "bottom_counts_i_mid_j": [
+            3,
+            3,
+            3
+          ]
+        },
+        "G2": {
+          "width_mm": 300,
+          "depth_mm": 500,
+          "bar_diameter_mm": 19,
+          "top_counts_i_mid_j": [
+            3,
+            3,
+            3
+          ],
+          "bottom_counts_i_mid_j": [
+            3,
+            3,
+            3
+          ]
+        },
+        "G3": {
+          "width_mm": 300,
+          "depth_mm": 500,
+          "bar_diameter_mm": 19,
+          "top_counts_i_mid_j": [
+            4,
+            3,
+            3
+          ],
+          "bottom_counts_i_mid_j": [
+            3,
+            3,
+            3
+          ]
+        },
+        "G4": {
+          "width_mm": 230,
+          "depth_mm": 370,
+          "bar_diameter_mm": 19,
+          "top_counts_i_mid_j": [
+            3,
+            3,
+            3
+          ],
+          "bottom_counts_i_mid_j": [
+            3,
+            3,
+            3
+          ]
+        },
+        "G5": {
+          "width_mm": 230,
+          "depth_mm": 370,
+          "bar_diameter_mm": 19,
+          "top_counts_i_mid_j": [
+            3,
+            3,
+            3
+          ],
+          "bottom_counts_i_mid_j": [
+            3,
+            3,
+            3
+          ]
+        },
+        "G6": {
+          "width_mm": 230,
+          "depth_mm": 370,
+          "bar_diameter_mm": 19,
+          "top_counts_i_mid_j": [
+            3,
+            3,
+            3
+          ],
+          "bottom_counts_i_mid_j": [
+            3,
+            3,
+            3
+          ]
+        },
+        "G7": {
+          "width_mm": 300,
+          "depth_mm": 470,
+          "bar_diameter_mm": 19,
+          "top_counts_i_mid_j": [
+            3,
+            3,
+            3
+          ],
+          "bottom_counts_i_mid_j": [
+            3,
+            3,
+            3
+          ]
+        },
+        "G8": {
+          "width_mm": 300,
+          "depth_mm": 470,
+          "bar_diameter_mm": 19,
+          "top_counts_i_mid_j": [
+            3,
+            3,
+            3
+          ],
+          "bottom_counts_i_mid_j": [
+            3,
+            3,
+            3
+          ]
+        },
+        "G9": {
+          "width_mm": 300,
+          "depth_mm": 470,
+          "bar_diameter_mm": 19,
+          "top_counts_i_mid_j": [
+            3,
+            3,
+            3
+          ],
+          "bottom_counts_i_mid_j": [
+            3,
+            3,
+            3
+          ]
+        }
+      }
+    },
+    {
+      "story": 10,
+      "floor_label": "RF",
+      "weight_kN": 725,
+      "concrete": {
+        "fc_mpa": 41.0,
+        "ec_mpa": 30400
+      },
+      "columns": {
+        "C1": {
+          "b_x_mm": 500,
+          "b_y_mm": 500,
+          "rebar_count": 8,
+          "bar_diameter_mm": 19,
+          "bars_per_short_face": 3,
+          "intermediate_bars_per_long_face": 1
+        },
+        "C2": {
+          "b_x_mm": 500,
+          "b_y_mm": 500,
+          "rebar_count": 10,
+          "bar_diameter_mm": 19,
+          "bars_per_short_face": 3,
+          "intermediate_bars_per_long_face": 2
+        },
+        "C3": {
+          "b_x_mm": 230,
+          "b_y_mm": 450,
+          "rebar_count": 6,
+          "bar_diameter_mm": 16,
+          "bars_per_short_face": 2,
+          "intermediate_bars_per_long_face": 1
+        }
+      },
+      "beams": {
+        "G1": {
+          "width_mm": 300,
+          "depth_mm": 500,
+          "bar_diameter_mm": 19,
+          "top_counts_i_mid_j": [
+            3,
+            3,
+            3
+          ],
+          "bottom_counts_i_mid_j": [
+            3,
+            3,
+            3
+          ]
+        },
+        "G2": {
+          "width_mm": 300,
+          "depth_mm": 500,
+          "bar_diameter_mm": 19,
+          "top_counts_i_mid_j": [
+            3,
+            3,
+            3
+          ],
+          "bottom_counts_i_mid_j": [
+            3,
+            3,
+            3
+          ]
+        },
+        "G3": {
+          "width_mm": 300,
+          "depth_mm": 500,
+          "bar_diameter_mm": 19,
+          "top_counts_i_mid_j": [
+            3,
+            3,
+            3
+          ],
+          "bottom_counts_i_mid_j": [
+            3,
+            3,
+            3
+          ]
+        },
+        "G4": {
+          "width_mm": 230,
+          "depth_mm": 370,
+          "bar_diameter_mm": 19,
+          "top_counts_i_mid_j": [
+            3,
+            3,
+            3
+          ],
+          "bottom_counts_i_mid_j": [
+            3,
+            3,
+            3
+          ]
+        },
+        "G5": {
+          "width_mm": 230,
+          "depth_mm": 370,
+          "bar_diameter_mm": 19,
+          "top_counts_i_mid_j": [
+            3,
+            3,
+            3
+          ],
+          "bottom_counts_i_mid_j": [
+            3,
+            3,
+            3
+          ]
+        },
+        "G6": {
+          "width_mm": 230,
+          "depth_mm": 370,
+          "bar_diameter_mm": 19,
+          "top_counts_i_mid_j": [
+            3,
+            3,
+            3
+          ],
+          "bottom_counts_i_mid_j": [
+            3,
+            3,
+            3
+          ]
+        },
+        "G7": {
+          "width_mm": 300,
+          "depth_mm": 470,
+          "bar_diameter_mm": 19,
+          "top_counts_i_mid_j": [
+            3,
+            3,
+            3
+          ],
+          "bottom_counts_i_mid_j": [
+            3,
+            3,
+            3
+          ]
+        },
+        "G8": {
+          "width_mm": 300,
+          "depth_mm": 470,
+          "bar_diameter_mm": 19,
+          "top_counts_i_mid_j": [
+            3,
+            3,
+            3
+          ],
+          "bottom_counts_i_mid_j": [
+            3,
+            3,
+            3
+          ]
+        },
+        "G9": {
+          "width_mm": 300,
+          "depth_mm": 470,
+          "bar_diameter_mm": 19,
+          "top_counts_i_mid_j": [
+            3,
+            3,
+            3
+          ],
+          "bottom_counts_i_mid_j": [
+            3,
+            3,
+            3
+          ]
+        }
+      }
+    }
+  ],
+  "wall": {
+    "grid_x_indices": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "y_centrelines_mm": [
+      3100,
+      4900
+    ],
+    "last_story": 7,
+    "thickness_mm_by_story": [
+      230,
+      230,
+      230,
+      230,
+      230,
+      230,
+      150
+    ],
+    "vertical_diameter_mm_by_story": [
+      13,
+      13,
+      13,
+      13,
+      13,
+      13,
+      10
+    ],
+    "vertical_spacing_mm_by_story": [
+      250,
+      250,
+      250,
+      250,
+      250,
+      250,
+      200
+    ],
+    "horizontal_diameter_mm_by_story": [
+      10,
+      10,
+      10,
+      10,
+      10,
+      10,
+      10
+    ],
+    "horizontal_spacing_mm_by_story": [
+      150,
+      150,
+      150,
+      150,
+      150,
+      150,
+      200
+    ],
+    "cover_mm": 25,
+    "mesh_target_mm": 900
+  },
+  "section_settings": {
+    "cover_mm": 40,
+    "bar_centre_cover_mm": 50,
+    "poisson": 0.2,
+    "fiber_ny": 8,
+    "fiber_nz": 8,
+    "integration_points": 5,
+    "subtract_displaced_concrete": true,
+    "steel_rupture_enabled": true,
+    "steel_ultimate_strain": 0.06,
+    "steel_by_diameter": {
+      "10": {
+        "fy_mpa": 383.6666666666667,
+        "es_mpa": 200000,
+        "source": "Material report p5, 1F wall D10 batch mean"
+      },
+      "13": {
+        "fy_mpa": 354,
+        "es_mpa": 190000,
+        "source": "Material report p5, 1F wall D13 batch mean"
+      },
+      "16": {
+        "fy_mpa": 365,
+        "es_mpa": 200000,
+        "source": "Assumption: legacy Tcl D16 yield; nominal Es. No D16 coupon identified."
+      },
+      "19": {
+        "fy_mpa": 388.03333333333336,
+        "es_mpa": 189800.0,
+        "source": "Material report pp5-6; pooled column/beam D19 batch means"
+      },
+      "22": {
+        "fy_mpa": 389.38461538461536,
+        "es_mpa": 188615.38461538462,
+        "source": "Material report pp5-6; pooled column/beam D22 batch means"
+      }
+    }
+  },
+  "assumptions": [
+    "Fixed support at 1F structural datum; base block and sliding/contact mechanism excluded.",
+    "Initial undamaged constitutive state; prior sliding-series damage and 6F steel splice flexibility not inherited.",
+    "TJU Concrete02 confinement and post-peak defaults and Steel02 hardening/fracture are uncalibrated assumptions.",
+    "Measured steel properties pooled by diameter; D16 fy and Es remain assumed.",
+    "Ec is the legacy rounded layer summary checked against material-report tables; 6F pour split uses explicit coupon means.",
+    "Report slab thickness 130 mm used; drawing S-33 lists 120 mm, retained as documented discrepancy.",
+    "Rigid in-plane diaphragms with compatible ElasticMembranePlateSection/ShellMITC4 slabs; membrane strain is constrained by rigid floor kinematics. Slab flexural reinforcement and effective T-beam flange not separately calibrated.",
+    "C3 wall boundary columns and G8 floor bands represented by integrated layered shells through story7; no duplicate line element.",
+    "Small cantilevers/stair steelwork/fixtures not explicit stiffness; their weight is included in report floor masses.",
+    "Floor masses follow Table1 effective lumped weights 2F-RF, divide by 9.8; base 1F weight excluded from moving mass.",
+    "Beam bar cutoffs at quarter span are an idealization between the report end/midspan sections.",
+    "Five percent initial-stiffness Rayleigh damping, HHT alpha0.9 inherited from TJU; horizontal excitation only."
+  ],
+  "sources": [
+    {
+      "path": "documents/specimen_information/実験計画書・実験報告書/実験結果の報告.pdf",
+      "pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "use": "geometry, weights, column/beam schedules, fc, loading boundary"
+    },
+    {
+      "path": "documents/specimen_information/材料強度試験/図面.pdf",
+      "pages": [
+        44,
+        48,
+        68
+      ],
+      "use": "axes, wall topology, sixth-story splice, wall/slab rebar"
+    },
+    {
+      "path": "documents/specimen_information/材料強度試験/ｺﾝｸﾘｰﾄの圧縮強度および静弾性係数試験報告書.pdf",
+      "pages": [
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
+      ],
+      "use": "concrete stiffness crosscheck"
+    },
+    {
+      "path": "documents/specimen_information/材料強度試験/鉄筋ｺﾝｸﾘｰﾄ用棒鋼の引張およびﾔﾝｸﾞ係数試験報告書.pdf",
+      "pages": [
+        5,
+        6,
+        7
+      ],
+      "use": "steel fy/Es"
+    },
+    {
+      "path": "../common/python/ten_story_pipeline.py",
+      "use": "existing heights/effective masses and processed-input convention"
+    }
+  ]
+}

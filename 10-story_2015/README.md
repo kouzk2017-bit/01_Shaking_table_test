@@ -1,5 +1,9 @@
 # 10-story 2015 Shaking Table Project
 
+## OpenSees 数值模型
+
+`opensees/` 为参照 TJU 方法建立的 2015 三维墙框架模型，支持独立建模、重力、模态和 Case 13 实测输入试运行。运行方法、参数来源及尚未校准的假定见 [opensees/README.md](opensees/README.md)。数值输出单独存放于 `../results/2015/opensees/`。
+
 本项目采用“只读原始数据、Python 计算、CSV 交换、CSV 绘图、历史结果验证”工作流。
 
 ## 目录
