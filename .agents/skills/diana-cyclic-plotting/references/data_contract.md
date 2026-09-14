@@ -43,7 +43,7 @@ load-factor increment represents 1.3125 mm and 0.0005 rad.
 ## Figure outputs
 
 For `origin` and the selected variant, generate story shear versus story drift, beam longitudinal-strain ratio versus analysis step, column longitudinal-strain ratio versus analysis step, and separate beam-versus-column strain figures.
-Export every figure as SVG for PowerPoint and 600 dpi PNG for paper layout to the same `results/diana/<comparison-name>/` directory, including joint-deformation-angle figures; do not create a joint-angle subfolder or produce PDF unless the user explicitly asks. Use y-axis ticks at 1.0 increments
+Export every figure as 600 dpi PNG only (no SVG) to the same `results/diana/<comparison-name>/` directory, including joint-deformation-angle figures; do not create a joint-angle subfolder or produce PDF unless the user explicitly asks. Use y-axis ticks at 1.0 increments
 for every strain figure and highlight the $-1$ and $+1$ yield-ratio lines.
 
 ## Comparison result package

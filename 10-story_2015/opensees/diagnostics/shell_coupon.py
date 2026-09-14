@@ -22,7 +22,9 @@ def main():
     cfg = json.loads((ROOT / 'config/specimen_2015.json').read_text(encoding='utf-8'))
     results = []
     for eas in (True, False):
-        for beta in (0., 0.002):
+        # 1e-30 is physically negligible but exercises getInitialStiff in the
+        # Rayleigh implementation. Differences from zero reveal state effects.
+        for beta in (0., 1.e-30):
             for integrator in ('HHT', 'Newmark'):
                 ops.wipe()
                 ops.model('basic', '-ndm', 3, '-ndf', 6)
@@ -52,7 +54,7 @@ def main():
                 ops.loadConst('-time',0.); ops.wipeAnalysis()
                 ops.rayleigh(.5,0.,beta,0.)
                 t = np.arange(0.,4.001,.005)
-                accel = 60000.*np.minimum(t/2.,1.)*np.sin(2*np.pi*3*t)
+                accel = 20000.*np.minimum(t/2.,1.)*np.sin(2*np.pi*3*t)
                 ops.timeSeries('Path',2,'-dt',.005,'-values',*accel)
                 ops.pattern('UniformExcitation',2,1,'-accel',2)
                 ops.constraints('Transformation'); ops.numberer('RCM'); ops.system('UmfPack')

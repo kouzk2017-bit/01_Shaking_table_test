@@ -95,7 +95,7 @@ def draw_comparison(
     return save_figure(
         fig,
         output_directory / stem,
-        formats=("svg", "png"),
+        formats=("png",),
         mode="paper",
     )
 
@@ -141,7 +141,7 @@ def draw_beam_column_comparison(
     return save_figure(
         fig,
         output_directory / output_stem,
-        formats=("svg", "png"),
+        formats=("png",),
         mode="paper",
     )
 
@@ -177,7 +177,7 @@ def draw_joint_stirrup_comparison(output_directory: Path) -> tuple[Path, ...]:
     return save_figure(
         fig,
         output_directory / "06_joint_stirrup_strain_vs_case_id",
-        formats=("svg", "png"),
+        formats=("png",),
         mode="paper",
     )
 

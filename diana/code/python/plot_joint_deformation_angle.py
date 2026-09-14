@@ -49,7 +49,6 @@ def read_condition(processed_dir: Path, condition: str) -> dict[str, np.ndarray]
 
 def save_figure(figure: plt.Figure, output_dir: Path, stem: str) -> None:
     output_dir.mkdir(parents=True, exist_ok=True)
-    figure.savefig(output_dir / f"{stem}.svg", bbox_inches="tight")
     figure.savefig(output_dir / f"{stem}.png", dpi=600, bbox_inches="tight")
     plt.close(figure)
 
