@@ -1,4 +1,4 @@
-"""Plot case-20 4F/6F rebar strain in the 2015 publication style."""
+"""Rebar-strain trace helpers shared by regenerate_current_figures.py."""
 
 from __future__ import annotations
 
@@ -8,9 +8,6 @@ import sys
 import numpy as np
 
 from config import (
-    CASE_NAME,
-    DATA_DIRECTORY,
-    FIGURE_DIRECTORY,
     PLOT_END,
     PLOT_START,
     REBAR_CHANNELS,
@@ -44,24 +41,3 @@ def _plot_floor(time: np.ndarray, beam: np.ndarray, column: np.ndarray, floor: i
         stem,
         time_window=(PLOT_START, PLOT_END),
     )
-
-
-def process() -> list[Path]:
-    source = DATA_DIRECTORY / "rebar_strain.npz"
-    if not source.is_file():
-        raise FileNotFoundError(f"Run process_rebar_strain.py first: {source}")
-    data = np.load(source)
-    time = data["time"]
-    generated: list[Path] = []
-    for offset, floor in enumerate((4, 6), start=7):
-        stem = FIGURE_DIRECTORY / f"chart_{offset:03d}_{CASE_NAME} {floor}F Rebar Strain"
-        _plot_floor(time, _trace(data, f"{floor}F_beam"), _trace(data, f"{floor}F_column"), floor, stem)
-        generated.append(stem.with_suffix(".png"))
-    return generated
-
-
-if __name__ == "__main__":
-    paths = process()
-    print("Generated rebar-strain figures:")
-    for path in paths:
-        print(path)

@@ -9,10 +9,16 @@ from __future__ import annotations
 
 import argparse
 import csv
+import sys
 from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
+
+WORKSPACE = Path(__file__).resolve().parents[3]
+sys.path.insert(0, str(WORKSPACE / "common" / "python"))
+
+from publication_style import apply_style  # noqa: E402
 
 
 CONDITIONS = {}
@@ -69,6 +75,7 @@ def main() -> None:
     parser.add_argument("--baseline", default="origin", help="Processed condition code to use as the baseline curve.")
     parser.add_argument("--baseline-label", default="Original", help="Legend label for the baseline curve.")
     args = parser.parse_args()
+    apply_style("paper")
     global CONDITIONS
     CONDITIONS = {
         args.baseline: {"label": args.baseline_label, "color": "#0072B2"},

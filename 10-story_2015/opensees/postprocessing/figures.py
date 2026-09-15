@@ -2,6 +2,7 @@
 from __future__ import annotations
 import csv
 import json
+import sys
 from pathlib import Path
 
 import matplotlib
@@ -9,9 +10,14 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
 
+COMMON_PYTHON = Path(__file__).resolve().parents[3] / 'common' / 'python'
+sys.path.insert(0, str(COMMON_PYTHON))
+
+from publication_style import apply_style  # noqa: E402
+
 
 def make_figures(model, out):
-    plt.rcParams.update({'font.size': 10, 'axes.spines.top': False, 'axes.spines.right': False})
+    apply_style('paper')
     nodes = {n['node']: np.array([n['x_mm'], n['y_mm'], n['z_mm']]) / 1000 for n in model['nodes']}
     fig = plt.figure(figsize=(8, 9), layout='constrained')
     ax = fig.add_subplot(111, projection='3d')

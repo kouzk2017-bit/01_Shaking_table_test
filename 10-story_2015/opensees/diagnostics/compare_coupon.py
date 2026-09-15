@@ -1,14 +1,21 @@
 """Compare the zero/negligible-beta diagnostic and export evidence."""
 import argparse
 import json
+import sys
 from pathlib import Path
 import numpy as np
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
+COMMON_PYTHON = Path(__file__).resolve().parents[3] / 'common' / 'python'
+sys.path.insert(0, str(COMMON_PYTHON))
+
+from publication_style import apply_style  # noqa: E402
+
 
 def main():
+    apply_style('paper')
     p=argparse.ArgumentParser();p.add_argument('run',type=Path);out=p.parse_args().run.resolve()
     fig,axes=plt.subplots(2,2,figsize=(11,7),layout='constrained')
     summary=[]

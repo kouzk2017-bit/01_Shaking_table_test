@@ -2,6 +2,7 @@
 import argparse
 import csv
 import json
+import sys
 from pathlib import Path
 import numpy as np
 import matplotlib
@@ -10,8 +11,14 @@ import matplotlib.pyplot as plt
 from matplotlib.collections import PolyCollection
 from matplotlib.colors import LogNorm
 
+COMMON_PYTHON = Path(__file__).resolve().parents[3] / 'common' / 'python'
+sys.path.insert(0, str(COMMON_PYTHON))
+
+from publication_style import apply_style  # noqa: E402
+
 
 def main():
+    apply_style('paper')
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('run',type=Path)
     out=p.parse_args().run.resolve()
     summary=json.loads((out/'localization_summary.json').read_text(encoding='utf-8'))

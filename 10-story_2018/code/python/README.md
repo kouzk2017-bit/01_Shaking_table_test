@@ -43,5 +43,11 @@ from the current MATLAB algorithm from the first loading case. The Python
 workflow therefore rebuilds the residual chain from raw data and records the
 historical state mismatch in `validation_against_matlab.json`.
 
-The older `run_case20.py` modules remain temporarily for provenance of earlier
-Python results, but they are not the formal workflow.
+The older `run_case20.py` modules (kept temporarily for provenance, never the
+formal workflow) were removed on 2026-09-15 after confirming no other script
+imported them; the pre-removal source is still in `git log` if ever needed.
+`plot_rebar_strain.py` and `config.py` were kept — `scripts/figure_export/
+regenerate_current_figures.py` still imports the trace helpers from
+`plot_rebar_strain.py`, whose now-unreachable `process()`/CLI entry (it
+depended on the deleted `process_rebar_strain.py`) was trimmed at the same
+time.

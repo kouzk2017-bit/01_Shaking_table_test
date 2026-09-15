@@ -7,11 +7,10 @@ remain in the individual plotting functions.
 
 from __future__ import annotations
 
-from contextlib import contextmanager
 from dataclasses import dataclass
 import os
 from pathlib import Path
-from typing import Iterator, Sequence
+from typing import Sequence
 import warnings
 
 import matplotlib
@@ -186,19 +185,6 @@ def apply_style(mode: str | None = None) -> PublicationStyle:
         "svg.fonttype": "none",
     })
     return style
-
-
-@contextmanager
-def style_context(mode: str | None = None) -> Iterator[PublicationStyle]:
-    """Temporarily apply a common style without leaking rcParams changes."""
-    global _ACTIVE_STYLE
-    previous = _ACTIVE_STYLE
-    with plt.rc_context():
-        style = apply_style(mode)
-        try:
-            yield style
-        finally:
-            _ACTIVE_STYLE = previous
 
 
 def figure_size(

@@ -10,9 +10,9 @@
 
 ## ISSUE-002：旧 Python 工作流仅配置 Case 20
 
-- 状态：已解决（2026-07-30）
+- 状态：已解决（2026-07-30；旧文件已于 2026-09-15 删除）
 - 处理：新增 `code/python/run_pipeline.py`，支持按工况、全部加载工况和全部现存工况运行，并在运行前检查 JB 文件。
-- 说明：旧 `run_case20.py` 暂时保留用于追溯，不再是正式入口。
+- 说明：旧 `run_case20.py` 及其专用链（`process_acceleration.py`、`process_joint_rotation.py`、`process_rebar_strain.py`、`process_story_drift.py`、`process_story_shear.py`、`plot_results.py`、`export_tabular.py`、`io_utils.py`、该目录下的 `legacy_signal.py`）曾暂时保留用于追溯，不再是正式入口；2026-09-15 全仓库排查确认无任何其他脚本引用后已删除，`git log` 中仍可恢复。`plot_rebar_strain.py` 和 `config.py` 予以保留，因为 `scripts/figure_export/regenerate_current_figures.py` 仍从 `plot_rebar_strain.py` 导入曲线绘制辅助函数；其依赖已删除文件的 `process()`/CLI 入口一并移除。
 
 ## ISSUE-004：Case 20 历史累积位移使用旧残余状态
 
