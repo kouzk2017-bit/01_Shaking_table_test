@@ -144,7 +144,19 @@ def transient(model, config, modes, times, acc, out):
         nonlocal cached_dt
         start = ops.getTime()
         algorithms = list(dict.fromkeys([default_algorithm, 'KrylovNewton', 'NewtonLineSearch', 'Newton']))
-        for algorithm in algorithms:
+        trials = [(config['tolerance_mm'], config['max_iterations'], algorithm) for algorithm in algorithms]
+        recovery_tolerance = config.get('transient_recovery_tolerance_mm')
+        if recovery_tolerance:
+            # One more full-dt attempt at a relaxed NormDispIncr tolerance,
+            # before any halving. Displacement increments near a strong
+            # ground-motion pulse can sit close to zero in absolute terms,
+            # where the tight production tolerance never converges even at
+            # a much smaller dt; this mirrors the recovery-ladder rung that
+            # the sibling TJU time-history solver relies on for the same
+            # pulse-region failures.
+            recovery_iterations = config.get('transient_recovery_iterations', config['max_iterations'])
+            trials.append((recovery_tolerance, recovery_iterations, default_algorithm))
+        for tolerance, max_iterations, algorithm in trials:
             if algorithm == 'ModifiedNewtonFactorOnce':
                 # Reuse the factorization for a fixed dt, but still iterate the
                 # full nonlinear residual to the same convergence criterion.
@@ -153,19 +165,29 @@ def transient(model, config, modes, times, acc, out):
                     ops.algorithm('ModifiedNewton', '-factoronce')
                     cached_dt = step_dt
             else:
+                # A failed analyze() can leave the sparse factorization in a
+                # state where every later attempt at this instant also fails,
+                # even with a different algorithm or a smaller dt -- this was
+                # the actual root cause behind a near-identical strong-pulse
+                # convergence wall in the sibling TJU time-history solver, not
+                # the algorithm or dt themselves. Rebuild the linear system
+                # fresh on every non-cached attempt.
+                ops.system(config.get('linear_system', 'UmfPack'))
                 ops.algorithm(algorithm)
                 cached_dt = None
+            ops.test('NormDispIncr', tolerance, max_iterations, 0)
             code = ops.analyze(1, step_dt)
             if code == 0:
-                if algorithm != default_algorithm or depth:
+                ops.test('NormDispIncr', config['tolerance_mm'], config['max_iterations'], 0)
+                if algorithm != default_algorithm or depth or tolerance != config['tolerance_mm']:
                     events.append({'start_s': start, 'dt_s': step_dt,
                                    'algorithm': algorithm, 'subdivision': depth,
-                                   'return_code': 0})
+                                   'tolerance_mm': tolerance, 'return_code': 0})
                 return
             cached_dt = None
             events.append({'start_s': start, 'dt_s': step_dt,
                            'algorithm': algorithm, 'subdivision': depth,
-                           'return_code': code})
+                           'tolerance_mm': tolerance, 'return_code': code})
         if step_dt / 2 < config['min_dt_s'] - 1.e-12:
             raise RuntimeError(f'Transient failed at t={start:.8g} s, dt={step_dt:.8g} s')
         advance(step_dt / 2, depth + 1)
@@ -235,6 +257,7 @@ def transient(model, config, modes, times, acc, out):
             'output_steps': len(times) - 1, 'directions': directions,
             'recovery_events': len(events), 'damping_ratio_assumed': zeta,
             'default_algorithm': default_algorithm,
+            'transient_recovery_tolerance_mm': config.get('transient_recovery_tolerance_mm'),
             'rayleigh_alphaM': alpha, 'rayleigh_betaKinit': beta,
             'rayleigh_anchor_periods_s': [2 * math.pi / w1, 2 * math.pi / w2],
             'peaks_by_story': peaks}
