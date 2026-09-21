@@ -1,7 +1,7 @@
 # 2015 ten-story Python workflow
 
 This is the active 2015 processing entry. Raw files under `data/raw/` are read
-only. Results are written under `results/2015/<case>/` at the workspace root.
+only. Results are written under `results/experiment/2015/<case>/` at the workspace root.
 
 ```powershell
 python run_pipeline.py --list-cases

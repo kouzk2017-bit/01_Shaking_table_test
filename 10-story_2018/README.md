@@ -6,7 +6,7 @@
 
 - `data/raw/`：原始仪器 CSV，只读。
 - `code/python/`：正式 Raw Data → CSV → CSV 绘图入口。
-- `../results/2018/<case>/`：当前工况图片，图片直接放在工况目录中。
+- `../results/experiment/2018/<case>/`：当前工况图片，图片直接放在工况目录中。
 - `../results/archive/2026-07-30_before_cleanup/2018/`：历史结果、MATLAB 工作簿和运行残留。
 - `metadata/`：工况表和迁移清单。
 - `validation/baseline/`：历史迁移验证资料。

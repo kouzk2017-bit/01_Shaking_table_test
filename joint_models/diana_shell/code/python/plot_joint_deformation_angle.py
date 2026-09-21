@@ -15,7 +15,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 
-WORKSPACE = Path(__file__).resolve().parents[3]
+WORKSPACE = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(WORKSPACE / "common" / "python"))
 
 from publication_style import apply_style  # noqa: E402
@@ -68,7 +68,7 @@ def style_axis(axis: plt.Axes) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--processed-dir", type=Path, default=Path("diana/data/processed"))
+    parser.add_argument("--processed-dir", type=Path, default=Path("joint_models/diana_shell/data/processed"))
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--variant", default="j16_l")
     parser.add_argument("--variant-label", default="J16-L")

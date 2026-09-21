@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-WORKSPACE = Path(__file__).resolve().parents[3]
+WORKSPACE = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(WORKSPACE / "common" / "python"))
 
 from publication_style import (  # noqa: E402
@@ -72,7 +72,7 @@ def draw_comparison(
     style = apply_style("paper")
     fig, ax = plt.subplots(figsize=figure_size("paper"))
     for condition, label, color, line_style in CONDITIONS:
-        source = WORKSPACE / "diana" / "data" / "processed" / condition / "cyclic_response.csv"
+        source = WORKSPACE / "joint_models" / "diana_shell" / "data" / "processed" / condition / "cyclic_response.csv"
         table = read_table(source)
         ax.plot(
             table[x_column],
@@ -109,7 +109,7 @@ def draw_beam_column_comparison(
     """Compare beam and column strain ratios within one axial-force condition."""
     style = apply_style("paper")
     fig, ax = plt.subplots(figsize=figure_size("paper"))
-    source = WORKSPACE / "diana" / "data" / "processed" / condition / "cyclic_response.csv"
+    source = WORKSPACE / "joint_models" / "diana_shell" / "data" / "processed" / condition / "cyclic_response.csv"
     table = read_table(source)
     ax.plot(
         table["case_id"],
@@ -153,7 +153,7 @@ def draw_joint_stirrup_comparison(output_directory: Path) -> tuple[Path, ...]:
     style = apply_style("paper")
     fig, ax = plt.subplots(figsize=figure_size("paper"))
     for condition, label, color, line_style in CONDITIONS:
-        source = WORKSPACE / "diana" / "data" / "processed" / condition / "joint_stirrup_response.csv"
+        source = WORKSPACE / "joint_models" / "diana_shell" / "data" / "processed" / condition / "joint_stirrup_response.csv"
         table = read_table(source)
         ax.plot(
             table["case_id"],
@@ -201,7 +201,7 @@ def main() -> int:
     missing = [
         condition
         for condition, *_ in CONDITIONS
-        if not (WORKSPACE / "diana" / "data" / "processed" / condition / "cyclic_response.csv").is_file()
+        if not (WORKSPACE / "joint_models" / "diana_shell" / "data" / "processed" / condition / "cyclic_response.csv").is_file()
     ]
     if missing:
         joined = ", ".join(missing)

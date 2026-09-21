@@ -60,13 +60,13 @@ def main() -> None:
     parser.add_argument(
         "--input-dir",
         type=Path,
-        default=Path("diana/data/raw/origin_2015"),
+        default=Path("joint_models/diana_shell/data/raw/origin_2015"),
         help="Directory containing TDtX_nodes_620_623_636_639.csv and TDtZ_nodes_620_623_636_639.csv.",
     )
     parser.add_argument(
         "--output",
         type=Path,
-        default=Path("diana/data/processed/origin/joint_deformation_angle.csv"),
+        default=Path("joint_models/diana_shell/data/processed/origin/joint_deformation_angle.csv"),
         help="Output CSV path.",
     )
     parser.add_argument("--a-mm", type=float, default=350.0, help="Joint width a in mm.")

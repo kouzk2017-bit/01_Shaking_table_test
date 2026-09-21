@@ -44,7 +44,7 @@ def regenerate_standard_figures() -> list[Path]:
     outputs: list[Path] = []
     for case in CASES:
         source = ARCHIVE_ROOT / case["year"] / "python" / case["name"]
-        target = WORKSPACE_DIRECTORY / "results" / case["year"] / case["name"]
+        target = WORKSPACE_DIRECTORY / "results" / "experiment" / case["year"] / case["name"]
         outputs.extend(
             plot_case(
                 source,
@@ -68,7 +68,7 @@ def regenerate_2015_rebar_figures() -> list[Path]:
         / "csv"
         / "rebar_strain_selected.csv"
     )
-    target = WORKSPACE_DIRECTORY / "results" / "2015" / case_name
+    target = WORKSPACE_DIRECTORY / "results" / "experiment" / "2015" / case_name
     if not source.is_file():
         raise FileNotFoundError(f"Archived 2015 rebar data not found: {source}")
     headers, data = load_csv(source)
@@ -85,7 +85,7 @@ def regenerate_2015_rebar_figures() -> list[Path]:
 def regenerate_2018_rebar_figures() -> list[Path]:
     case_name = "20190109-2(JMAKobe100%)"
     source = ARCHIVE_ROOT / "2018" / "python" / case_name / "data" / "rebar_strain.npz"
-    target = WORKSPACE_DIRECTORY / "results" / "2018" / case_name
+    target = WORKSPACE_DIRECTORY / "results" / "experiment" / "2018" / case_name
     if not source.is_file():
         raise FileNotFoundError(f"Archived rebar data not found: {source}")
     apply_style("paper")

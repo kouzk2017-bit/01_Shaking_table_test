@@ -8,7 +8,7 @@ from ten_story_pipeline import Case, ProjectSpec
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
-RESULTS_ROOT = PROJECT_ROOT.parent / "results" / "2018"
+RESULTS_ROOT = PROJECT_ROOT.parent / "results" / "experiment" / "2018"
 BASELINE_ROOT = PROJECT_ROOT.parent / "results" / "archive" / "2026-07-30_before_cleanup" / "2018"
 
 _ROWS = (

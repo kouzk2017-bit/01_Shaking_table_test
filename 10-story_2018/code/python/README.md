@@ -2,7 +2,7 @@
 
 `run_pipeline.py` is the active entry for all ten raw-data-complete loading
 cases. Raw files under `data/raw/` are read only. Results are written under
-the workspace-level `results/2018/<case>/` directory.
+the workspace-level `results/experiment/2018/<case>/` directory.
 
 ```powershell
 python run_pipeline.py --list-cases

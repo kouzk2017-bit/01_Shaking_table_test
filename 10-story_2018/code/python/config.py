@@ -6,7 +6,7 @@ from pathlib import Path
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
-RESULTS_ROOT = PROJECT_ROOT.parent / "results" / "2018"
+RESULTS_ROOT = PROJECT_ROOT.parent / "results" / "experiment" / "2018"
 CASE_NAME = "20190109-2(JMAKobe100%)"
 TEST_DATE = "2019-0109"
 TEST_FOLDER = "2019-0109-006-1"

@@ -9,7 +9,7 @@ import shutil
 
 def main():
     ROOT = Path(__file__).resolve().parents[1]
-    OUT = ROOT.parents[1] / 'results/2015/opensees' / (datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S_%fZ') + '_coupon')
+    OUT = ROOT.parents[1] / 'results/opensees/10story_2015' / (datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S_%fZ') + '_coupon')
     OUT.mkdir(parents=True, exist_ok=False)
     shutil.copyfile(__file__, OUT / 'shell_coupon.py')
     shutil.copyfile(ROOT / 'config/specimen_2015.json', OUT / 'specimen_config_used.json')

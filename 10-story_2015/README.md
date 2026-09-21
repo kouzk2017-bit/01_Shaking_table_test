@@ -2,7 +2,11 @@
 
 ## OpenSees 数值模型
 
-`opensees/` 为参照 TJU 方法建立的 2015 三维墙框架模型，支持独立建模、重力、模态和 Case 13 实测输入试运行。运行方法、参数来源及尚未校准的假定见 [opensees/README.md](opensees/README.md)。数值输出单独存放于 `../results/2015/opensees/`。
+参照 TJU 方法建立的 2015 三维墙框架模型现独立存放于
+[`../building_models/opensees_10story_2015/`](../building_models/opensees_10story_2015/README.md)（与本试验目录平级，不再嵌在其中），
+支持独立建模、重力、模态和 Case 13 实测输入试运行；该模型仍从本目录的
+`data/raw/` 读取台面实测输入。运行方法、参数来源及尚未校准的假定见其 README。
+数值输出单独存放于 `../results/opensees/10story_2015/`。
 
 本项目采用“只读原始数据、Python 计算、CSV 交换、CSV 绘图、历史结果验证”工作流。
 
@@ -10,7 +14,7 @@
 
 - `data/raw/`：原始仪器 CSV，只读。
 - `code/python/`：正式 Raw Data → CSV → CSV 绘图入口。
-- `../results/2015/<case>/`：当前工况图片，图片直接放在工况目录中。
+- `../results/experiment/2015/<case>/`：当前工况图片，图片直接放在工况目录中。
 - `../results/archive/2026-07-30_before_cleanup/2015/`：历史结果、MATLAB 工作簿和运行残留。
 - `metadata/`：工况表、传感器表和迁移清单。
 - `validation/baseline/`：历史迁移验证资料。

@@ -2,7 +2,7 @@
 
 The script is deliberately data-only: it never creates a figure.  It removes
 the first ten axial-load steps and writes one normalized response table per
-condition under ``diana/data/processed``.
+condition under ``joint_models/diana_shell/data/processed``.
 """
 
 from __future__ import annotations
@@ -315,9 +315,10 @@ def prepare_joint_stirrup_condition(
 
 
 CURVE_SOURCE_REGISTRY = (
-    Path(__file__).resolve().parents[3]
+    Path(__file__).resolve().parents[4]
     / "results"
     / "diana"
+    / "shell"
     / "curve-source-registry.csv"
 )
 CONDITION_LABELS = {
@@ -389,9 +390,9 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--dry-run", action="store_true", help="Validate inputs without writing CSV files")
     args = parser.parse_args()
-    workspace = Path(__file__).resolve().parents[3]
-    raw_root = workspace / "diana" / "data" / "raw"
-    processed_root = workspace / "diana" / "data" / "processed"
+    workspace = Path(__file__).resolve().parents[4]
+    raw_root = workspace / "joint_models" / "diana_shell" / "data" / "raw"
+    processed_root = workspace / "joint_models" / "diana_shell" / "data" / "processed"
     for condition in CONDITIONS:
         prepare_condition(raw_root, processed_root, condition, args.dry_run)
         prepare_joint_stirrup_condition(raw_root, processed_root, condition, args.dry_run)

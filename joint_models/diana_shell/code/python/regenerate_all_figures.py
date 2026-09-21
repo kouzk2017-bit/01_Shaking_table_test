@@ -1,8 +1,9 @@
 """Regenerate every DIANA cyclic-comparison figure package end to end.
 
-One command rebuilds diana/data/processed/ and every results/diana/*_comparison/
-package from the raw exports under diana/data/raw/. Run this any time raw data
-changes, instead of re-typing the individual prepare/calculate/plot commands.
+One command rebuilds joint_models/diana_shell/data/processed/ and every
+results/diana/shell/*_comparison/ package from the raw exports under
+joint_models/diana_shell/data/raw/. Run this any time raw data changes,
+instead of re-typing the individual prepare/calculate/plot commands.
 
 IMPORTANT (fonts): run this with a Python that has matplotlib resolving
 "Times New Roman" -- i.e. your own Windows Python, not a Linux sandbox --
@@ -11,7 +12,7 @@ fall back to DejaVu Serif; SVGs are unaffected either way (they only record
 the font name, not its glyphs).
 
 Usage (from the repo root, in your own PowerShell):
-    python diana\\code\\python\\regenerate_all_figures.py
+    python joint_models\\diana_shell\\code\\python\\regenerate_all_figures.py
 """
 
 from __future__ import annotations
@@ -21,22 +22,22 @@ import subprocess
 import sys
 from pathlib import Path
 
-WORKSPACE = Path(__file__).resolve().parents[3]
-CODE = WORKSPACE / "diana" / "code" / "python"
-PROCESSED = WORKSPACE / "diana" / "data" / "processed"
-RESULTS = WORKSPACE / "results" / "diana"
+WORKSPACE = Path(__file__).resolve().parents[4]
+CODE = WORKSPACE / "joint_models" / "diana_shell" / "code" / "python"
+PROCESSED = WORKSPACE / "joint_models" / "diana_shell" / "data" / "processed"
+RESULTS = WORKSPACE / "results" / "diana" / "shell"
 
 # Joint-panel dimensions and 4-node layout confirmed 2026-09-04:
 # a (horizontal) = 300 mm, b (vertical) = 366.67 mm, applies to ALL conditions.
 # v2018 uses a different mesh's node numbers for the same physical layout.
 JOINT_ANGLE_ARGS = {
-    "origin": dict(input_dir="diana/data/raw/origin_2015", ul=623, ur=620, ll=639, lr=636),
-    "j16_l":  dict(input_dir="diana/data/raw/J16-L",       ul=623, ur=620, ll=639, lr=636),
-    "j12_h":  dict(input_dir="diana/data/raw/J12-H",       ul=623, ur=620, ll=639, lr=636),
-    "j12_m":  dict(input_dir="diana/data/raw/J12-M",       ul=623, ur=620, ll=639, lr=636),
-    "j16_m":  dict(input_dir="diana/data/raw/J16-M",       ul=623, ur=620, ll=639, lr=636),
-    "j16_h":  dict(input_dir="diana/data/raw/J16-H",       ul=623, ur=620, ll=639, lr=636),
-    "v2018":  dict(input_dir="diana/data/raw/origin_2018", ul=840, ur=837, ll=852, lr=849),
+    "origin": dict(input_dir="joint_models/diana_shell/data/raw/origin_2015", ul=623, ur=620, ll=639, lr=636),
+    "j16_l":  dict(input_dir="joint_models/diana_shell/data/raw/J16-L",       ul=623, ur=620, ll=639, lr=636),
+    "j12_h":  dict(input_dir="joint_models/diana_shell/data/raw/J12-H",       ul=623, ur=620, ll=639, lr=636),
+    "j12_m":  dict(input_dir="joint_models/diana_shell/data/raw/J12-M",       ul=623, ur=620, ll=639, lr=636),
+    "j16_m":  dict(input_dir="joint_models/diana_shell/data/raw/J16-M",       ul=623, ur=620, ll=639, lr=636),
+    "j16_h":  dict(input_dir="joint_models/diana_shell/data/raw/J16-H",       ul=623, ur=620, ll=639, lr=636),
+    "v2018":  dict(input_dir="joint_models/diana_shell/data/raw/origin_2018", ul=840, ur=837, ll=852, lr=849),
 }
 A_MM = 300.0
 B_MM = 366.67

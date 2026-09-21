@@ -4,10 +4,12 @@
 !/results/
 !/results/README.md
 /results/archive/
-!/results/2015/
-/results/2015/*
-!/results/2018/
-/results/2018/*
+!/results/experiment/
+!/results/experiment/2015/
+/results/experiment/2015/*
+!/results/experiment/2018/
+/results/experiment/2018/*
+/results/opensees/
 
 # Archived source material and large supporting documents
 !/legacy/
@@ -19,7 +21,7 @@
 !/legacy/matlab_archive/10-story_2018/
 !/legacy/matlab_archive/10-story_2018/**
 **/documents/
-/drawings/
+/joint_models/drawings/
 
 # Deprecated build scripts kept only for local traceability
 /scripts/deprecated/

@@ -95,7 +95,9 @@ def load_ground_motion(
 ) -> tuple[np.ndarray, np.ndarray, dict]:
     """Return time [s], measured X/Y/Z acceleration [mm/s²], and provenance.
 
-    ``project_root`` is the ``10-story_2015`` directory. The full source is
+    ``project_root`` is the sibling ``10-story_2015`` experiment directory
+    (this model lives outside it, under ``building_models/``, but still reads
+    the measured table motion from its ``data/raw/``). The full source is
     filtered before any truncation; its first sample and all prehistory remain.
     A zero sample is inserted at analysis t=0, and the measured record starts at
     t=0.01 s. Thus OpenSees can start from rest and interpolate to the first

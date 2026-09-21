@@ -67,7 +67,7 @@
 - `analysis/ground_motion.py`、`analysis/solver.py`：原始波形读取和分析。
 - `docs/PARAMETER_SOURCES.md`：资料页码、参数对应和重要差异。
 
-每次运行先在 `../../results/2015/opensees/<UTC时间_分析类型>/` 建立唯一目录，保存参数快照、源码快照及 SHA256、输入源 SHA256、求解日志和状态。失败也保留日志，不覆盖旧运行。
+每次运行先在 `../../results/opensees/10story_2015/<UTC时间_分析类型>/` 建立唯一目录，保存参数快照、源码快照及 SHA256、输入源 SHA256、求解日志和状态。失败也保留日志，不覆盖旧运行。
 
 主要结果包括 `model_summary.json`、节点/单元/质量 CSV、截面审计 JSON、重力反力、重力后模态、`floor_response.csv`、`response_peaks.csv`、模型图及响应图。楼层响应表的 `story=1…10` 对应物理楼面 `2F…RF`，不是物理 1F…10F。
 

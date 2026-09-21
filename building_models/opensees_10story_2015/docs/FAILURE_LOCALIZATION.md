@@ -15,13 +15,13 @@
 
 这些是应变集中位置，**不是已证实的破坏位置或不收敛源**。目前优先核查 ASDShellQ4 的 EAS 与初始刚度 Rayleigh 调用之间的数值交互：下述独立墙片对照已重复复现异常，但尚未证明它是整楼终止的唯一原因，也未完成修复后的完整时程验证。
 
-结果目录 `results/2015/opensees/20260908T023932_963929Z_locator` 内已保存 `replay_consistency.json`、`rollback_comparison.json`、`localization_summary.json`、`wall_localization.png` 和 `wall_strain_history.png`。墙片图显示回退后应变分布，不是失败单元判定图。
+结果目录 `results/opensees/10story_2015/20260908T023932_963929Z_locator` 内已保存 `replay_consistency.json`、`rollback_comparison.json`、`localization_summary.json`、`wall_localization.png` 和 `wall_strain_history.png`。墙片图显示回退后应变分布，不是失败单元判定图。
 
 ## 已复现的数值交互异常
 
 在当前 OpenSees 3.8.0 环境中，八单元非线性墙片仅将初始刚度 Rayleigh 系数从 0 改为 1e-30，就出现了明显不同的位移响应和首个未收敛时刻。1e-30 的物理阻尼贡献可忽略，主要差别是是否触发初始刚度计算路径。
 
-结果目录：`results/2015/opensees/20260908T024335_747981Z_coupon`。可查看 `beta_comparison.json`、`beta_zero_vs_tiny.png` 和逐步 CSV。
+结果目录：`results/opensees/10story_2015/20260908T024335_747981Z_coupon`。可查看 `beta_comparison.json`、`beta_zero_vs_tiny.png` 和逐步 CSV。
 
 | 壳选项 | 积分器 | 共同已收敛时段最大位移差（mm） | β=0 最后收敛时刻（s） | β=1e-30 最后收敛时刻（s） |
 |---|---|---:|---:|---:|
@@ -52,7 +52,7 @@
 
 双向同时加载筛查 `20260908T031129_516912Z_static_screen` 采用 Fy/Fx=1.3（诊断假定，并非实测加载路径），完成屋顶 X 增量 5 mm、Y 约 4.30 mm，末步 6 次迭代。第四层 W4 边缘区单元 658 的面内应变分量最大约 1.75e-4，仍收敛；不能将这个静力最大应变位置直接认定为动力失败位置。
 
-运行目录：`results/2015/opensees/20260908T023932_963929Z_locator`。
+运行目录：`results/opensees/10story_2015/20260908T023932_963929Z_locator`。
 
 使用 2026-09-07 失败运行的原始源码快照、参数和完整输入历史，未把后续配筋修正混入重现过程。成功步诊断只读取截面应变、截面内力及节点状态；停止后的残差查询例外，见下文限制。已核对 t=0.8 s 各楼层双向位移与原运行差值为 0。
 

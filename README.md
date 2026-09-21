@@ -1,27 +1,43 @@
 # Shaking Table Test Workspace
 
-本目录用于管理 4 层与 10 层振动台试验数据、分析代码、前人资料和最终成果。
+本目录用于管理 4 层与 10 层振动台试验数据、分析代码、前人资料，以及由此延伸的数值模型
+（整体建筑 OpenSees 模型、节点局部 DIANA 模型）和最终成果。
 
 ## 当前结构
 
-- `10-story_2015/`：2015 年 10 层试验正式 Python 工作目录，Raw Data 直接生成 CSV 并由 CSV 绘图。
+按"试验数据"与"数值模型"分开组织：
+
+- `10-story_2015/`：2015 年 10 层试验正式 Python 工作目录，Raw Data 直接生成 CSV 并由 CSV 绘图。只含试验数据处理，不含数值模型。
 - `10-story_2018/`：2018 年 10 层试验正式 Python 工作目录，支持现存加载工况批处理。
 - `4-story/`：4 层试验正式工作目录，已完成配置化迁移和节点转角基准验证。
+- 以上三个试验目录结构已固定（除内部 ISSUES.md 记录的数据缺失问题外），不再做结构性改动。
+- `building_models/opensees_10story_2015/`：2015 十层试件的整体 OpenSees 数值模型（原嵌在
+  `10-story_2015/opensees/` 内，2026-09-21 抽出独立存放）；仍从 `10-story_2015/data/raw/`
+  读取台面实测输入。
+- `joint_models/`：节点（梁柱节点）局部数值模型。
+  - `diana_shell/`：DIANA 层壳节点模型的代码、配置与数据（原顶层 `diana/`）。
+  - `diana_solid/`：DIANA 实体节点模型（原顶层 `solid_BCJs/`），原始产出在 `data/raw/`；
+    `code/`、`config/`、`results/` 为预留空目录。
+  - `drawings/`：节点详图等 DWG 图纸（原顶层 `drawings/`）。
 - `legacy/`：从原 `lab` 整理出的前人代码、模型、文档和精选结果。
-- `results/2015/`：2015 年当前图片，下一层直接按工况组织。
-- `results/2018/`：2018 年当前图片，下一层直接按工况组织。
-- `results/archive/`：整理前结果、历史基准和中间文件的日期化归档。
+- `results/`：
+  - `experiment/2015/`、`experiment/2018/`：试验当前图片，按年份和工况组织。
+  - `diana/shell/`、`diana/solid/`：DIANA 层壳/实体节点模型的对比结果。
+  - `opensees/10story_2015/`：整体 OpenSees 模型每次运行的独立结果目录。
+  - `archive/`：整理前结果、历史基准和中间文件的日期化归档。
 - `scripts/`：成果生成与维护脚本。
-- `drawings/`：DWG 等图纸。
-- `common/`：计划用于存放跨项目共用函数；当前仅建立框架。
+- `common/`：跨项目共用函数（绘图风格、MATLAB 基准比对等）。
 
 ## 工作原则
 
 1. 正式试验目录中的 `data/raw/` 视为只读原始数据；它们由迁移前的 `00_testdata` 建立而来。
 2. `data/processed/` 和顶层 `results/` 属于处理结果，可由代码重新生成时不应作为唯一数据源。
-3. 2015、2018 年的结果统一放在顶层 `results/2015/` 和 `results/2018/`；最终工作簿和成图放在各年份的 `deliverables/` 子目录。
+3. 试验结果、DIANA 节点模型结果、OpenSees 整体模型结果分别放在 `results/experiment/`、
+   `results/diana/`、`results/opensees/` 下；最终工作簿和成图放在各年份的 `deliverables/` 子目录。
 4. 前人资料统一放在 `legacy/`，不保证迁移后可直接运行。
 5. 正式试验目录按项目逐个迁移；移动前建立数值基准，移动后通过统一路径配置重跑并验证等价性。
+   三个试验目录迁移完成后即视为冻结，后续新增的数值模型一律放在 `building_models/` 或
+   `joint_models/` 下，不再嵌入试验目录内部。
 
 ## 项目迁移状态
 

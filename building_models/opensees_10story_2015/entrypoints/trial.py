@@ -15,6 +15,9 @@ from datetime import datetime, timezone
 
 ROOT = Path(__file__).resolve().parents[1]
 PROJECT = ROOT.parent
+# This model lives outside the experiment directory it was extracted from;
+# the measured table motion it reads as input still lives there.
+EXPERIMENT_ROOT = PROJECT.parent / '10-story_2015'
 
 
 def write_json(path, value):
@@ -31,7 +34,7 @@ def main(argv=None):
     args = parser.parse_args(argv)
     # Outputs are separate from experimental figures and use an exclusive directory.
     run_id = datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S_%fZ') + f'_{args.stage}'
-    out = PROJECT.parent / 'results' / '2015' / 'opensees' / run_id
+    out = PROJECT.parent / 'results' / 'opensees' / '10story_2015' / run_id
     out.mkdir(parents=True, exist_ok=False)
     status = {'run_id': run_id, 'state': 'running', 'stage': args.stage,
               'started_utc': datetime.now(timezone.utc).isoformat(),
@@ -92,7 +95,7 @@ def main(argv=None):
             modes = modal(model, analysis, out)
             status['modal'] = modes
         if args.stage == 'trial':
-            times, acceleration, motion = load_ground_motion(PROJECT, args.case, args.duration)
+            times, acceleration, motion = load_ground_motion(EXPERIMENT_ROOT, args.case, args.duration)
             if motion['test_base_condition'] != 'fixed':
                 raise ValueError('This fixed-base model requires a December fixed-base record (cases 13/15/17/20/22).')
             # Measured axes are explicitly mapped in the specimen configuration.
