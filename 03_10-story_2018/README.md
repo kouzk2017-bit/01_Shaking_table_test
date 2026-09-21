@@ -1,0 +1,34 @@
+# 10-story 2018 Shaking Table Project
+
+本项目采用“只读原始数据、Python 计算、CSV 交换、CSV 绘图、历史结果验证”工作流。
+
+## 目录
+
+- `data/raw/`：原始仪器 CSV，只读。
+- `code/python/`：正式 Raw Data → CSV → CSV 绘图入口。
+- `../06_results/experiment/2018/<case>/`：当前工况图片，图片直接放在工况目录中。
+- `../06_results/archive/2026-07-30_before_cleanup/2018/`：历史结果、MATLAB 工作簿和运行残留。
+- `metadata/`：工况表和迁移清单。
+- `validation/baseline/`：历史迁移验证资料。
+
+## 正式入口
+
+```powershell
+cd '<project>/03_10-story_2018/code/python'
+python run_pipeline.py --list-cases
+python run_pipeline.py --case 20
+python run_pipeline.py --all-loading
+python plot_from_csv.py --case 20
+python run_pipeline.py --case 20 --then-plot
+python validate_against_matlab.py --case 20
+```
+
+通常先运行 `run_pipeline.py` 生成计算 CSV。以后仅调整坐标轴、字体、颜色或
+图片格式时，只修改共享的 `../08_common/config/plot_config.json` 并运行 `plot_from_csv.py`，不会重新读取
+或计算 Raw Data。`csv/selected_peaks.csv` 保存 A--D 的时刻、响应值和占比。
+
+现存 10 个正式加载工况均可处理加速度、剪力、位移和节点转角；拥有
+JB04/JB05/JB06 的 Case 20 还会生成钢筋应变 CSV。
+
+原 MATLAB 代码已移至 `09_legacy/matlab_archive/10-story_2018/`，不再是正式入口。
+历史 MATLAB 结果已封存在 `../06_results/archive/2026-07-30_before_cleanup/2018/`，用于验证 Python 数值等价性。

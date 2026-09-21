@@ -1,30 +1,30 @@
 # Large experimental datasets and generated analysis outputs
 **/data/
 **/results/
-!/results/
-!/results/README.md
-/results/archive/
-!/results/experiment/
-!/results/experiment/2015/
-/results/experiment/2015/*
-!/results/experiment/2018/
-/results/experiment/2018/*
-/results/opensees/
+!/06_results/
+!/06_results/README.md
+/06_results/archive/
+!/06_results/experiment/
+!/06_results/experiment/2015/
+/06_results/experiment/2015/*
+!/06_results/experiment/2018/
+/06_results/experiment/2018/*
+/06_results/opensees/
 
 # Archived source material and large supporting documents
-!/legacy/
-/legacy/*
-!/legacy/matlab_archive/
-/legacy/matlab_archive/*
-!/legacy/matlab_archive/10-story_2015/
-!/legacy/matlab_archive/10-story_2015/**
-!/legacy/matlab_archive/10-story_2018/
-!/legacy/matlab_archive/10-story_2018/**
+!/09_legacy/
+/09_legacy/*
+!/09_legacy/matlab_archive/
+/09_legacy/matlab_archive/*
+!/09_legacy/matlab_archive/10-story_2015/
+!/09_legacy/matlab_archive/10-story_2015/**
+!/09_legacy/matlab_archive/10-story_2018/
+!/09_legacy/matlab_archive/10-story_2018/**
 **/documents/
-/joint_models/drawings/
+/05_joint_models/drawings/
 
 # Deprecated build scripts kept only for local traceability
-/scripts/deprecated/
+/07_scripts/deprecated/
 
 # Python caches and local environments
 __pycache__/

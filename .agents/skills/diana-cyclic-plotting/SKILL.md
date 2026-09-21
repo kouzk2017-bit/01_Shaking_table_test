@@ -6,13 +6,13 @@ description: "Process DIANA cyclic-loading CSV exports and compare any selected 
 # Diana Cyclic Plotting
 
 Use this skill for the DIANA data workflow in this repository. Raw exports stay
-under `joint_models/diana_shell/data/raw/` and are never edited. Plotting reads only the standardized
-files under `joint_models/diana_shell/data/processed/`.
+under `05_joint_models/diana_shell/data/raw/` and are never edited. Plotting reads only the standardized
+files under `05_joint_models/diana_shell/data/processed/`.
 
 ## Reusable condition workflow
 
 - `origin` is the sole baseline condition. Each requested variant is compared only with `origin`; do not alter the skill when another variant is added.
-- Keep raw exports in `joint_models/diana_shell/data/raw/<folder>/` unchanged. Write reproducible outputs under `joint_models/diana_shell/data/processed/<condition_code>/`.
+- Keep raw exports in `05_joint_models/diana_shell/data/raw/<folder>/` unchanged. Write reproducible outputs under `05_joint_models/diana_shell/data/processed/<condition_code>/`.
 - On each new variant, inspect every CSV header and all Load-step rows. Infer the unique `NX` export as story shear, the unique `EZZ` export as column longitudinal strain, and the `TDtX`/`TDtZ` pair as joint displacement data.
 - For multiple `EXX` exports, infer beam versus joint-stirrup use only when the headers or the established baseline mapping make it unambiguous. If it remains ambiguous, stop and ask the user for the mapping; never guess.
 - Derive a short English condition code and display label from the folder name. Use title case in legends (for example, `changed_column_longitudinal_rebar` → `Changed Column Rebar`). Ask only when the translation would be materially ambiguous.
@@ -34,27 +34,27 @@ For the joint displacement exports named `TDtX_nodes_620_623_636_639.csv` and
   values; a positive length change is extension and a negative value is
   shortening.
 - Write the derived table to
-  `joint_models/diana_shell/data/processed/<condition>/joint_deformation_angle.csv`; never modify
+  `05_joint_models/diana_shell/data/processed/<condition>/joint_deformation_angle.csv`; never modify
   raw exports. Use the selected variant's node exports; when they are absent, request their location rather than substituting another condition.
 
 When plotting joint deformation angle, exclude load steps 1--10 and verify its
 remaining load-step range matches `cyclic_response.csv`. Write two figures to
-the same `results/diana/shell/<comparison-name>/` directory used by the cyclic-response figures: joint angle versus analysis step, and
+the same `06_results/diana/shell/<comparison-name>/` directory used by the cyclic-response figures: joint angle versus analysis step, and
 joint angle (solid) versus story drift (dashed). Both figures overlay the
 `origin` and the selected variant condition, use radian units, and export
 600 dpi PNG only. Do not export SVG.
 
-Run `joint_models/diana_shell/code/python/prepare_cyclic_comparison_data.py --dry-run` before any
+Run `05_joint_models/diana_shell/code/python/prepare_cyclic_comparison_data.py --dry-run` before any
 processing change. Run it without `--dry-run` to produce standardized `cyclic_response.csv` files. It does not generate figures.
 
 ## Curve-source registry
 
-Every non-dry processing run must refresh `results/diana/shell/cyclic_axial_force_comparison/curve-source-registry.csv`. It is a filterable CSV and records, for both conditions, each plotted response's raw CSV, selected response column, node and element identifiers, duplicate-column verification, case-ID filter, output CSV, and unit/normalization or derived-value rules. Do not hand-edit it or reuse a stale mapping.
+Every non-dry processing run must refresh `06_results/diana/shell/cyclic_axial_force_comparison/curve-source-registry.csv`. It is a filterable CSV and records, for both conditions, each plotted response's raw CSV, selected response column, node and element identifiers, duplicate-column verification, case-ID filter, output CSV, and unit/normalization or derived-value rules. Do not hand-edit it or reuse a stale mapping.
 
 ## Plotting requirements
 
 When the user asks for figures, compare `origin` with the selected variant condition. Generate story shear versus story drift, beam longitudinal-strain ratio versus analysis step, column longitudinal-strain ratio versus analysis step, per-condition beam-versus-column strain figures, and joint-stirrup strain when its mapping is available.
 
-Keep the two compared conditions on identical axes, exclude the first ten axial-load cases, and export 600 dpi PNG only (no SVG) to one shared `results/diana/shell/<variant_code>_comparison/` directory. This directory is the complete result package for one variant: do not split it by figure type, and do not encode the condition name in individual figure stems. Pass that exact directory to both plotting commands. Use the existing sequence: `01`–`06` for cyclic-response figures, `07_joint_deformation_angle_by_step`, and `08_joint_deformation_angle_vs_story_drift`. Include a `curve-source-registry.csv` containing only `origin` and the selected variant. Use integer strain-ratio ticks and yield reference lines at -1 and +1. Use upright subscripts in $\epsilon_{\mathrm{s}}/\epsilon_{\mathrm{y}}$ and label the x-axis `Analysis step`.
+Keep the two compared conditions on identical axes, exclude the first ten axial-load cases, and export 600 dpi PNG only (no SVG) to one shared `06_results/diana/shell/<variant_code>_comparison/` directory. This directory is the complete result package for one variant: do not split it by figure type, and do not encode the condition name in individual figure stems. Pass that exact directory to both plotting commands. Use the existing sequence: `01`–`06` for cyclic-response figures, `07_joint_deformation_angle_by_step`, and `08_joint_deformation_angle_vs_story_drift`. Include a `curve-source-registry.csv` containing only `origin` and the selected variant. Use integer strain-ratio ticks and yield reference lines at -1 and +1. Use upright subscripts in $\epsilon_{\mathrm{s}}/\epsilon_{\mathrm{y}}$ and label the x-axis `Analysis step`.
 
 Read [the source and output schema](references/data_contract.md) before selecting mappings, deriving outputs, or plotting.
