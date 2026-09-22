@@ -17,7 +17,8 @@
   读取台面实测输入。
 - `05_joint_models/`：节点（梁柱节点）局部数值模型。
   - `diana_shell/`：DIANA 层壳节点模型的代码、配置与数据（原顶层 `diana/`）。
-  - `diana_solid/`：DIANA 实体节点模型（原顶层 `solid_BCJs/`），原始产出在 `data/raw/`；
+  - `diana_solid/`：DIANA 实体节点模型（原顶层 `solid_BCJs/`），模型本体在 `model/`
+    （已排除在 git 外），导出的原始/标准化节点响应数据在 `data/raw/`、`data/processed/`；
     `code/`、`config/` 为预留空目录。
   - `drawings/`：节点详图等 DWG 图纸（原顶层 `drawings/`）。
 - `06_results/`：

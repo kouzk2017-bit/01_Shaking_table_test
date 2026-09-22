@@ -22,6 +22,7 @@
 !/09_legacy/matlab_archive/10-story_2018/**
 **/documents/
 /05_joint_models/drawings/
+/05_joint_models/diana_solid/model/
 
 # Deprecated build scripts kept only for local traceability
 /07_scripts/deprecated/
