@@ -8,3 +8,6 @@
   已被 `.gitignore` 的 `**/data/` 规则排除），`code/`、`config/` 为预留空目录；对比结果产出后放
   `../06_results/diana/solid/`（与 `diana_shell` 同一约定）。
 - `drawings/`：两个模型共用的节点详图（DWG），不纳入版本控制。
+- `comparison/`：试验（动力时程）与节点数值模型（拟静力）的对比脚本，把两侧都转换成
+  "节点变形角 vs 层间位移角" 的响应-响应曲线后叠加，绕开时程/加载步数无法对齐的问题；
+  结果见 `../06_results/comparison/`。

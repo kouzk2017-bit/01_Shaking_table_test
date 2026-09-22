@@ -24,6 +24,7 @@
   - `experiment/2015/`、`experiment/2018/`：试验当前图片，按年份和工况组织。
   - `diana/shell/`、`diana/solid/`：DIANA 层壳/实体节点模型的对比结果。
   - `opensees/10story_2015/`：整体 OpenSees 模型每次运行的独立结果目录。
+  - `comparison/`：试验时程与节点数值模型（拟静力）的响应-响应曲线对比结果。
   - `archive/`：整理前结果、历史基准和中间文件的日期化归档。
 - `07_scripts/`：成果生成与维护脚本。
 - `08_common/`：跨项目共用函数（绘图风格、MATLAB 基准比对等）。
