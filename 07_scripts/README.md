@@ -8,7 +8,7 @@
 2015、2018 十层试验的新成图入口位于各项目的 `code/python/run_pipeline.py --plot`，
 只读取顶层 `06_results/<year>/<case>/csv/`，不再读取 Excel；图片直接输出到工况目录。
 图片默认调用工作区 `08_common/python/publication_style.py` 中的 `paper` 样式；画布、
-字体、字号、色板、线宽、坐标轴、刻度、网格、图例以及 600 dpi PNG/矢量 PDF
+字体、字号、色板、线宽、坐标轴、刻度、网格、图例以及 600 dpi PNG
 输出均由该公共代码统一管理。
 
 新增脚本应通过脚本位置推导工作区根目录，避免写死用户目录或旧 `lab` 路径。

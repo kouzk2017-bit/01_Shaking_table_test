@@ -20,7 +20,7 @@ reads only CSV files; raw data, Excel and NPZ files are not plotting inputs. Use
 it by itself after changing figure format, axes, colours or font sizes.
 `--then-plot` is only an explicit convenience for a full raw-to-figure rerun.
 All plotting entries share `08_common/python/publication_style.py`; the default
-`paper` mode writes matching 600 dpi PNG and vector PDF files.
+`paper` mode writes a 600 dpi PNG.
 
 Peak selection and figure appearance are kept in the shared
 `08_common/config/plot_config.json`. The 2018

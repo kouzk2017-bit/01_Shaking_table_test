@@ -41,4 +41,4 @@ residual inheritance rules. Historical MATLAB workbooks remain numerical
 baselines in `06_results/archive/2026-07-30_before_cleanup/2015/spreadsheets/`.
 
 All figures use `08_common/python/publication_style.py`. The default `paper`
-mode exports a 600 dpi PNG and a vector PDF with the same geometry.
+mode exports a 600 dpi PNG.

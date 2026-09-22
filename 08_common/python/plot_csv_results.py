@@ -155,7 +155,7 @@ def _save(fig, path: Path, figure_config: dict) -> tuple[Path, ...]:
     return save_figure(
         fig,
         path.with_suffix(""),
-        formats=(extension, "pdf"),
+        formats=(extension,),
         mode=figure_config.get("style_mode", "paper"),
     )
 
@@ -315,7 +315,7 @@ def plot_rebar_strain_figure(
     ax.set_ylim(-3.0, 8.0)
     ax.set_yticks(np.arange(-3.0, 8.1, 1.0))
     ax.margins(x=0.0, y=0.0)
-    return save_figure(fig, output_stem, formats=("png", "pdf"), mode="paper")
+    return save_figure(fig, output_stem, formats=("png",), mode="paper")
 
 
 def _write_selected_peaks(path: Path, rows: list[dict]) -> Path:

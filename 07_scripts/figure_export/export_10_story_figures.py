@@ -131,8 +131,8 @@ def _safe_name(value: str) -> str:
 
 
 def _save_figure(fig, output_stem: Path) -> tuple[Path, ...]:
-    """Save one publication figure as a 600 dpi PNG and vector PDF."""
-    return save_figure(fig, output_stem, formats=("png", "pdf"), mode="paper")
+    """Save one publication figure as a 600 dpi PNG."""
+    return save_figure(fig, output_stem, formats=("png",), mode="paper")
 
 
 def four_consecutive_peaks(

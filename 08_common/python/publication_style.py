@@ -268,11 +268,11 @@ def save_figure(
     fig,
     output_stem: str | os.PathLike[str],
     *,
-    formats: Sequence[str] = ("png", "pdf"),
+    formats: Sequence[str] = ("png",),
     mode: str | None = None,
     close: bool = True,
 ) -> tuple[Path, ...]:
-    """Save a figure with identical geometry in raster and vector formats."""
+    """Save a figure with identical geometry in the given formats."""
     style = resolve_style(mode) if mode else _ACTIVE_STYLE
     stem = Path(output_stem).with_suffix("")
     stem.parent.mkdir(parents=True, exist_ok=True)

@@ -101,7 +101,7 @@ def regenerate_2018_rebar_figures() -> list[Path]:
                 floor,
                 stem,
             )
-            outputs.extend((stem.with_suffix(".png"), stem.with_suffix(".pdf")))
+            outputs.append(stem.with_suffix(".png"))
     return outputs
 
 

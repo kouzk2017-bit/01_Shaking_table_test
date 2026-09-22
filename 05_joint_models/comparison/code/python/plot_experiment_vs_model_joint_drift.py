@@ -120,7 +120,7 @@ def main() -> None:
             textcoords="offset points", xytext=(4, 4), fontsize=9, color=COLORS["primary"],
         )
     style_hysteresis_axis(ax)
-    save_figure(fig, args.output_dir / "01_joint_deformation_vs_story_drift", mode="paper")
+    save_figure(fig, args.output_dir / "01_joint_deformation_vs_story_drift", formats=("png",), mode="paper")
 
     # Figure 2: cycle-reversal envelope only, for a cleaner backbone comparison.
     experiment_envelope = cycle_reversal_indices(experiment["story_drift_rad"])
@@ -131,7 +131,7 @@ def main() -> None:
     ax.plot(model["story_drift_rad"][model_envelope], model["deformation_angle_rad"][model_envelope],
             color=COLORS["accent"], linewidth=1.0, marker="o", markersize=3, label=f"{args.diana_label} envelope")
     style_hysteresis_axis(ax)
-    save_figure(fig, args.output_dir / "02_joint_deformation_vs_story_drift_envelope", mode="paper")
+    save_figure(fig, args.output_dir / "02_joint_deformation_vs_story_drift_envelope", formats=("png",), mode="paper")
 
     print(f"Wrote figures to {args.output_dir}")
 
