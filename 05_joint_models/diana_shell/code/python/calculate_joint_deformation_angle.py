@@ -4,15 +4,22 @@ The node layout is:
     623 (upper left)       620 (upper right)
     639 (lower left)       636 (lower right)
 
-Diagonal 1 joins 623--636 and diagonal 2 joins 620--639.  The diagonal
-instrument readings requested for the deformation-angle calculation are
-the magnitudes of the relative nodal displacements:
+Diagonal 1 joins 623--636 and diagonal 2 joins 620--639.  Each diagonal is
+treated like the test's diagonal displacement transducer, whose reading is
+the signed change of the corner-to-corner distance (positive = extension,
+negative = shortening; a rigid rotation of the panel reads zero):
 
-    r = sqrt((u_x,b - u_x,a)^2 + (u_z,b - u_z,a)^2)
-    gamma = d0 / (2 * a * b) * (r_623_636 - r_620_639)
+    delta = |d0_vec + relative displacement| - d0
+    gamma = d0 / (2 * a * b) * (delta_623_636 - delta_620_639)
 
-For reference, the script also calculates each deformed diagonal length and
-its signed length change (positive = extension; negative = shortening).
+This is the same formula the shaking-table pipeline applies to the measured
+transducer readings (08_common/python/ten_story_pipeline.py).
+
+Before 2026-09-25 gamma used the magnitude of the relative nodal displacement
+r = sqrt(du_x^2 + du_z^2) instead of delta. That quantity is always positive
+and includes the panel's rigid rotation, so it lost the shortening diagonal's
+sign and underestimated gamma by roughly 2-3x. r is still written to the CSV
+(``*_reading_mm``) for reference only.
 """
 
 from __future__ import annotations
@@ -42,7 +49,7 @@ def read_displacements(path: Path, direction: str, nodes: tuple[int, int, int, i
 
 
 def diagonal_results(data: pd.DataFrame, first: int, second: int, initial_dx: float, initial_dz: float, label: str) -> None:
-    """Append relative displacement reading and signed diagonal length change."""
+    """Append the relative displacement (reference only) and signed diagonal length change."""
     relative_dx = data[f"ux_{second}_mm"] - data[f"ux_{first}_mm"]
     relative_dz = data[f"uz_{second}_mm"] - data[f"uz_{first}_mm"]
     data[f"{label}_relative_x_mm"] = relative_dx
@@ -104,7 +111,7 @@ def main() -> None:
     initial_diagonal_mm = np.hypot(args.a_mm, args.b_mm)
     data["deformation_angle_rad"] = (
         initial_diagonal_mm / (2.0 * args.a_mm * args.b_mm)
-        * (data[f"{diagonal_1_label}_reading_mm"] - data[f"{diagonal_2_label}_reading_mm"])
+        * (data[f"{diagonal_1_label}_length_change_mm"] - data[f"{diagonal_2_label}_length_change_mm"])
     )
 
     output_columns = [

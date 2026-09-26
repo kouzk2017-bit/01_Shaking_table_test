@@ -112,13 +112,23 @@ def modal(model, config, out, label='modal_after_gravity'):
 
 
 def transient(model, config, modes, times, acc, out):
-    # Initial stiffness Rayleigh, matching TJU; zeta remains an explicit assumption.
-    frequencies = sorted(math.sqrt(row['eigenvalue_s-2']) for row in modes)
-    w1, w2 = frequencies[0], frequencies[min(2, len(frequencies) - 1)]
+    # Rayleigh damping anchored at T1 and T1*ratio (default 0.2, spanning the
+    # translational modes of both directions).  Committed-stiffness
+    # proportionality avoids spurious post-cracking damping forces and the
+    # ASDShellQ4 EAS / initial-stiffness interaction recorded in
+    # docs/FAILURE_LOCALIZATION.md.  zeta remains an explicit assumption.
+    w1 = min(math.sqrt(row['eigenvalue_s-2']) for row in modes)
+    w2 = w1 / config.get('damping_anchor_period_ratio', 0.2)
     zeta = config['damping_ratio']
     alpha = 2 * zeta * w1 * w2 / (w1 + w2)
     beta = 2 * zeta / (w1 + w2)
-    ops.rayleigh(alpha, 0., beta, 0.)
+    stiffness = config.get('damping_stiffness', 'committed')
+    if stiffness == 'committed':
+        ops.rayleigh(alpha, 0., 0., beta)
+    elif stiffness == 'initial':
+        ops.rayleigh(alpha, 0., beta, 0.)
+    else:
+        raise ValueError("damping_stiffness must be 'committed' or 'initial'")
     directions = config['directions']
     time_file = out / 'input_time_s.txt'
     np.savetxt(time_file, times, fmt='%.12g')
@@ -258,6 +268,6 @@ def transient(model, config, modes, times, acc, out):
             'recovery_events': len(events), 'damping_ratio_assumed': zeta,
             'default_algorithm': default_algorithm,
             'transient_recovery_tolerance_mm': config.get('transient_recovery_tolerance_mm'),
-            'rayleigh_alphaM': alpha, 'rayleigh_betaKinit': beta,
+            'rayleigh_alphaM': alpha, 'rayleigh_betaK': beta, 'rayleigh_stiffness': stiffness,
             'rayleigh_anchor_periods_s': [2 * math.pi / w1, 2 * math.pi / w2],
             'peaks_by_story': peaks}

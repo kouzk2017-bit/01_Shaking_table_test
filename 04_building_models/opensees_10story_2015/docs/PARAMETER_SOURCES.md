@@ -15,12 +15,14 @@
 | 混凝土 Ec | 采用旧模型分层汇总值，并与原材料表 pp6–11 对照；6F下/上用 p9 实测行平均 | `材料強度試験/ｺﾝｸﾘｰﾄの圧縮強度および静弾性係数試験報告書.pdf`，旧 `09_legacy/numerical_models/02_OpenSees/ED10RC_Frame_GAO_20241113_Jointin.tcl` |
 | 钢筋 fy、Es | D19/D22 合并各楼层柱梁试样；D10/D13 用 1F 墙筋批次 | `材料強度試験/鉄筋ｺﾝｸﾘｰﾄ用棒鋼の引張およびﾔﾝｸﾞ係数試験報告書.pdf` pp5–6 |
 | D16 | fy=365 MPa（旧 Tcl），Es=200000 MPa（假定） | 当前未确认相应材料试验值；明确待补充 |
+| 楼板配筋 | S1：短边方向 LD10@200、长边方向 LD10@250，上下端；用于梁有效翼缘 | 图纸 p68 (S-33) 床板リスト |
+| 实测初始周期（固定基础阶段开始） | frame 方向 0.85 s，wall 方向 0.58 s | 研究者提供（2026-09-24），作为刚度标定目标 |
 | 墙体 | 四片位于全部长边轴网，短边 B–C；1–6F W23，7F W15，以上无墙 | 图纸 p44 (S-9) |
 | W23 | t230，双层竖D13@250，横D10@150 | 图纸 p68 (S-33) |
 | W15 | t150，双层竖/横D10@200 | 图纸 p68 (S-33) |
 | 6F 分段 | 6FL 上1060 mm 处材料分界；连接缝按连续连接假定 | 图纸 p48 (S-13)，报告 p5 |
 | 基础阶段 | 11月滑移、12月固定 | 报告 pp5–6，`実験計画書_10層RC.pdf` p7 |
-| 输入 | Case13，JB14 CH7/8 台面西南 AX/AY，原始m/s²，dt .001s | 对应原始 CSV 三行表头、`code/python/workflow_config.py`、现有共有处理程序 |
+| 输入 | Case13，JB14 CH7/8（SW）与 CH10/11（NE）台面 AX/AY 取平均，原始m/s²，dt .001s | 对应原始 CSV 三行表头、`code/python/workflow_config.py`、现有共有处理程序 |
 
 ## 特别记录
 
@@ -52,3 +54,9 @@
 参考源位于 `02_TJU_test/02_Pre_Experiment_Validation/01_OpenSees_Model/`：`model/prototype_and_scale_model.py` 的 RC 纤维截面、材料、梁柱与分层墙；`analysis/analysis_gravity.py` 的重力平衡检查；`analysis/analysis_time_history.py` 的初始刚度 Rayleigh、HHT 和分步求解。几何、20层/1:6缩尺、核心筒配置及天津输入波形不导入本模型。
 
 楼板兼容性修正依据 OpenSees [五分量 ElasticPlateSection 源码](https://opensees.berkeley.edu/OpenSees/api/doxygen2/html/ElasticPlateSection_8cpp-source.html)与 [ShellMITC4 官方建模示例](https://opensees.berkeley.edu/OpenSees/manuals/ExamplesManual/HTML/876.htm)。动力节点输出为相对值，绝对加速度处理依据 [UniformExcitation 文档](https://openseespydoc.readthedocs.io/en/latest/src/uniformExcitation.html)。
+
+## 2026-09-24 模型修订
+
+按专业审查意见修改：梁柱改为 forceBeamColumn；加入节点刚域和柱宽内刚性段；墙层 G8 在 C3 边缘柱宽内以刚性段嵌入墙壳；梁截面加入 AIJ 有效宽度楼板翼缘及 S1 板筋；阻尼改为已提交刚度 Rayleigh（T1、0.2T1）；生产收敛判据放宽至 1e-4 mm；台面输入取 SW/NE 两角平均。
+
+模态对照（重力后，X/Y 主模态周期，s）：原模型等效设置 0.4426/0.3456；仅换 forceBeamColumn 0.4549/0.3514；加刚域 0.3798/0.2824；再加翼缘 0.3728/0.2818；墙网格加密（腹板 4 分、竖向 450 mm）0.3760/0.2834。弹性阶段墙网格敏感性 <1%。

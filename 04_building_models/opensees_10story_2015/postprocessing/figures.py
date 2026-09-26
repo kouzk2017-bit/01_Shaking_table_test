@@ -21,7 +21,7 @@ def make_figures(model, out):
     nodes = {n['node']: np.array([n['x_mm'], n['y_mm'], n['z_mm']]) / 1000 for n in model['nodes']}
     fig = plt.figure(figsize=(8, 9), layout='constrained')
     ax = fig.add_subplot(111, projection='3d')
-    colors = {'column': '#334e68', 'beam': '#627d98', 'wall': '#c05621', 'slab': '#bcccdc'}
+    colors = {'column': '#334e68', 'beam': '#627d98', 'wall': '#c05621', 'slab': '#bcccdc', 'joint': '#102a43'}
     for element in model['elements']:
         tags = [int(t) for t in element['nodes'].split(';')]
         if element['kind'] == 'slab':

@@ -25,14 +25,17 @@ For the joint displacement exports named `TDtX_nodes_620_623_636_639.csv` and
 `TDtZ_nodes_620_623_636_639.csv`, use the layout 623 upper-left, 620 upper-right,
 639 lower-left, and 636 lower-right. The diagonals are 623--636 and 620--639.
 
-- Use `a = b = 350 mm` unless the user explicitly supplies other dimensions.
-- At each load step, calculate the requested diagonal instrument reading as
-  `sqrt((ux_b - ux_a)^2 + (uz_b - uz_a)^2)`.
+- Use `a = 300 mm`, `b = 366.67 mm` (confirmed 2026-09-04 for all conditions) unless the user explicitly supplies other dimensions.
+- At each load step, calculate each diagonal's signed length change
+  `delta = |d0_vec + (u_b - u_a)| - d0` (positive = extension, negative =
+  shortening). This is what the test's diagonal displacement transducer reads.
 - Calculate joint deformation angle as
-  `sqrt(a^2 + b^2) / (2*a*b) * (reading_623_636 - reading_620_639)` in rad.
-- Also retain deformed diagonal lengths and signed length changes as diagnostic
-  values; a positive length change is extension and a negative value is
-  shortening.
+  `sqrt(a^2 + b^2) / (2*a*b) * (delta_623_636 - delta_620_639)` in rad — the
+  same formula the shaking-table pipeline applies to measured transducer readings.
+- Do not use the relative-displacement magnitude `sqrt((ux_b - ux_a)^2 + (uz_b - uz_a)^2)`
+  as the reading: it is always positive and includes the panel's rigid rotation,
+  which underestimated the angle by roughly 2-3x (used before 2026-09-25). It is
+  still written as `*_reading_mm` for reference only.
 - Write the derived table to
   `05_joint_models/diana_shell/data/processed/<condition>/joint_deformation_angle.csv`; never modify
   raw exports. Use the selected variant's node exports; when they are absent, request their location rather than substituting another condition.

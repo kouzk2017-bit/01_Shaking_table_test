@@ -1,16 +1,19 @@
 {
   "gravity_steps": 10,
-  "tolerance_mm": 0.000001,
+  "tolerance_mm": 0.0001,
   "max_iterations": 100,
   "linear_system": "UmfPack",
   "transient_algorithm": "KrylovNewton",
   "num_modes": 9,
   "damping_ratio": 0.05,
-  "damping_basis": "TJU initial-stiffness Rayleigh 5% assumption; not calibrated to 2015 white noise",
+  "damping_stiffness": "committed",
+  "damping_anchor_period_ratio": 0.2,
+  "damping_basis": "5% assumption, not yet calibrated to 2015 white noise; Rayleigh anchored at T1 and 0.2*T1, committed-stiffness proportional",
   "directions": ["x", "y"],
   "hht_alpha": 0.9,
   "min_dt_s": 0.000625,
-  "transient_recovery_tolerance_mm": 0.0001,
+  "transient_recovery_tolerance_mm": 0.001,
   "transient_recovery_iterations": 60,
-  "//transient_recovery": "2026-09-21: one more full-dt KrylovNewton attempt at this relaxed NormDispIncr tolerance, tried before halving dt, plus recreating the UmfPack system before every retry attempt (advance() in solver.py) -- mirrors the fix that resolved a near-identical strong-pulse convergence wall in the sibling 02_TJU_test time-history solver, where the true bug was stale sparse-solver factorization state surviving a failed analyze(), not Rayleigh damping basis or HHT alpha (both tried there and found not to help; see that project's time-history-pulse-divergence memory)."
+  "//tolerance": "2026-09-24: production NormDispIncr 1e-4 mm (was 1e-6 mm). The norm mixes mm and rad over ~7,700 DOFs; the 12.69 s failure stalled at 3.4e-5 mm, i.e. already converged in engineering terms. Recovery rung relaxed proportionally to 1e-3 mm.",
+  "//transient_recovery": "2026-09-21: one more full-dt KrylovNewton attempt at the relaxed recovery tolerance before halving dt, plus recreating the UmfPack system before every retry attempt (advance() in solver.py), mirroring the fix for the sibling 02_TJU_test strong-pulse convergence wall."
 }

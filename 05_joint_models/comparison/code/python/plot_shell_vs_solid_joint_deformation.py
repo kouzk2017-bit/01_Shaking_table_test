@@ -56,7 +56,7 @@ def main() -> None:
     ax.plot(shell["load_step"], shell["deformation_angle_rad"],
             color=COLORS["primary"], linewidth=1.25, label="Shell (origin)")
     ax.plot(solid["load_step"], solid["deformation_angle_rad"],
-            color=COLORS["accent"], linewidth=1.25, label="Solid (origin_2015)")
+            color=COLORS["accent"], linewidth=1.25, label="Solid (origin_2015, hinged beam ends)")
     ax.axhline(0.0, color=COLORS["zero"], linewidth=0.8, zorder=0)
     format_axis(ax, xlabel="Analysis step", ylabel="Deformation angle (rad)", legend=True)
     save_figure(fig, args.output_dir / "01_joint_deformation_angle_by_step", formats=("png",), mode="paper")

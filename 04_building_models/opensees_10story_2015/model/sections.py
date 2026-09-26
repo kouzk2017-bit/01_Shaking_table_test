@@ -2,9 +2,10 @@
 
 Adapted from ``02_TJU_test/.../model/prototype_and_scale_model.py``:
 Concrete02 core/cover, Steel02 bars, displaced-concrete subtraction, elastic
-torsion and shear section terms, and Lobatto integration. The chosen 3D
-dispBeamColumn uses P/My/Mz/T only, so the Vy/Vz terms do not add member
-shear flexibility. No TJU geometry or material
+torsion and shear section terms, and Lobatto integration. With the default
+forceBeamColumn the Vy/Vz terms add elastic (uncracked, web-only) shear
+flexibility; dispBeamColumn ignores them. Beams may carry an effective slab
+flange. No TJU geometry or material
 strengths are imported.  Create one factory after each ``ops.wipe()``.
 
 Local x is the member axis; local y spans width and local z spans depth.
@@ -118,13 +119,22 @@ class SectionFactory:
             self._steel_tags[diameter] = material
         return self._steel_tags[diameter]
 
-    def rect_section(self, key, width_mm, depth_mm, concrete, bars):
+    def rect_section(self, key, width_mm, depth_mm, concrete, bars, flange=None):
         """Return (Aggregator section tag, Lobatto integration tag).
 
         ``concrete`` requires positive fc_mpa and ec_mpa; ft_mpa and cover_mm
         are optional.  Every bar needs y, z, area_mm2, diameter_mm.  Bar areas
         may be nominal JIS areas and need not equal pi*d**2/4.  Geometry and
         material checks are completed before any OpenSees command is issued.
+
+        ``flange`` (optional) adds an effective slab flange flush with the top
+        face: thickness_mm, overhang_neg_mm / overhang_pos_mm (along local y,
+        beyond the web faces), bar_area_per_mm (per layer, bars parallel to
+        the member), bar_diameter_mm and bar_centre_cover_mm (top and bottom
+        layer).  Flange concrete uses the unconfined cover law.  All fibers are
+        then referenced to the gross concrete centroid, so a rigid-floor
+        restraint of the node axis does not add the EA*e^2 parallel-axis term.
+        Torsion and shear stiffness remain web-only.
         """
         key = str(key)
         if not key:
@@ -185,7 +195,44 @@ class SectionFactory:
             })
         if not checked_bars:
             raise ValueError(f"RC section {key} has no longitudinal reinforcement.")
-        area_gross = width * depth
+        flange_data = None
+        flange_patches = []
+        if flange:
+            t_f = _positive(flange["thickness_mm"], "flange thickness_mm")
+            neg = _finite(flange.get("overhang_neg_mm", 0.0), "overhang_neg_mm")
+            pos = _finite(flange.get("overhang_pos_mm", 0.0), "overhang_pos_mm")
+            if neg < 0.0 or pos < 0.0 or t_f >= depth:
+                raise ValueError(f"Section {key}: invalid flange geometry.")
+            per_mm = _finite(flange.get("bar_area_per_mm", 0.0), "flange bar_area_per_mm")
+            f_diameter = _positive(flange.get("bar_diameter_mm", 10.0), "flange bar_diameter_mm")
+            f_cover = _positive(flange.get("bar_centre_cover_mm", 30.0), "flange bar_centre_cover_mm")
+            if 2.0 * f_cover >= t_f:
+                raise ValueError(f"Section {key}: flange bar cover leaves no slab core.")
+            matches = [d for d in self._steel if math.isclose(d, f_diameter, rel_tol=0.0, abs_tol=1e-8)]
+            if per_mm > 0.0 and len(matches) != 1:
+                raise ValueError(f"Section {key}: no steel properties for flange diameter {f_diameter:g} mm.")
+            z_top, z_bottom = depth / 2.0, depth / 2.0 - t_f
+            for side, length in ((-1.0, neg), (1.0, pos)):
+                if length <= 0.0:
+                    continue
+                inner, outer = side * width / 2.0, side * (width / 2.0 + length)
+                flange_patches.append((min(inner, outer), max(inner, outer)))
+                if per_mm > 0.0:
+                    # Two fibers per layer and side, each carrying half the
+                    # overhang's bar area at the quarter points of the overhang.
+                    for fraction in (0.25, 0.75):
+                        y = side * (width / 2.0 + fraction * length)
+                        for z in (z_top - f_cover, z_bottom + f_cover):
+                            checked_bars.append({"y": y, "z": z, "area_mm2": per_mm * length / 2.0,
+                                                 "diameter_mm": matches[0], "region": "flange"})
+            flange_data = {"thickness_mm": t_f, "overhang_neg_mm": neg, "overhang_pos_mm": pos,
+                           "bar_area_per_mm": per_mm, "bar_diameter_mm": f_diameter,
+                           "bar_centre_cover_mm": f_cover}
+        area_web = width * depth
+        area_flange = sum((y2 - y1) for y1, y2 in flange_patches) * (flange_data["thickness_mm"] if flange_data else 0.0)
+        area_gross = area_web + area_flange
+        # Reference axis: gross concrete centroid (web centroid when no flange).
+        z_ref = (area_flange * (depth / 2.0 - flange_data["thickness_mm"] / 2.0) / area_gross) if flange_data else 0.0
         area_core = 4.0 * y_core * z_core
         area_cover = area_gross - area_core
         area_steel = sum(bar["area_mm2"] for bar in checked_bars)
@@ -197,9 +244,10 @@ class SectionFactory:
         # once; Parallel removes the steel area from that concrete contribution.
         patch_areas = [area_core, cover * depth, cover * depth,
                        (width - 2.0 * cover) * cover, (width - 2.0 * cover) * cover]
+        patch_areas += [(y2 - y1) * flange_data["thickness_mm"] for y1, y2 in flange_patches]
         if not math.isclose(sum(patch_areas), area_gross, rel_tol=1e-12):
             raise ValueError(f"Section {key}: concrete patches do not conserve gross area.")
-        signature = json.dumps([width, depth, data, checked_bars], sort_keys=True)
+        signature = json.dumps([width, depth, data, checked_bars, flange_data], sort_keys=True)
         if key in self._cache:
             previous, tags = self._cache[key]
             if signature != previous:
@@ -216,7 +264,7 @@ class SectionFactory:
         torsion_j = long_side * short_side ** 3 * (1.0 / 3.0 - 0.21 * ratio * (1.0 - ratio ** 4 / 12.0))
         shear_modulus = ec / (2.0 * (1.0 + self.poisson))
         gj = shear_modulus * torsion_j  # MPa * mm^4 = N*mm^2
-        ga = shear_modulus * (5.0 / 6.0) * area_gross  # MPa * mm^2 = N
+        ga = shear_modulus * (5.0 / 6.0) * area_web  # MPa * mm^2 = N; web only
 
         cover_tag, core_tag = self._tag(), self._tag()
         ops.uniaxialMaterial("Concrete02", cover_tag, -fc, eps_peak, -residual * fc,
@@ -241,14 +289,17 @@ class SectionFactory:
         fiber_tag, section_tag, integration_tag = self._tag(), self._tag(), self._tag()
         ops.section("Fiber", fiber_tag, "-GJ", gj)
         y1, y2 = -width / 2.0, width / 2.0
-        z1, z2 = -depth / 2.0, depth / 2.0
-        ops.patch("rect", core_tag, self.ny, self.nz, -y_core, -z_core, y_core, z_core)
+        z1, z2 = -depth / 2.0 - z_ref, depth / 2.0 - z_ref
+        zc1, zc2 = -z_core - z_ref, z_core - z_ref
+        ops.patch("rect", core_tag, self.ny, self.nz, -y_core, zc1, y_core, zc2)
         ops.patch("rect", cover_tag, 2, self.nz, y1, z1, -y_core, z2)
         ops.patch("rect", cover_tag, 2, self.nz, y_core, z1, y2, z2)
-        ops.patch("rect", cover_tag, self.ny, 2, -y_core, z1, y_core, -z_core)
-        ops.patch("rect", cover_tag, self.ny, 2, -y_core, z_core, y_core, z2)
+        ops.patch("rect", cover_tag, self.ny, 2, -y_core, z1, y_core, zc1)
+        ops.patch("rect", cover_tag, self.ny, 2, -y_core, zc2, y_core, z2)
+        for fy1, fy2 in flange_patches:
+            ops.patch("rect", cover_tag, 4, 2, fy1, z2 - flange_data["thickness_mm"], fy2, z2)
         for bar in checked_bars:
-            ops.fiber(bar["y"], bar["z"], bar["area_mm2"], bar["assigned_material_tag"])
+            ops.fiber(bar["y"], bar["z"] - z_ref, bar["area_mm2"], bar["assigned_material_tag"])
         shear_y_tag, shear_z_tag = self._tag(), self._tag()
         ops.uniaxialMaterial("Elastic", shear_y_tag, ga)
         ops.uniaxialMaterial("Elastic", shear_z_tag, ga)
@@ -269,7 +320,13 @@ class SectionFactory:
             "net_concrete_area_mm2": core_concrete_area + cover_concrete_area,
             "represented_area_mm2": core_concrete_area + cover_concrete_area + area_steel,
             "initial_ea_n": ea_initial, "elastic_gj_n_mm2": gj, "elastic_shear_ga_n": ga,
-            "gross_iy_mm4": width * depth ** 3 / 12.0,
+            "web_area_mm2": area_web, "flange": flange_data,
+            "reference_axis_above_web_centre_mm": z_ref,
+            "gross_iy_mm4": width * depth ** 3 / 12.0 + area_web * z_ref ** 2 + (
+                sum((b - a) * flange_data["thickness_mm"] ** 3 / 12.0
+                    + (b - a) * flange_data["thickness_mm"]
+                    * (depth / 2.0 - flange_data["thickness_mm"] / 2.0 - z_ref) ** 2
+                    for a, b in flange_patches) if flange_data else 0.0),
             "gross_iz_mm4": depth * width ** 3 / 12.0,
             "subtract_displaced_concrete": self.subtract,
             "steel_rupture_enabled": self.rupture,

@@ -28,8 +28,11 @@ LOADING_CASES = {
     22: ("20151211-4(JMAKobe60%)", "2015-1211", "2015-1211-008-1"),
 }
 
-SOURCE_CHANNELS = (7, 8, 9)
-SOURCE_SENSOR_NAMES = ("839-TBL-AX-SW", "840-TBL-AY-SW", "841-TBL-AZ-SW")
+# Diagonal table corners SW and NE. Their mean is the table-centre translation
+# (removing the yaw/pitch contribution seen at one corner only).
+SOURCE_CHANNELS = (7, 8, 9, 10, 11, 12)
+SOURCE_SENSOR_NAMES = ("839-TBL-AX-SW", "840-TBL-AY-SW", "841-TBL-AZ-SW",
+                       "842-TBL-AX-NE", "843-TBL-AY-NE", "844-TBL-AZ-NE")
 OUTPUT_DT_S = 0.01
 
 
@@ -120,7 +123,7 @@ def load_ground_motion(
     source = np.loadtxt(
         path, delimiter=",", skiprows=3, usecols=(0, *SOURCE_CHANNELS), encoding="latin1"
     )
-    if source.ndim != 2 or source.shape[1] != 4 or len(source) != expected_count:
+    if source.ndim != 2 or source.shape[1] != 7 or len(source) != expected_count:
         raise ValueError(f"Raw data count/shape differs from its header: {source.shape}, expected {expected_count}")
     if not np.isfinite(source).all():
         raise ValueError("Non-finite raw time or table acceleration; no automatic repair applied")
@@ -129,7 +132,9 @@ def load_ground_motion(
     if not np.allclose(np.diff(source[:, 0]), raw_dt, rtol=1e-7, atol=1e-10):
         raise ValueError("Actual raw time increments do not match the acquisition header")
 
-    filtered = _filter_and_decimate(source[:, 1:], raw_dt)
+    corners = _filter_and_decimate(source[:, 1:], raw_dt)
+    filtered = 0.5 * (corners[:, 0:3] + corners[:, 3:6])
+    corner_difference = np.max(np.abs(corners[:, 0:3] - corners[:, 3:6]), axis=0)
     acceleration = np.vstack((np.zeros((1, 3)), filtered * 1000.0))
     times = np.arange(len(acceleration), dtype=float) * OUTPUT_DT_S
     complete_duration = float(times[-1])
@@ -165,6 +170,8 @@ def load_ground_motion(
         "source_sha256": _sha256(path),
         "source_channels_one_based": list(SOURCE_CHANNELS),
         "source_sensor_names": list(SOURCE_SENSOR_NAMES),
+        "corner_averaging": "Mean of SW and NE table corners (table-centre translation).",
+        "corner_peak_abs_difference_m_s2_xyz": corner_difference.tolist(),
         "source_units": "m/s^2",
         "output_units": "mm/s^2",
         "unit_conversion_factor": 1000.0,

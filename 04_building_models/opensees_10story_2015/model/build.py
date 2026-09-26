@@ -112,18 +112,71 @@ class ShellFactory:
         return tag
 
 
+def aij_overhang(clear_mm, span_mm):
+    """AIJ RC standard effective slab width on one side of a continuous beam."""
+    if clear_mm is None:
+        return 0.
+    if clear_mm < .5 * span_mm:
+        return max(0., (.5 - .6 * clear_mm / span_mm) * clear_mm)
+    return .1 * span_mm
+
+
 def build_model(config, out):
     cfg = deepcopy(config)
     geom, wall, settings = cfg['geometry'], cfg['wall'], cfg['section_settings']
+    frame = cfg.get('frame', {})
     xgrid, ygrid = geom['x_grid_mm'], geom['y_grid_mm']
     heights = geom['story_heights_mm']
     if len(cfg['stories']) != 10 or len(heights) != 10:
         raise ValueError('2015 specimen requires ten stories')
     elevations = np.r_[0., np.cumsum(heights)]
+    formulation_frame = frame.get('element', 'forceBeamColumn')
+    if formulation_frame not in ('forceBeamColumn', 'dispBeamColumn'):
+        raise ValueError('frame.element must be forceBeamColumn or dispBeamColumn')
+    use_offsets = frame.get('rigid_joint_offsets', True)
+    joint_factor = float(frame.get('joint_zone_stiffness_factor', 10.))
+    slab_flange = frame.get('slab_flange', {})
     ops.wipe()
     ops.model('basic', '-ndm', 3, '-ndf', 6)
-    ops.geomTransf('PDelta', 1, 0., 0., 1.)
-    ops.geomTransf('PDelta', 2, 1., 0., 0.)
+    transforms = {}
+
+    def transform(vecxz, di=(0., 0., 0.), dj=(0., 0., 0.)):
+        # One PDelta transformation per distinct orientation and joint offset.
+        # Offsets are global vectors from each node to the flexible member end.
+        if not use_offsets:
+            di = dj = (0., 0., 0.)
+        key = (tuple(vecxz), tuple(round(v, 6) for v in di), tuple(round(v, 6) for v in dj))
+        if key not in transforms:
+            tag = len(transforms) + 1
+            args = ['PDelta', tag, *vecxz]
+            if any(key[1]) or any(key[2]):
+                args += ['-jntOffset', *key[1], *key[2]]
+            ops.geomTransf(*args)
+            transforms[key] = tag
+        return transforms[key]
+
+    def column_at(floor, ix, iy):
+        # Column whose top is at this floor (roof: story 10); walls use C3.
+        story = cfg['stories'][max(floor, 1) - 1]
+        name = 'C3' if iy in (1, 2) else 'C1' if ix in (0, 3) else 'C2'
+        return story['columns'][name]
+
+    def joint_depth(floor, ix, iy):
+        # Largest depth of beams framing into grid node (ix, iy) at this floor.
+        if floor == 0:
+            return 0.
+        beams = cfg['stories'][floor - 1]['beams']
+        names = []
+        for bay in (ix - 1, ix):
+            if 0 <= bay < 3:
+                names.append(f'G{bay + 1 if iy in (0, 3) else bay + 4}')
+        for bay in (iy - 1, iy):
+            if 0 <= bay < 3:
+                names.append(f'G{bay + 7}')
+        return max(beams[n]['depth_mm'] for n in names)
+
+    transform((0., 0., 1.))
+    transform((1., 0., 0.))
     sections, shells = SectionFactory(settings), ShellFactory(settings)
     nodes, elements, base_nodes = [], [], []
     node_lookup, coordinates = {}, {}
@@ -152,8 +205,11 @@ def build_model(config, out):
     def element(kind, formulation, tags, sec, floor, member, integration=None, transform=None):
         nonlocal element_tag
         element_tag += 1
-        if formulation == 'dispBeamColumn':
+        if formulation in ('dispBeamColumn', 'forceBeamColumn'):
             ops.element(formulation, element_tag, *tags, transform, integration)
+        elif formulation == 'elasticBeamColumn':
+            ops.element(formulation, element_tag, *tags, *sec, transform)
+            sec = None
         elif formulation == 'ASDShellQ4' and not wall.get('enhanced_assumed_strain', True):
             ops.element(formulation, element_tag, *tags, sec, '-noeas')
         else:
@@ -183,11 +239,17 @@ def build_model(config, out):
                 breaks = [bottom,top]
                 if 'concrete_upper' in story:
                     breaks.insert(1,bottom+story['upper_pour_starts_above_floor_mm'])
+                # Rigid joint zones: half the deepest framing beam at each floor.
+                off_bottom = joint_depth(index,ix,iy)/2.
+                off_top = joint_depth(floor,ix,iy)/2.
                 for part,(z1,z2) in enumerate(zip(breaks[:-1],breaks[1:])):
                     concrete = story['concrete_upper'] if part else story['concrete']
                     sec, integ = sections.rect_section(f'{floor}_{name}_{part}',data['b_y_mm'],data['b_x_mm'],
                                                        concrete,column_bars(data,cover))
-                    element('column','dispBeamColumn',[node(x,y,z1),node(x,y,z2)],sec,floor,name,integ,2)
+                    di = (0.,0.,off_bottom if z1==bottom else 0.)
+                    dj = (0.,0.,-off_top if z2==top else 0.)
+                    element('column',formulation_frame,[node(x,y,z1),node(x,y,z2)],sec,floor,name,integ,
+                            transform((1.,0.,0.),di,dj))
 
     # Integrated shell walls: C3 boundaries occupy their full 450 mm width and
     # the G8 top band occupies its physical depth. This avoids line/shell overlap.
@@ -197,7 +259,8 @@ def build_model(config, out):
         col, beam = story['columns']['C3'], story['beams']['G8']
         col_length = col['b_y_mm']
         a,b = wall['y_centrelines_mm']
-        ys = [a-col_length/2,a,a+col_length/2,(a+b)/2,b-col_length/2,b,b+col_length/2]
+        web = [float(v) for v in np.linspace(a+col_length/2,b-col_length/2,int(wall.get('web_divisions',2))+1)]
+        ys = [a-col_length/2,a,*web,b,b+col_length/2]
         beam_bottom = top - beam['depth_mm']
         divisions = max(1,math.ceil((beam_bottom-bottom)/wall['mesh_target_mm']))
         zs = list(np.linspace(bottom,beam_bottom,divisions+1)) + [beam_bottom+100,top-100,top]
@@ -248,42 +311,94 @@ def build_model(config, out):
                     element('wall','ASDShellQ4',tags,sec,floor,f'W{ix+1}_{region}')
 
     # Beam sections at five Lobatto points preserve distinct end/midspan bars.
-    def add_beam(floor, name, start, end, cuts, reverse=False):
+    # Sub-elements lying wholly inside a column's plan width become stiff
+    # elastic joint zones; partly overlapping ones get a rigid -jntOffset.
+    # ``joint_only`` builds just those zones, used to embed the wall-line G8
+    # into the C3 boundary shells so beam/column moments reach the wall as
+    # force couples rather than through the ASDShellQ4 drilling DOF alone.
+    def add_beam(floor, name, start, end, cuts, reverse=False, joints=(0.,0.), flange=None,
+                 joint_only=False):
         nonlocal integration_tag
         story=cfg['stories'][floor-1]
         data=deepcopy(story['beams'][name])
         if reverse:
             data['top_counts_i_mid_j'].reverse();data['bottom_counts_i_mid_j'].reverse()
         concrete=story.get('concrete_upper',story['concrete'])
-        sec_tags=[]
-        for loc in range(3):
-            sec,_=sections.rect_section(f'{floor}_{name}_{int(reverse)}_{loc}',data['width_mm'],data['depth_mm'],
-                                       concrete,beam_bars(data,loc,cover))
-            sec_tags.append(sec)
         start,end=np.array(start,dtype=float),np.array(end,dtype=float)
+        length=float(np.linalg.norm(end-start));unit=(end-start)/length
+        hi,hj=joints if use_offsets else (0.,0.)
+        sec_tags=None
+        if not joint_only:
+            sec_tags=[]
+            fkey='' if not flange else f"_f{flange['overhang_neg_mm']:.0f}_{flange['overhang_pos_mm']:.0f}"
+            for loc in range(3):
+                sec,_=sections.rect_section(f'{floor}_{name}_{int(reverse)}_{loc}{fkey}',data['width_mm'],
+                                           data['depth_mm'],concrete,beam_bars(data,loc,cover),flange)
+                sec_tags.append(sec)
         for r1,r2 in zip(cuts[:-1],cuts[1:]):
+            s1,s2=r1*length,r2*length
+            i=node(*(start+(end-start)*r1));j=node(*(start+(end-start)*r2))
+            if s2<=hi+1e-6 or s1>=length-hj-1e-6:
+                w,d,ec=data['width_mm'],data['depth_mm'],concrete['ec_mpa']
+                props=(w*d*joint_factor,ec,ec/2.4,joint_factor*d*w**3/3.,
+                       joint_factor*w*d**3/12.,joint_factor*d*w**3/12.)
+                element('joint','elasticBeamColumn',[i,j],props,floor,f'{name}_joint',None,
+                        transform((0.,0.,1.)))
+                continue
+            if joint_only:
+                continue
+            di,dj=max(0.,hi-s1),max(0.,s2-(length-hj))
             integration_tag+=1
-            positions=r1+(r2-r1)*LOBATTO_X
+            f1,f2=(s1+di)/length,(s2-dj)/length
+            positions=f1+(f2-f1)*LOBATTO_X
             tags=[sec_tags[0 if p<.25 else 2 if p>.75 else 1] for p in positions]
             ops.beamIntegration('UserDefined',integration_tag,5,*tags,*LOBATTO_X,*LOBATTO_W)
-            i=node(*(start+(end-start)*r1));j=node(*(start+(end-start)*r2))
-            element('beam','dispBeamColumn',[i,j],tags[2],floor,name,integration_tag,1)
+            element('beam',formulation_frame,[i,j],tags[2],floor,name,integration_tag,
+                    transform((0.,0.,1.),tuple(unit*di),tuple(-unit*dj)))
+
+    def beam_flange(floor, name, span, clear_neg, clear_pos, per_mm):
+        # Local y is +global Y for X-direction beams and -global X for Y beams.
+        if not slab_flange.get('enabled', True):
+            return None
+        return dict(thickness_mm=geom['slab_thickness_mm'],
+                    overhang_neg_mm=aij_overhang(clear_neg,span),
+                    overhang_pos_mm=aij_overhang(clear_pos,span),
+                    bar_area_per_mm=per_mm,
+                    bar_diameter_mm=slab_flange.get('bar_diameter_mm',10),
+                    bar_centre_cover_mm=slab_flange.get('bar_centre_cover_mm',30.))
+
+    def clear(grid, index, step, width):
+        # Clear distance to the adjacent parallel beam; None at a slab edge.
+        other=index+step
+        if not 0<=other<len(grid):
+            return None
+        return abs(grid[other]-grid[index])-width
 
     for floor in range(1,11):
         z=elevations[floor]
+        beams=cfg['stories'][floor-1]['beams']
         for iy,y in enumerate(ygrid):
             for ix in range(3):
                 name=f'G{ix+1 if iy in (0,3) else ix+4}'
                 x1,x2=xgrid[ix:ix+2]
                 cuts=[(x-x1)/(x2-x1) for x in xmesh if x1<=x<=x2]
-                add_beam(floor,name,(x1,y,z),(x2,y,z),cuts,reverse=ix==2)
-        for x in xgrid:
+                w=beams[name]['width_mm']
+                flange=beam_flange(floor,name,x2-x1,clear(ygrid,iy,-1,w),clear(ygrid,iy,1,w),
+                                   slab_flange.get('long_direction_bar_area_per_mm',0.))
+                joints=(column_at(floor,ix,iy)['b_x_mm']/2.,column_at(floor,ix+1,iy)['b_x_mm']/2.)
+                add_beam(floor,name,(x1,y,z),(x2,y,z),cuts,reverse=ix==2,joints=joints,flange=flange)
+        for ix,x in enumerate(xgrid):
             for iy in range(3):
-                if iy==1 and floor<=wall['last_story']:
-                    continue
                 y1,y2=ygrid[iy:iy+2]
+                name=f'G{iy+7}'
                 cuts=[(y-y1)/(y2-y1) for y in ymesh if y1<=y<=y2]
-                add_beam(floor,f'G{iy+7}',(x,y1,z),(x,y2,z),cuts,reverse=iy==2)
+                w=beams[name]['width_mm']
+                # Local +y is -global X, so the -X neighbour is on the positive side.
+                flange=beam_flange(floor,name,y2-y1,clear(xgrid,ix,1,w),clear(xgrid,ix,-1,w),
+                                   slab_flange.get('short_direction_bar_area_per_mm',0.))
+                joints=(column_at(floor,ix,iy)['b_y_mm']/2.,column_at(floor,ix,iy+1)['b_y_mm']/2.)
+                add_beam(floor,name,(x,y1,z),(x,y2,z),cuts,reverse=iy==2,joints=joints,flange=flange,
+                         joint_only=iy==1 and floor<=wall['last_story'])
 
     # ShellMITC4 requires the eight-component membrane+plate section. The
     # five-component ElasticPlateSection used in TJU is not compatible with
