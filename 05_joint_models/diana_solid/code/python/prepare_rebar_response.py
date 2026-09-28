@@ -5,7 +5,9 @@ Model: beam ends on steel plates restrained along a mid-height y-line
 ten axial-load steps dropped:
 
 - ``beam_bar_profile.csv`` / ``column_bar_profile.csv`` /
-  ``joint_stirrup_profile.csv``: every "node N element E" strain column of
+  ``joint_stirrup_profile.csv`` (x-direction leg, EXX) /
+  ``joint_stirrup_y_profile.csv`` (y-direction leg, EYY; optional -- only
+  when the export exists): every "node N element E" strain column of
   the along-bar exports, as ``n<N>_e<E>`` (raw strain) plus the shared
   ``case_id, load_factor, story_drift_rad``. The two bar elements sharing a
   solid node do not report identical strains, so nothing is collapsed.
@@ -38,7 +40,9 @@ PROFILES = {
     "beam_bar_profile.csv": "EXX_nodes_10380_",
     "column_bar_profile.csv": "EZZ_nodes_11285_",
     "joint_stirrup_profile.csv": "EXX_nodes_10106_",
+    "joint_stirrup_y_profile.csv": "EYY_nodes_10122_",
 }
+OPTIONAL_PROFILES = {"joint_stirrup_y_profile.csv"}
 SHEAR_FILES = {"column": "NX_nodes_9149_9159_9169_9189.csv", "beam": "NZ_nodes_9190_9224_9226_9243.csv"}
 
 
@@ -89,10 +93,16 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--input-dir", type=Path, default=model_root / "data" / "raw" / "origin_2015")
     parser.add_argument("--output-dir", type=Path, default=model_root / "data" / "processed" / "origin_2015")
+    parser.add_argument("--partial", action="store_true",
+                        help="Skip any missing export (e.g. an interim check of a run still in progress)")
     args = parser.parse_args()
     args.output_dir.mkdir(parents=True, exist_ok=True)
+    available = os.listdir(args.input_dir)
 
     for output_name, prefix in PROFILES.items():
+        if (output_name in OPTIONAL_PROFILES or args.partial) and not any(n.startswith(prefix) for n in available):
+            print(f"Skipped {output_name}: no '{prefix}*' export")
+            continue
         frame = load_export(find_raw(args.input_dir, prefix))
         table = standard(frame, response_columns(frame))
         table.to_csv(args.output_dir / output_name, index=False)
@@ -100,6 +110,9 @@ def main() -> int:
 
     shear = None
     for member, filename in SHEAR_FILES.items():
+        if args.partial and filename not in available:
+            print(f"Skipped {member} shear: no {filename}")
+            continue
         frame = load_export(args.input_dir / filename)
         columns = response_columns(frame)
         kept, seen = {}, set()
@@ -112,8 +125,9 @@ def main() -> int:
         table[list(kept.values())] = table[list(kept.values())] / 1000.0
         shear = table if shear is None else shear.merge(
             table.drop(columns=["load_factor", "story_drift_rad"]), on="case_id", validate="one_to_one")
-    shear.to_csv(args.output_dir / "story_shear_response.csv", index=False)
-    print(f"Wrote {len(shear)} rows: {args.output_dir / 'story_shear_response.csv'}")
+    if shear is not None:
+        shear.to_csv(args.output_dir / "story_shear_response.csv", index=False)
+        print(f"Wrote {len(shear)} rows: {args.output_dir / 'story_shear_response.csv'}")
     return 0
 
 

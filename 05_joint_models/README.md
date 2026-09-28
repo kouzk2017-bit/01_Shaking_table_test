@@ -1,7 +1,7 @@
 # Joint (BCJ) numerical models
 
 梁柱节点局部数值模型，区别于试验目录（`01_4-story/`、`02_10-story_2015/`、`03_10-story_2018/`）和整体建筑
-数值模型（`04_building_models/`）。
+数值模型（`04_opensees_model/`）。
 
 - `diana_shell/`：DIANA 层壳节点模型，代码见 `code/python/`，结果见 `../06_results/diana/shell/`。
 - `diana_solid/`：DIANA 实体节点模型。

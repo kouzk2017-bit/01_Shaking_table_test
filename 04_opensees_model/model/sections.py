@@ -332,6 +332,9 @@ class SectionFactory:
             "steel_rupture_enabled": self.rupture,
             "steel_ultimate_strain": self.ultimate if self.rupture else None,
             "bars": checked_bars,
+            "concrete02_cover_args": [-fc, eps_peak, -residual * fc, epsu, lam, ft, ets],
+            "concrete02_core_args": [-fc * strength_factor, core_eps_peak, -core_residual * fc,
+                                     core_epsu, lam, ft, ets],
             "concrete_assumptions": {name: data[name] for name in (
                 "lambda", "cover_epsu", "cover_residual_ratio", "tension_softening_strain",
                 "core_strength_factor", "core_peak_strain_factor", "core_residual_ratio", "core_epsu")},

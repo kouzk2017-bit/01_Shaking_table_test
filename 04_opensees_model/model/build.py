@@ -49,7 +49,8 @@ def beam_bars(data, position, cover):
         layers = [count] if count <= capacity else [capacity, count-capacity]
         for layer, n in enumerate(layers):
             z = sign * (zc - layer * (diameter + 25.))
-            points.extend((float(y), z) for y in np.linspace(-yc, yc, n))
+            # A single bar in a row sits on the centreline (linspace(.., 1) gives -yc).
+            points.extend((float(y), z) for y in (np.linspace(-yc, yc, n) if n > 1 else [0.]))
     return [dict(y=y, z=z, area_mm2=BAR_AREA[diameter], diameter_mm=diameter) for y,z in points]
 
 
@@ -73,15 +74,17 @@ class ShellFactory:
         fc, ec = concrete['fc_mpa'], concrete['ec_mpa']
         ft = .23 * fc ** (2./3.)
         eps = -2. * fc / ec
-        mats = []
+        mats, psumat = [], []
         for core in [False, True]:
             plane, plate = self.tag(), self.tag()
             use_core = core and confined
-            ops.nDMaterial('PlaneStressUserMaterial', plane, 40, 7,
-                           fc * (1.18 if use_core else 1.), ft,
-                           -fc * (.15 if use_core else .10),
-                           eps * (1.35 if use_core else 1.),
-                           -.018 if use_core else -.006, .001, .08)
+            params = [fc * (1.18 if use_core else 1.), ft,
+                      -fc * (.15 if use_core else .10),
+                      eps * (1.35 if use_core else 1.),
+                      -.018 if use_core else -.006, .001, .08]
+            ops.nDMaterial('PlaneStressUserMaterial', plane, 40, 7, *params)
+            psumat.append(dict(layer='core' if core else 'cover', confined=use_core,
+                               **dict(zip(('fc','ft','fcu','epsc0','epscu','epstu','stc'), params))))
             ops.nDMaterial('PlateFromPlaneStress', plate, plane, ec / 2.4)
             mats.append(plate)
         steel_mats = []
@@ -108,6 +111,13 @@ class ShellFactory:
                                  vertical_steel_face_mm=vertical_face,
                                  horizontal_steel_face_mm=horizontal_face,
                                  vertical_steel_centroid_from_midplane_mm=thickness/2-cover-vertical_face/2,
+                                 layers=[dict(material=m, thickness_mm=t) for m, t in
+                                         zip(('cover','vertical_steel','horizontal_steel','core',
+                                              'horizontal_steel','vertical_steel','cover'),
+                                             (v for _, v in layers))],
+                                 vertical_diameter_mm=vertical_diameter,
+                                 horizontal_diameter_mm=horizontal_diameter,
+                                 plane_stress_user_material=psumat, plate_shear_modulus_mpa=ec/2.4,
                                  layer_thickness_sum_mm=sum(v for _,v in layers)))
         return tag
 
@@ -215,7 +225,8 @@ def build_model(config, out):
         else:
             ops.element(formulation, element_tag, *tags, sec)
         elements.append(dict(element=element_tag,kind=kind,formulation=formulation,
-                             nodes=';'.join(map(str,tags)),section_tag=sec,story=floor,member=member))
+                             nodes=';'.join(map(str,tags)),section_tag=sec,story=floor,member=member,
+                             transform=transform))
 
     # Plate mesh resolves wall boundary centre/edges and the central stair opening.
     xmesh = sorted(set(xgrid + [4920,7080]))
@@ -481,10 +492,17 @@ def build_model(config, out):
     if not math.isclose(represented,expected,rel_tol=1.e-12):
         raise ValueError('Floor mass audit failed')
     (out/'section_audit.json').write_text(json.dumps(sections.records,ensure_ascii=False,indent=2),encoding='utf-8')
+    (out/'steel_material_audit.json').write_text(json.dumps(dict(
+        frame_steel02_by_diameter={f'{d:g}':v for d,v in sections._steel.items()},
+        frame_rupture_minmax=dict(enabled=sections.rupture,max_strain=sections.ultimate),
+        shell_steel02=dict(b=.012,r0=18.,cr1=.925,cr2=.15,rupture='none')),
+        ensure_ascii=False,indent=2),encoding='utf-8')
     (out/'shell_section_audit.json').write_text(json.dumps(shells.records,ensure_ascii=False,indent=2),encoding='utf-8')
     return dict(nodes=nodes,elements=elements,mass_lumps=mass_lumps,base_nodes=base_nodes,
                 floor_monitors=monitors,story_heights_mm=heights,floor_mass_properties=masses,
                 gravity_mm_s2=geom['gravity_mm_s2'],total_height_mm=float(elevations[-1]),
                 formulation_counts=dict(Counter(e['formulation'] for e in elements)),
                 assumptions=cfg['assumptions'],axis_map=geom['input_axis_map'],
-                boundary='fixed at structural 1F datum',moving_mass_excludes_base=True)
+                boundary='fixed at structural 1F datum',moving_mass_excludes_base=True,
+                transforms=[dict(tag=tag,vecxz=list(k[0]),offset_i_mm=list(k[1]),offset_j_mm=list(k[2]))
+                            for k,tag in transforms.items()])

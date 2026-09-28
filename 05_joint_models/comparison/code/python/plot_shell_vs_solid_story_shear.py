@@ -1,10 +1,9 @@
 """Compare story shear of the DIANA layered-shell and solid joint models.
 
 Shell: composed-line NX at node 524 (processed story_shear_response.csv).
-Solid: composed-line NX of the two column lines next to the plates (elements
-1764 and 1783). Both beam ends are also restrained in X, so part of the
-horizontal force goes into the beams axially and the two column shears are
-not identical; both are drawn.
+Solid: composed-line NX of the upper-column line next to the plate (element
+1783), the same column as the shell's node 524. (Beam ends are also
+restrained in X, so the lower-column shear, element 1764, differs slightly.)
 
 Figure 07: story shear by analysis step. Figure 08: story shear vs story
 drift (load factor x 0.005 rad).
@@ -24,8 +23,7 @@ sys.path.insert(0, str(WORKSPACE / "08_common" / "python"))
 
 from publication_style import apply_style, format_axis, figure_size, save_figure, COLORS, reference_line_kwargs  # noqa: E402
 
-SOLID_COLUMNS = (("column_e1764_shear_kN", "Solid column line 1764", COLORS["accent"]),
-                 ("column_e1783_shear_kN", "Solid column line 1783", COLORS["green"]))
+SOLID_COLUMNS = (("column_e1783_shear_kN", "Solid", COLORS["accent"]),)
 
 
 def main() -> None:

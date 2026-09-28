@@ -1,78 +1,80 @@
 # 2015 十层振动台试件 OpenSees 模型
 
-沿用 `02_TJU_test/02_Pre_Experiment_Validation/01_OpenSees_Model` 的三维 RC 建模方法，按 2015 年试验资料独立建立。使用 OpenSeesPy，单位 **N–mm–t–s**。原 TJU 模型和试验原始数据没有改动。
+按 2015 年 E-Defense 十层 RC 墙-框架试件资料建立的三维 OpenSeesPy 模型，建模方法沿用 `02_TJU_test` 的 OpenSees 模型。单位 **N–mm–t–s**。
 
-当前用途是**建立模型、重力/模态检查及小强度实测输入试运行**。尚未完成试验响应拟合，也没有把试运行成功视为验证通过。
+当前状态见 [TRIAL_STATUS](docs/TRIAL_STATUS.md)：模型可以完成 20 s 的 Case 13，但比实测刚 4–5 倍，**还不能和试验定量对比**。建模检查清单见 [MODEL_REVIEW](docs/MODEL_REVIEW.md)，参数来源见 [PARAMETER_SOURCES](docs/PARAMETER_SOURCES.md)。
 
-检查结果与未收敛记录见 [数值试运行状态](docs/TRIAL_STATUS.md)。20 秒时程尚未通过，不能将其当作已验证算例。
+## 工作流程
 
-针对未收敛的墙片对照、整楼静力筛查和原工况重放见 [未收敛定位记录](docs/FAILURE_LOCALIZATION.md)。
-
-## 运行
-
-在本目录执行：
-
-```powershell
-.\run.ps1 -Stage model
-.\run.ps1 -Stage modal
-.\run.ps1 -Stage trial -Case 13 -Duration 1
-.\run.ps1 -Stage trial -Case 13 -Duration 20
+```
+02_10-story_2015/data/raw/ ─┐  (台面实测加速度，只读)
+config/specimen_2015.json ──┼─> model/ ──> ① info  : 材料/截面/几何检查图（只建模）
+config/analysis.json ───────┘              ② modal : 重力 + 模态（对照实测周期）
+                                           ③ trial : 重力 + 模态 + 时程
+                                           ④ verify_run.py : 核对时程结果
 ```
 
-`modal` 包含重力分析；`trial` 包含建模、重力、模态、时程和成图。脚本优先使用同工作区 TJU 的现成 Python 环境，不复制或修改该环境。独立运行时使用 Python 3.12、安装 `requirements.txt`，再传入 `-Python <python.exe>`。
+在本目录的 PowerShell 中运行（执行策略受限时加 `-ExecutionPolicy Bypass`）：
 
-时程默认采用 KrylovNewton；必要时尝试 NewtonLineSearch、Newton，再以放宽判据（1e-3 mm）重试一次，最后细分步长。生产收敛判据为 NormDispIncr 1e-4 mm（2026-09-24 起；此前 1e-6 mm 对混合 mm/rad 的全局范数过严）。ModifiedNewton 矩阵复用选项仍可用于诊断，但初步计时没有显示足够收益，因此不作为默认设置。
+```powershell
+powershell -ExecutionPolicy Bypass -File run.ps1 -Stage info
+powershell -ExecutionPolicy Bypass -File run.ps1 -Stage modal
+powershell -ExecutionPolicy Bypass -File run.ps1 -Stage trial -Case 13 -Duration 20
+..\..\02_TJU_test\.venv\Scripts\python.exe -B verify_run.py ..\06_results\opensees\trial_case13_20s
+```
 
-也可直接 `python -B -m entrypoints.trial --stage trial --case 13 --duration 20`。`--config` 和 `--analysis-config` 可指定替代 JSON，默认参数见 `config/`。代码导入本身不建模、不启动计算。
+每次改模型的推荐顺序：修改 `config/` 或 `model/`，然后按 ① → ② → ③ 运行。
+- ① 用来检查材料和截面，约 1 分钟；
+- ② 用来对照实测周期（frame 方向 0.85 s，wall 方向 0.58 s），约 1 分钟；
+- ③ 只在前两步确认后再跑，20 s 约需 1 小时。
 
-## 模型及坐标
+脚本默认使用 `02_TJU_test/.venv` 的 Python。独立运行时用 Python 3.12，安装 `requirements.txt`，再传入 `-Python <python.exe>`。
 
-- 十层，总高 25,750 mm；长边 3×4,000 mm，短边 3,100+1,800+3,100 mm。
-- **模型 X=图纸/传感器 Y（长边纯框架方向），模型 Y=图纸/传感器 X（短边带墙方向）**；模型 Z 向上。输入和输出都明确采用这个映射。
-- 外侧 C1/C2 和上部 C3：Concrete02 保护层/约束核心、Steel02+MinMax 钢筋、扣除被钢筋置换的混凝土、弹性扭转、PDelta、**forceBeamColumn**（`frame.element` 可切回 dispBeamColumn 作对照）。力法单元使用 Aggregator 的 Vy/Vz 项，即弹性、未开裂的腹板剪切柔度。
-- **节点刚域**：柱端 `-jntOffset` 取该楼层相交梁最大梁高的一半，梁端取柱在梁方向宽度的一半；梁子单元整体位于柱宽内时改为 10 倍毛截面刚度的弹性单元。墙层 G8 在 C3 边缘柱宽内同样建成嵌入式刚性段，使 G7/G9 与 8 层以上 C3 的弯矩以力偶形式传入墙壳，而不只依赖 ASDShellQ4 钻动自由度。**尚未建节点剪切变形和钢筋黏结滑移。**
-- 梁采用报告中的端部/跨中配筋。以五点 Lobatto 的位置和权重，通过 UserDefined 积分分配不同截面；节点细分时保留所在全跨位置（刚域扣除后按柔性段取点）。保护层和具体排筋坐标仍为显式假定。
-- 梁截面计入 AIJ 有效宽度的楼板翼缘（板厚 130 mm）及 S-33 S1 板筋（长边方向 D10@250、短边方向 D10@200，上下两层，钢筋中心距板面 30 mm 为假定）。纤维坐标以 T/L 形毛截面形心为参考轴，避免刚性楼盖约束轴向后产生 EA·e² 的额外刚度。楼梯开口处未折减翼缘。
-- 四片短边墙：1–6 层厚 230 mm，7 层厚 150 mm，8–10 层无墙。采用 PlaneStressUserMaterial、PlateFromPlaneStress、PlateRebar、LayeredShell 和 ASDShellQ4。墙内 C3 边缘柱和 G8 顶部梁带整体建壳，不叠加同位置线单元。
-- 楼层设置刚性平面约束，楼板采用 ShellMITC4 + **ElasticMembranePlateSection**。这是针对截面兼容性的必要修正；详见下面说明。
-- 移动楼层重量 2F–RF 共 8,196 kN，对应 836.326531 t。采用与现有试验处理程序一致的 g=9.8 m/s²；固定基础的 1F 重量不计入移动质量。水平质量按楼板面积分配，竖向质量和竖向地震输入未启用。
+## 结果位置
 
-## 试运行工况
+所有结果都在 `06_results/opensees/` 下，每个阶段一个固定名称的文件夹，重跑时覆盖：
 
-默认 **Case 13：2015-12-09，JMA Kobe 10%，固定基础阶段**。读取 JB14 台面西南（SW）与东北（NE）两角 AX/AY 实测加速度并取平均，作为台面中心平动输入（Case 13 两角水平差值峰值约 0.18–0.20 m/s²，约为 PGA 的 28%，单角输入含明显台面转动成分）；1 ms 原始采样；按现有处理流程做全记录 FFT 滤波和抗混叠后取 10 ms。已是 10% 试验的实测输入，**不再乘 0.1，不应用 TJU 的 1/6 缩尺关系**。
+| 文件夹 | 内容 |
+|---|---|
+| `model_info/` | 图片 01–26、`audit/` 参数 JSON、`README.md` 图片索引 |
+| `modal/` | 重力反力、模态周期与振型、模型汇总、参数和源码快照 |
+| `trial_case13_20s/` | 楼层响应、峰值、基底反力、求解恢复记录、响应图、参数和源码快照 |
 
-输入保留起始预历史，分析 t=0 加零点，原记录整体后移 0.01 s。20 s 覆盖约 13.6 s 的主要水平脉冲。输出绝对加速度=相对加速度+映射后的台面输入；位移、层间位移角为相对固定基础的响应。
+- 运行过程中写入 `<名称>__running/`。
+- 成功后替换同名旧文件夹。
+- 失败时保存为 `<名称>__failed/`，同时保留上一次成功的结果。
+- 楼层响应表中 `story=1…10` 对应楼面 `2F…RF`。
 
-2015 年 11 月是基础滑移阶段；12 月改为固定基础。因此当前固定基础模型拒绝把 Case 2/4/7/10 的台面记录作为对应固定基础试验直接输入。可运行的固定基础编号为 13/15/17/20/22，但后续工况的前序损伤均尚未继承。当前默认仅为 Case 13 小强度试运行。
+## 代码
 
-## 已知假定及后续校准项
+| 路径 | 作用 |
+|---|---|
+| `config/specimen_2015.json` | 几何、分层材料、柱梁配筋、墙体、楼板翼缘、框架单元选项及参数来源 |
+| `config/analysis.json` | 重力步数、收敛判据、阻尼、积分器、恢复策略 |
+| `model/build.py`、`model/sections.py` | 建模；纤维截面和分层壳截面 |
+| `analysis/ground_motion.py` | 读取台面 SW/NE 两角实测加速度，滤波后取平均 |
+| `analysis/solver.py` | 重力、模态、时程 |
+| `entrypoints/trial.py`、`entrypoints/output.py` | 运行入口；固定名称的结果文件夹 |
+| `postprocessing/model_info_figures.py`、`postprocessing/figures.py` | 模型信息图；模型和响应图 |
+| `verify_run.py` | 只读核对已完成的时程结果 |
 
-1. 采用初始无损伤材料状态，未继承此前滑移 10/25/50/100% 试验的损伤，也未显式模拟基础滑移、接触和第六层钢连接缝柔度。
-2. 材料屈服强度/弹性模量按实测报告汇总；钢筋同直径跨楼层取合并值。D16 缺少已确认试样，保留旧模型屈服强度及名义 Es 的假定。混凝土峰后、约束系数、钢筋硬化/断裂和 5% 阻尼沿用 TJU 假定，尚未校准。
-3. 报告文字给楼板厚 130 mm，施工图 S-33 标 120 mm。本版本采用 130 mm，并保留该资料差异。楼板和墙边缘配筋采用本模型说明的等效方式；墙内边缘钢筋为分布钢筋，梁带配筋位于上下 100 mm 区域。
-4. 小悬挑、钢楼梯、吊装附件不单独贡献刚度；其重量包含在报告楼层质量中。楼层质量中心和转动惯量由当前平面面积分布计算，尚未按逐件称重分解。
-5. 梁柱剪切柔度为弹性未开裂值；节点区为刚域，未建钢筋黏结滑移、节点剪切弹簧、压屈或校准的破坏准则。
-6. 阻尼：5% Rayleigh（锚定 T1 与 0.2T1），与已提交刚度成比例；阻尼比尚未按白噪声识别。
-7. **实测固定基础阶段初始周期：frame 方向（模型 X）0.85 s，wall 方向（模型 Y）0.58 s。当前未损伤模型为 0.373/0.282 s，刚度约为实测等效刚度的 5.2/4.2 倍。在完成初始损伤或刚度标定之前，时程结果不能与试验定量对比。**壳内钢筋采用连续 Steel02，未开启断裂。
+## 模型要点
 
-这些参数和范围均可供后续试验验证修订，不能将当前模型用于声明大震破坏预测精度。
+- **几何**：十层，总高 25,750 mm；长边 3×4,000 mm，短边 3,100+1,800+3,100 mm。
+- **坐标**：模型 X = 图纸/传感器 Y（长边，纯框架方向）；模型 Y = 图纸/传感器 X（短边，带墙方向）；Z 向上。
+- **梁柱**：forceBeamColumn 纤维单元。混凝土为 Concrete02（保护层和约束核心），钢筋为 Steel02，框架钢筋用 MinMax 在 6% 应变处断裂；扣除被钢筋置换的混凝土；PDelta。剪切柔度按弹性、未开裂的腹板计算。
+- **节点**：柱端刚域取相交梁最大梁高的一半，梁端取柱宽的一半；梁子单元整体位于柱宽内时改为刚性段（10 倍毛截面刚度）。墙层 G8 在 C3 边缘柱宽内以刚性段嵌入墙壳。**没有节点剪切变形和黏结滑移。**
+- **梁截面**：取报告中的端部和跨中配筋；计入 AIJ 有效宽度的楼板翼缘和 S1 板筋；纤维坐标以毛截面形心为参考轴。
+- **墙**：四片短边墙，1–6 层厚 230 mm，7 层厚 150 mm，8–10 层无墙。采用 ASDShellQ4 分层壳（PlaneStressUserMaterial）；C3 边缘柱和 G8 梁带并入墙壳。
+- **楼板**：楼层设刚性平面约束；楼板用 ShellMITC4 + ElasticMembranePlateSection。TJU 模型用的五分量 ElasticPlateSection 与 ShellMITC4 不兼容，所以改用这个截面。
+- **质量**：2F–RF 移动重量 8,196 kN（按 g = 9.8 m/s² 换算为 836.3 t），按楼板面积分配，只有水平质量。
+- **阻尼**：5% Rayleigh，锚定 T1 和 0.2T1，与已提交刚度成比例。阻尼比是假定值。
+- **求解**：HHT（α = 0.9）+ KrylovNewton，收敛判据 NormDispIncr 1e-4 mm。不收敛时依次改用其他算法、放宽判据到 1e-3 mm、细分步长。
+- **输入**：Case 13（2015-12-09，JMA Kobe 10%，固定基础阶段）。取台面 SW 和 NE 两角水平加速度的平均，不再乘缩放系数，也不输入竖向。可运行的固定基础工况为 13/15/17/20/22。
 
-## 楼板兼容性修正
+## 主要限制
 
-照搬 TJU 的 `ElasticPlateSection + ShellMITC4` 后，首次重力计算出现奇异刚度，局部楼板节点产生非物理的竖向位移。OpenSees 的 ElasticPlateSection 是五分量截面，而 ShellMITC4 采用八分量壳截面。本模型改用官方示例采用的 ElasticMembranePlateSection；保留刚性楼盖后，楼板面内应变由刚体运动约束为零，仍由楼盖约束控制面内运动。
-
-出处：[OpenSees ElasticPlateSection 源码](https://opensees.berkeley.edu/OpenSees/api/doxygen2/html/ElasticPlateSection_8cpp-source.html)、[ShellMITC4 官方示例](https://opensees.berkeley.edu/OpenSees/manuals/ExamplesManual/HTML/876.htm)。**此次只修正新模型，未修改 TJU 原模型。**
-
-## 文件和输出
-
-- `config/specimen_2015.json`：试件几何、分层材料、柱梁配筋、墙体和参数来源。
-- `config/analysis.json`：重力步数、收敛判据、阻尼、积分器和最小子步。
-- `model/build.py`、`model/sections.py`：建模与截面。
-- `analysis/ground_motion.py`、`analysis/solver.py`：原始波形读取和分析。
-- `docs/PARAMETER_SOURCES.md`：资料页码、参数对应和重要差异。
-
-每次运行先在 `../../06_results/opensees/10story_2015/<UTC时间_分析类型>/` 建立唯一目录，保存参数快照、源码快照及 SHA256、输入源 SHA256、求解日志和状态。失败也保留日志，不覆盖旧运行。
-
-主要结果包括 `model_summary.json`、节点/单元/质量 CSV、截面审计 JSON、重力反力、重力后模态、`floor_response.csv`、`response_peaks.csv`、模型图及响应图。楼层响应表的 `story=1…10` 对应物理楼面 `2F…RF`，不是物理 1F…10F。
-
-基础反力输出包含惯性/阻尼项，正号为支座对结构的作用。计算成功须同时满足：输入读取有效、重力平衡误差≤1e−5、所有特征值为正且有限、每个响应值有限、实际时程达到请求终点。与试验的误差对比属于下一步工作。
+1. 从未损伤状态开始，没有继承 11 月滑移系列（10/25/50/100%）造成的损伤。这是和实测周期相差约 2 倍的主要候选原因。
+2. 混凝土峰后行为、约束系数、钢筋硬化和断裂、阻尼都沿用 TJU 的假定，没有标定。D16 钢筋的 fy 和 Es 是假定值。
+3. 板厚取 130 mm（报告），图纸为 120 mm，仍未确定。
+4. 没有模拟基础滑移、6 层钢连接缝的柔度、竖向和转动输入。

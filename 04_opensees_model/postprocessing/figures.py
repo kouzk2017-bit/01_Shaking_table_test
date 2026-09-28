@@ -10,7 +10,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
 
-COMMON_PYTHON = Path(__file__).resolve().parents[3] / '08_common' / 'python'
+COMMON_PYTHON = Path(__file__).resolve().parents[2] / '08_common' / 'python'
 sys.path.insert(0, str(COMMON_PYTHON))
 
 from publication_style import apply_style, standard_size  # noqa: E402

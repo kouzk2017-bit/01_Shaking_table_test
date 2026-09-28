@@ -99,7 +99,7 @@ def load_ground_motion(
     """Return time [s], measured X/Y/Z acceleration [mm/s²], and provenance.
 
     ``project_root`` is the sibling ``02_10-story_2015`` experiment directory
-    (this model lives outside it, under ``04_building_models/``, but still reads
+    (this model lives outside it, in ``04_opensees_model/``, but still reads
     the measured table motion from its ``data/raw/``). The full source is
     filtered before any truncation; its first sample and all prehistory remain.
     A zero sample is inserted at analysis t=0, and the measured record starts at

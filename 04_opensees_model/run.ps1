@@ -1,12 +1,12 @@
 param(
-    [ValidateSet('model','gravity','modal','trial')][string]$Stage = 'trial',
+    [ValidateSet('info','model','gravity','modal','trial')][string]$Stage = 'trial',
     [int]$Case = 13,
     [double]$Duration = 20,
     [string]$Python = ''
 )
 $ErrorActionPreference = 'Stop'
 if (-not $Python) {
-    $tjuPython = Join-Path $PSScriptRoot '..\..\..\02_TJU_test\.venv\Scripts\python.exe'
+    $tjuPython = Join-Path $PSScriptRoot '..\..\02_TJU_test\.venv\Scripts\python.exe'
     if (Test-Path -LiteralPath $tjuPython) {
         $Python = (Resolve-Path -LiteralPath $tjuPython).Path
     } else {
@@ -15,7 +15,11 @@ if (-not $Python) {
 }
 Push-Location -LiteralPath $PSScriptRoot
 try {
-    & $Python -B -m entrypoints.trial --stage $Stage --case $Case --duration $Duration
+    if ($Stage -eq 'info') {
+        & $Python -B -m postprocessing.model_info_figures
+    } else {
+        & $Python -B -m entrypoints.trial --stage $Stage --case $Case --duration $Duration
+    }
     if ($LASTEXITCODE -ne 0) { throw "OpenSees run failed (exit $LASTEXITCODE); inspect the reported solver.log." }
 } finally {
     Pop-Location

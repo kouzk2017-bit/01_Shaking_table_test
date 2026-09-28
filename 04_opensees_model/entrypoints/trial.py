@@ -13,11 +13,11 @@ import traceback
 from datetime import datetime, timezone
 
 
-ROOT = Path(__file__).resolve().parents[1]
-PROJECT = ROOT.parent
-# This model lives outside the experiment directory it was extracted from;
-# the measured table motion it reads as input still lives there.
-EXPERIMENT_ROOT = PROJECT.parent / '02_10-story_2015'
+from entrypoints import output
+
+ROOT = output.ROOT
+# The measured table motion is read from the sibling experiment directory.
+EXPERIMENT_ROOT = output.EXPERIMENT_ROOT
 
 
 def write_json(path, value):
@@ -32,10 +32,10 @@ def main(argv=None):
     parser.add_argument('--config', type=Path, default=ROOT / 'config' / 'specimen_2015.json')
     parser.add_argument('--analysis-config', type=Path, default=ROOT / 'config' / 'analysis.json')
     args = parser.parse_args(argv)
-    # Outputs are separate from experimental figures and use an exclusive directory.
+    # One fixed-name folder per stage/case in 06_results/opensees/; see output.py.
     run_id = datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S_%fZ') + f'_{args.stage}'
-    out = PROJECT.parent / '06_results' / 'opensees' / '10story_2015' / run_id
-    out.mkdir(parents=True, exist_ok=False)
+    name = f'trial_case{args.case}_{args.duration:g}s' if args.stage == 'trial' else args.stage
+    out = output.start(name)
     status = {'run_id': run_id, 'state': 'running', 'stage': args.stage,
               'started_utc': datetime.now(timezone.utc).isoformat(),
               'purpose': 'Model construction and numerical trial; experimental agreement is not yet validated.',
@@ -129,6 +129,7 @@ def main(argv=None):
         os.close(saved_stdout)
         os.close(saved_stderr)
         log.close()
+    out = output.finish(out, name, code == 0)
     print(f'{status["state"]}: {out}', flush=True)
     if code:
         print(status['error'], file=sys.stderr)

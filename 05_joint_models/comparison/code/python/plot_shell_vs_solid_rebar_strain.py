@@ -6,12 +6,11 @@ identical, so it is one curve per point. The solid side reads the along-bar
 profiles written by diana_solid/code/python/prepare_rebar_response.py and
 plots the columns listed in FIGURES.
 
-Solid point choice (confirmed by the user 2026-09-26): joint stirrup node
-10108 corresponds to shell node 2375 (both adjacent bar elements drawn); beam
-column faces at nodes 10397 / 10402, column faces at 11296 / 11302. The first
-element outside a face carries a compressive spike, so the beam/column curves
-use the next node into the member plus one point further in (whose strain
-follows the section moment).
+One solid curve per figure, chosen by the user (2026-09-28): stirrup node
+10108 / element 2665 (<-> shell 2375), beam bar node 10403 / element 2954
+(next to the right column face 10402, <-> shell 1628), column bar node
+11295 / element 3839 (next to the upper face 11296, <-> shell 1985). The
+element right at a face carries a compressive spike, hence the adjacent node.
 """
 
 from __future__ import annotations
@@ -36,15 +35,15 @@ SOLID_COLORS = (COLORS["accent"], COLORS["green"], COLORS["orange"], COLORS["pur
 FIGURES = (
     ("02_joint_stirrup_strain_by_step", "joint_stirrup_response.csv", "joint_stirrup_exx", "Shell node 2375",
      "joint_stirrup_profile.csv",
-     [("n10108_e2665", "Solid node 10108, elem 2665"), ("n10108_e2666", "Solid node 10108, elem 2666")],
+     [("n10108_e2665", "Solid node 10108")],
      r"Joint stirrup strain, $\epsilon_{\mathrm{xx}}/\epsilon_{\mathrm{y}}$"),
     ("03_beam_longitudinal_strain_by_step", "beam_rebar_response.csv", "beam_strain", "Shell node 1628 (column face)",
      "beam_bar_profile.csv",
-     [("n10403_e2954", "Solid node 10403 (next to right face)"), ("n10406_e2957", "Solid node 10406 (4 elem. into beam)")],
+     [("n10403_e2954", "Solid node 10403 (column face)")],
      r"Beam longitudinal strain, $\epsilon_{\mathrm{s}}/\epsilon_{\mathrm{y}}$"),
     ("04_column_longitudinal_strain_by_step", "column_rebar_response.csv", "column_strain", "Shell node 1985",
      "column_bar_profile.csv",
-     [("n11295_e3839", "Solid node 11295 (next to joint)"), ("n11292_e3836", "Solid node 11292 (3 elem. into column)")],
+     [("n11295_e3839", "Solid node 11295")],
      r"Column longitudinal strain, $\epsilon_{\mathrm{s}}/\epsilon_{\mathrm{y}}$"),
 )
 
