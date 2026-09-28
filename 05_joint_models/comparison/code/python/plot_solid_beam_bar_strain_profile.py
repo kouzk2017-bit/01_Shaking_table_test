@@ -32,7 +32,7 @@ from publication_style import apply_style, format_axis, figure_size, save_figure
 YIELD_STRAIN = 0.002
 COLUMN_PATTERN = re.compile(r"^n(\d+)_e(\d+)$")
 PALETTE = [COLORS["sky"], COLORS["primary"], COLORS["orange"], COLORS["accent"],
-           COLORS["green"], COLORS["sky"], COLORS["purple"], COLORS["black"]]
+           COLORS["green"], "#006D4F", COLORS["purple"], COLORS["black"]]  # +/- drift pairs: light/dark of one hue
 
 # stem, processed csv, face nodes, y label
 FIGURES = (
