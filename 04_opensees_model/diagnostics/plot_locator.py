@@ -14,7 +14,7 @@ from matplotlib.colors import LogNorm
 COMMON_PYTHON = Path(__file__).resolve().parents[3] / '08_common' / 'python'
 sys.path.insert(0, str(COMMON_PYTHON))
 
-from publication_style import apply_style  # noqa: E402
+from publication_style import apply_style, standard_size  # noqa: E402
 
 
 def main():
@@ -30,7 +30,7 @@ def main():
     values=np.max(np.abs(eps[:,:,:3]),axis=(1,2))
     upper=max(1e-3,float(np.nanmax(values)))
     norm=LogNorm(vmin=1e-5,vmax=upper)
-    fig,axes=plt.subplots(1,4,figsize=(12,8),sharey=True,layout='constrained')
+    fig,axes=plt.subplots(1,4,figsize=standard_size(12,8),sharey=True,layout='constrained')
     for j,ax in enumerate(axes,1):
         ix=[i for i,e in enumerate(wall) if e['member'].startswith(f'W{j}_')]
         polys=[np.array([nodes[int(n)][1:] for n in wall[i]['nodes'].split(';')]) for i in ix]
@@ -42,20 +42,20 @@ def main():
         ax.plot(xyz[1],xyz[2],marker='*',color='cyan',ms=10)
         ax.set(title=f'W{j}, X={(j-1)*4} m\npeak element {wall[peak]["element"]}',xlabel='Model Y (m)')
         ax.set_ylim(0,18.6)
-        ax.grid(alpha=.12)
+        ax.grid(True)
     axes[0].set_ylabel('Elevation Z (m)')
     fig.colorbar(col,ax=axes,shrink=.75,label='Maximum absolute membrane strain component')
     failed=bool(int(data['code']))
-    fig.suptitle('Wall strain after rollback at 12.69 s (not a failure-location map)' if failed else 'Committed shell state',fontsize=12)
-    fig.savefig(out/'wall_localization.png',dpi=180)
+    fig.suptitle('Wall strain after rollback at 12.69 s (not a failure-location map)' if failed else 'Committed shell state')
+    fig.savefig(out/'wall_localization.png')
     plt.close(fig)
     rows=[r for r in summary['history'] if r['frame'][0].isdigit()]
-    fig,ax=plt.subplots(figsize=(9,4),layout='constrained')
+    fig,ax=plt.subplots(figsize=standard_size(9,4),layout='constrained')
     ax.semilogy([r['time_s'] for r in rows],[r['max_membrane_strain'] for r in rows],label='Membrane component')
     ax.semilogy([r['time_s'] for r in rows],[r['max_surface_component_strain'] for r in rows],label='Outer-face component bound')
     ax.set(xlabel='Committed / rollback time (s)',ylabel='Maximum absolute strain',title='Recorded wall strains; final rollback equals last committed strain')
-    ax.grid(alpha=.2);ax.legend()
-    fig.savefig(out/'wall_strain_history.png',dpi=180)
+    ax.grid(True);ax.legend()
+    fig.savefig(out/'wall_strain_history.png')
     plt.close(fig)
 
 

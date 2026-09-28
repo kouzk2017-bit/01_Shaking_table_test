@@ -237,7 +237,6 @@ def draw_selected_peak_markers(
         time[selected],
         story_drift[selected],
         marker=marker,
-        s=28,
         facecolor="black",
         edgecolor="black",
         linewidth=0.6,

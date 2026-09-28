@@ -11,13 +11,13 @@ import matplotlib.pyplot as plt
 COMMON_PYTHON = Path(__file__).resolve().parents[3] / '08_common' / 'python'
 sys.path.insert(0, str(COMMON_PYTHON))
 
-from publication_style import apply_style  # noqa: E402
+from publication_style import apply_style, standard_size  # noqa: E402
 
 
 def main():
     apply_style('paper')
     p=argparse.ArgumentParser();p.add_argument('run',type=Path);out=p.parse_args().run.resolve()
-    fig,axes=plt.subplots(2,2,figsize=(11,7),layout='constrained')
+    fig,axes=plt.subplots(2,2,figsize=standard_size(11,7),layout='constrained')
     summary=[]
     for i,eas in enumerate((1,0)):
         for j,method in enumerate(('HHT','Newmark')):
@@ -33,12 +33,12 @@ def main():
                                 beta_zero_last_committed_time_s=float(a[-1,0]),
                                 beta_tiny_last_committed_time_s=float(b[-1,0])))
             ax=axes[i,j]
-            ax.plot(a[:n,0],a[:n,1],label='betaKinit = 0',lw=1.5)
-            ax.plot(b[:n,0],b[:n,1],label='betaKinit = 1e-30',lw=1.,ls='--')
+            ax.plot(a[:n,0],a[:n,1],label='betaKinit = 0')
+            ax.plot(b[:n,0],b[:n,1],label='betaKinit = 1e-30',ls='--')
             ax.set(title=f'EAS {"on" if eas else "off"} | {method}',xlabel='Time (s)',ylabel='Top displacement (mm)')
-            ax.grid(alpha=.2);ax.legend(fontsize=8)
+            ax.grid(True);ax.legend()
     fig.suptitle('Shell diagnostic: physically negligible damping coefficient, different code path')
-    fig.savefig(out/'beta_zero_vs_tiny.png',dpi=180)
+    fig.savefig(out/'beta_zero_vs_tiny.png')
     (out/'beta_comparison.json').write_text(json.dumps(summary,indent=2),encoding='utf-8')
     print(json.dumps(summary,indent=2))
 

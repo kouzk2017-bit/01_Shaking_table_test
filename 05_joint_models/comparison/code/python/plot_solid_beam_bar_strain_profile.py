@@ -27,12 +27,12 @@ import pandas as pd
 WORKSPACE = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(WORKSPACE / "08_common" / "python"))
 
-from publication_style import apply_style, format_axis, figure_size, save_figure, COLORS  # noqa: E402
+from publication_style import apply_style, format_axis, figure_size, save_figure, COLORS, reference_line_kwargs  # noqa: E402
 
 YIELD_STRAIN = 0.002
 COLUMN_PATTERN = re.compile(r"^n(\d+)_e(\d+)$")
 PALETTE = [COLORS["sky"], COLORS["primary"], COLORS["orange"], COLORS["accent"],
-           COLORS["green"], "#006D4F", COLORS["purple"], COLORS["black"]]
+           COLORS["green"], COLORS["sky"], COLORS["purple"], COLORS["black"]]
 
 # stem, processed csv, face nodes, y label
 FIGURES = (
@@ -77,13 +77,13 @@ def main() -> None:
             linestyle = "-" if label.startswith("+") else "--"
             for index, (_, ends) in enumerate(sorted(elements.items())):
                 ax.plot([node - first_node for node, _ in ends], [frame.loc[step, c] / YIELD_STRAIN for _, c in ends],
-                        color=color, linestyle=linestyle, linewidth=1.0, marker="o", markersize=2.0,
+                        color=color, linestyle=linestyle, marker="o",
                         label=f"{label} (step {step})" if index == 0 else None)
         for face in faces:
-            ax.axvline(face - first_node, color=COLORS["zero"], linewidth=0.8, linestyle=":")
+            ax.axvline(face - first_node, **reference_line_kwargs(), linestyle=":")
         for ratio in (-1.0, 1.0):
-            ax.axhline(ratio, color=COLORS["zero"], linewidth=0.8, linestyle="--", zorder=0)
-        ax.axhline(0.0, color=COLORS["zero"], linewidth=0.8, zorder=0)
+            ax.axhline(ratio, **reference_line_kwargs(), linestyle="--", zorder=0)
+        ax.axhline(0.0, **reference_line_kwargs(), zorder=0)
         ticks = range(0, last_node - first_node + 1, 3)
         ax.set_xticks(ticks, [str(first_node + i) for i in ticks], rotation=45)
         format_axis(ax, xlabel=f"Node along bar (sequence, not distance; dotted = faces {faces[0]} / {faces[1]})",

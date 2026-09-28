@@ -18,7 +18,7 @@ import numpy as np
 WORKSPACE = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(WORKSPACE / "08_common" / "python"))
 
-from publication_style import apply_style  # noqa: E402
+from publication_style import apply_style, standard_size, reference_line_kwargs  # noqa: E402
 
 
 CONDITIONS = {}
@@ -55,13 +55,13 @@ def read_condition(processed_dir: Path, condition: str) -> dict[str, np.ndarray]
 
 def save_figure(figure: plt.Figure, output_dir: Path, stem: str) -> None:
     output_dir.mkdir(parents=True, exist_ok=True)
-    figure.savefig(output_dir / f"{stem}.png", dpi=600, bbox_inches="tight")
+    figure.savefig(output_dir / f"{stem}.png")
     plt.close(figure)
 
 
 def style_axis(axis: plt.Axes) -> None:
-    axis.axhline(0.0, color="0.45", linewidth=0.8, zorder=0)
-    axis.grid(True, color="0.9", linewidth=0.7)
+    axis.axhline(0.0, **reference_line_kwargs(), zorder=0)
+    axis.grid(True)
     axis.set_xlabel("Analysis step")
     axis.set_ylabel("Deformation angle (rad)")
 
@@ -78,8 +78,8 @@ def main() -> None:
     apply_style("paper")
     global CONDITIONS
     CONDITIONS = {
-        args.baseline: {"label": args.baseline_label, "color": "#0072B2"},
-        args.variant: {"label": args.variant_label, "color": "#D55E00"},
+        args.baseline: {"label": args.baseline_label, "color": "C0"},
+        args.variant: {"label": args.variant_label, "color": "C1"},
     }
 
     data = {condition: read_condition(args.processed_dir, condition) for condition in CONDITIONS}
@@ -87,19 +87,19 @@ def main() -> None:
     if len(set(ranges.values())) != 1:
         raise ValueError(f"Cyclic load-step ranges differ between conditions: {ranges}")
 
-    figure, axis = plt.subplots(figsize=(7.2, 4.5))
+    figure, axis = plt.subplots(figsize=standard_size(7.2, 4.5))
     for condition, style in CONDITIONS.items():
         frame = data[condition]
-        axis.plot(frame["load_step"], frame["deformation_angle_rad"], color=style["color"], linewidth=1.25, label=style["label"])
+        axis.plot(frame["load_step"], frame["deformation_angle_rad"], color=style["color"], label=style["label"])
     style_axis(axis)
     axis.legend(frameon=False)
     save_figure(figure, args.output_dir, "07_joint_deformation_angle_by_step")
 
-    figure, axis = plt.subplots(figsize=(7.2, 4.5))
+    figure, axis = plt.subplots(figsize=standard_size(7.2, 4.5))
     for condition, style in CONDITIONS.items():
         frame = data[condition]
-        axis.plot(frame["load_step"], frame["deformation_angle_rad"], color=style["color"], linewidth=1.25, label=f"{style['label']} — joint")
-        axis.plot(frame["load_step"], frame["story_drift_rad"], color=style["color"], linewidth=1.25, linestyle="--", label=f"{style['label']} — story drift")
+        axis.plot(frame["load_step"], frame["deformation_angle_rad"], color=style["color"], label=f"{style['label']} — joint")
+        axis.plot(frame["load_step"], frame["story_drift_rad"], color=style["color"], linestyle="--", label=f"{style['label']} — story drift")
     style_axis(axis)
     axis.legend(frameon=False, ncol=2)
     save_figure(figure, args.output_dir, "08_joint_deformation_angle_vs_story_drift")

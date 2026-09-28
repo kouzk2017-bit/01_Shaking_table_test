@@ -36,7 +36,7 @@ sys.path.insert(0, str(WORKSPACE / "08_common" / "python"))
 sys.path.insert(0, str(WORKSPACE / "05_joint_models" / "diana_shell" / "code" / "python"))
 
 from ten_story_pipeline import load_csv  # noqa: E402
-from publication_style import apply_style, format_axis, figure_size, save_figure, COLORS  # noqa: E402
+from publication_style import apply_style, format_axis, figure_size, save_figure, COLORS, reference_line_kwargs, line_width  # noqa: E402
 from plot_csv_results import _column, select_peaks  # noqa: E402
 from plot_joint_deformation_angle import read_condition  # noqa: E402
 
@@ -68,8 +68,8 @@ def cycle_reversal_indices(x: np.ndarray) -> np.ndarray:
 
 
 def style_hysteresis_axis(ax) -> None:
-    ax.axhline(0.0, color=COLORS["zero"], linewidth=0.8, zorder=0)
-    ax.axvline(0.0, color=COLORS["zero"], linewidth=0.8, zorder=0)
+    ax.axhline(0.0, **reference_line_kwargs(), zorder=0)
+    ax.axvline(0.0, **reference_line_kwargs(), zorder=0)
     ax.set_xlim(-AXIS_LIMIT_RAD, AXIS_LIMIT_RAD)
     ax.set_ylim(-AXIS_LIMIT_RAD, AXIS_LIMIT_RAD)
     format_axis(ax, xlabel="Story drift (rad)", ylabel="Joint deformation angle (rad)", legend=True)
@@ -108,16 +108,16 @@ def main() -> None:
     # Figure 1: full response-vs-response trajectories overlaid.
     fig, ax = plt.subplots(figsize=figure_size(mode="paper"))
     ax.plot(experiment["story_drift_rad"], experiment["deformation_angle_rad"],
-            color=COLORS["primary"], linewidth=0.7, label=args.experiment_label)
+            color=COLORS["primary"], linewidth=line_width(0.5), label=args.experiment_label)
     ax.plot(model["story_drift_rad"], model["deformation_angle_rad"],
-            color=COLORS["accent"], linewidth=1.25, label=args.diana_label)
+            color=COLORS["accent"], label=args.diana_label)
     ax.scatter(experiment["story_drift_rad"][selected], experiment["deformation_angle_rad"][selected],
-               color=COLORS["primary"], zorder=5, s=18)
+               color=COLORS["primary"], zorder=5)
     for label, index in zip("ABCD", selected):
         ax.annotate(
             label,
             (experiment["story_drift_rad"][index], experiment["deformation_angle_rad"][index]),
-            textcoords="offset points", xytext=(4, 4), fontsize=9, color=COLORS["primary"],
+            textcoords="offset points", xytext=(4, 4), color=COLORS["primary"],
         )
     style_hysteresis_axis(ax)
     save_figure(fig, args.output_dir / "01_joint_deformation_vs_story_drift", formats=("png",), mode="paper")
@@ -127,9 +127,9 @@ def main() -> None:
     model_envelope = cycle_reversal_indices(model["story_drift_rad"])
     fig, ax = plt.subplots(figsize=figure_size(mode="paper"))
     ax.plot(experiment["story_drift_rad"][experiment_envelope], experiment["deformation_angle_rad"][experiment_envelope],
-            color=COLORS["primary"], linewidth=1.0, marker="o", markersize=3, label=f"{args.experiment_label} envelope")
+            color=COLORS["primary"], marker="o", label=f"{args.experiment_label} envelope")
     ax.plot(model["story_drift_rad"][model_envelope], model["deformation_angle_rad"][model_envelope],
-            color=COLORS["accent"], linewidth=1.0, marker="o", markersize=3, label=f"{args.diana_label} envelope")
+            color=COLORS["accent"], marker="o", label=f"{args.diana_label} envelope")
     style_hysteresis_axis(ax)
     save_figure(fig, args.output_dir / "02_joint_deformation_vs_story_drift_envelope", formats=("png",), mode="paper")
 

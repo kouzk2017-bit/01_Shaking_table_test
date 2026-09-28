@@ -21,7 +21,7 @@ import pandas as pd
 WORKSPACE = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(WORKSPACE / "08_common" / "python"))
 
-from publication_style import apply_style, format_axis, figure_size, save_figure, COLORS  # noqa: E402
+from publication_style import apply_style, format_axis, figure_size, save_figure, COLORS, reference_line_kwargs  # noqa: E402
 
 
 def load_deformation_angle(path: Path) -> pd.DataFrame:
@@ -54,10 +54,10 @@ def main() -> None:
 
     fig, ax = plt.subplots(figsize=figure_size(mode="paper"))
     ax.plot(shell["load_step"], shell["deformation_angle_rad"],
-            color=COLORS["primary"], linewidth=1.25, label="Shell (origin)")
+            color=COLORS["primary"], label="Shell (origin)")
     ax.plot(solid["load_step"], solid["deformation_angle_rad"],
-            color=COLORS["accent"], linewidth=1.25, label="Solid (origin_2015, hinged beam ends)")
-    ax.axhline(0.0, color=COLORS["zero"], linewidth=0.8, zorder=0)
+            color=COLORS["accent"], label="Solid (origin_2015, hinged beam ends)")
+    ax.axhline(0.0, **reference_line_kwargs(), zorder=0)
     format_axis(ax, xlabel="Analysis step", ylabel="Deformation angle (rad)", legend=True)
     save_figure(fig, args.output_dir / "01_joint_deformation_angle_by_step", formats=("png",), mode="paper")
 

@@ -27,7 +27,7 @@ import pandas as pd
 WORKSPACE = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(WORKSPACE / "08_common" / "python"))
 
-from publication_style import apply_style, format_axis, figure_size, save_figure, COLORS  # noqa: E402
+from publication_style import apply_style, format_axis, figure_size, save_figure, COLORS, reference_line_kwargs  # noqa: E402
 
 YIELD_STRAIN = 0.002
 SOLID_COLORS = (COLORS["accent"], COLORS["green"], COLORS["orange"], COLORS["purple"])
@@ -78,15 +78,15 @@ def main() -> None:
 
         fig, ax = plt.subplots(figsize=figure_size(mode="paper"))
         ax.plot(shell["case_id"], shell[shell_column] / YIELD_STRAIN,
-                color=COLORS["primary"], linewidth=1.25, label=shell_label)
+                color=COLORS["primary"], label=shell_label)
         for (column, label), color in zip(solid_columns, SOLID_COLORS):
-            ax.plot(solid["case_id"], solid[column] / YIELD_STRAIN, color=color, linewidth=1.0, label=label)
+            ax.plot(solid["case_id"], solid[column] / YIELD_STRAIN, color=color, label=label)
 
         values = np.concatenate([shell[shell_column].to_numpy(),
                                  *(solid[c].to_numpy() for c, _ in solid_columns)]) / YIELD_STRAIN
         for ratio in (-1.0, 1.0):
-            ax.axhline(ratio, color=COLORS["zero"], linewidth=0.8, linestyle="--", zorder=0)
-        ax.axhline(0.0, color=COLORS["zero"], linewidth=0.8, zorder=0)
+            ax.axhline(ratio, **reference_line_kwargs(), linestyle="--", zorder=0)
+        ax.axhline(0.0, **reference_line_kwargs(), zorder=0)
         ax.set_yticks(integer_strain_ticks(min(values.min(), -1.0), max(values.max(), 1.0)))
         format_axis(ax, xlabel="Analysis step", ylabel=y_label, legend=True, legend_location="best")
         save_figure(fig, args.output_dir / stem, formats=("png",), mode="paper")
