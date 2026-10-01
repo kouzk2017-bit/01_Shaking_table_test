@@ -79,24 +79,6 @@ def load_plot_config(path: Path, year: int) -> dict:
     return config
 
 
-def _local_extrema(values: np.ndarray, candidate_mask: np.ndarray, mode: str) -> np.ndarray:
-    """Return all local extrema; deliberately applies no time-separation rule."""
-    previous = values[:-2]
-    current = values[1:-1]
-    following = values[2:]
-    finite = np.isfinite(previous) & np.isfinite(current) & np.isfinite(following)
-    if mode == "min":
-        extrema = ((current < previous) & (current <= following)) | (
-            (current <= previous) & (current < following)
-        )
-    else:
-        extrema = ((current > previous) & (current >= following)) | (
-            (current >= previous) & (current > following)
-        )
-    indices = np.flatnonzero(extrema & finite) + 1
-    return indices[candidate_mask[indices]]
-
-
 def select_peaks(
     time: np.ndarray,
     drift: np.ndarray,
@@ -124,14 +106,17 @@ def select_peaks(
             raise ValueError("Manual peak times resolve to duplicate CSV samples")
         return np.sort(selected), "manual"
 
-    candidates = _local_extrema(drift, window_mask, mode)
-    candidates = (
-        candidates[drift[candidates] < 0.0]
-        if mode == "min"
-        else candidates[drift[candidates] > 0.0]
-    )
     oriented = -drift if mode == "min" else drift
     threshold = significance_fraction * float(np.max(oriented[window_mask]))
+    # One candidate per half-cycle: the extreme of each excursion between zero
+    # crossings.  Taking every local extremum instead lets a shoulder on the
+    # rising limb win and pushes the true peak out by the separation rule.
+    excursion = window_mask & (oriented > 0.0)
+    edges = np.flatnonzero(np.diff(np.concatenate(([0], excursion.astype(np.int8), [0]))))
+    candidates = np.array(
+        [start + int(np.argmax(oriented[start:stop])) for start, stop in zip(edges[::2], edges[1::2])],
+        dtype=int,
+    )
     candidates = candidates[oriented[candidates] >= threshold]
     selected: list[int] = []
     for index in candidates:
