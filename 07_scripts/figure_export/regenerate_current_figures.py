@@ -66,22 +66,17 @@ def regenerate_standard_figures() -> list[Path]:
 
 def regenerate_2015_rebar_figures() -> list[Path]:
     case_name = "20151211-2(JMAKobe100%)"
-    source = (
-        ARCHIVE_ROOT
-        / "2015"
-        / "python"
-        / case_name
-        / "csv"
-        / "rebar_strain_selected.csv"
-    )
     target = WORKSPACE_DIRECTORY / "06_results" / "experiment" / "2015" / case_name
+    # Current pipeline output (02_10-story_2015/code/python/run_pipeline.py),
+    # not the 2026-07-30 archive: the 4F beam channel changed on 2026-10-01.
+    source = target / "csv" / "rebar_strain_selected.csv"
     if not source.is_file():
-        raise FileNotFoundError(f"Archived 2015 rebar data not found: {source}")
+        raise FileNotFoundError(f"2015 rebar data not found (run run_pipeline.py --analyses rebar): {source}")
     headers, data = load_csv(source)
     time = data[:, headers.index("Time_s")]
     outputs: list[Path] = []
     for chart_index, floor in enumerate((4, 6), start=7):
-        beam = data[:, headers.index(f"{floor}F_Beam_Longitudinal_Rebar_Col{44 if floor == 4 else 179}")]
+        beam = data[:, headers.index(f"{floor}F_Beam_Longitudinal_Rebar_Col{59 if floor == 4 else 179}")]
         column = data[:, headers.index(f"{floor}F_Column_Longitudinal_Rebar_Col{105 if floor == 4 else 185}")]
         stem = target / f"chart_{chart_index:03d}_{case_name} {floor}F Rebar Strain"
         outputs.extend(plot_rebar_strain_figure(time, beam, column, stem, mode=_style_mode()))

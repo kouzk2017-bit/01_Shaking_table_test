@@ -469,7 +469,14 @@ def _process_rebar_2015(
     time = _time(strain.shape[0])
     window = (time >= 10.0) & (time <= 30.0)
     normalized = strain[window] / 2000.0
-    selected_indices = (42, 103, 177, 183)
+    # 4F/6F interior joint (column 2-A) bars, see
+    # 02_10-story_2015/REBAR_GAUGES.md:
+    #   57  4G2A-STR-E01  4F G2 east-end bottom bar (was 42 = 4G1A-STR-E01,
+    #                     the G1 east end at the CORNER column; changed 2026-10-01)
+    #   103 4F2AC-STR-02  4F column bottom, east face
+    #   177 6G21-STR-E01  6F G2 east-end bottom bar
+    #   183 6F2AC-STR-02  6F column bottom, east face
+    selected_indices = (57, 103, 177, 183)
     return ({
         "time": time[window],
         "rebar_strain_all": normalized,
@@ -612,7 +619,7 @@ def export_case_csv(
         if spec.year == 2015:
             all_headers = [f"CH{i:03d}_eps_over_epsy" for i in range(1, 187)]
             selected_headers = (
-                "4F_Beam_Longitudinal_Rebar_Col44",
+                "4F_Beam_Longitudinal_Rebar_Col59",
                 "4F_Column_Longitudinal_Rebar_Col105",
                 "6F_Beam_Longitudinal_Rebar_Col179",
                 "6F_Column_Longitudinal_Rebar_Col185",
