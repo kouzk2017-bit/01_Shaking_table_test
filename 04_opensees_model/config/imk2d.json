@@ -1,0 +1,60 @@
+{
+  "model": "2D frame-direction (model X) concentrated-plasticity model with IMKPeakOriented hinges",
+  "specimen_config": "specimen_2015.json",
+  "frames": {
+    "outer": {"y_lines_mm": [0, 8000], "multiplicity": 2, "beams": ["G1", "G2", "G3"],
+              "columns": ["C1", "C2", "C2", "C1"]},
+    "inner": {"y_lines_mm": [3100, 4900], "multiplicity": 2, "beams": ["G4", "G5", "G6"],
+              "columns": ["C3", "C3", "C3", "C3"],
+              "wall_pier_through_story": 7,
+              "//": "Stories 1-7: each inner line carries half of the Y-direction wall (one C3 boundary + half the web) bending about its weak axis. Stories 8-10: C3 line columns."}
+  },
+  "transverse_reinforcement": {
+    "bar_diameter_mm": 10,
+    "column_hoop_spacing_mm": 100,
+    "column_hoop_legs_frame_direction": {
+      "C1": [4, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+      "C2": [4, 4, 4, 4, 4, 4, 3, 3, 2, 2],
+      "C3": [4, 2, 2, 2, 2, 2, 2, 2, 2, 2]
+    },
+    "beam_stirrup_legs": 2,
+    "beam_stirrup_spacing_mm": {
+      "G1": [100, 100, 100, 125, 150, 200, 200, 200, 200, 200],
+      "G2": [100, 100, 100, 100, 125, 175, 150, 200, 200, 200],
+      "G3": [100, 100, 100, 125, 150, 200, 200, 200, 200, 200],
+      "G4": [50, 50, 50, 75, 75, 75, 200, 200, 200, 200],
+      "G5": [200, 200, 200, 200, 200, 200, 200, 200, 200, 200],
+      "G6": [50, 50, 50, 75, 75, 75, 200, 200, 200, 200]
+    },
+    "source": "実験結果の報告.pdf Table 1 (column hoops, index = story 1..10 = 1F..10F columns) and Table 2 (beam stirrups, index = story 1..10 = 2F..RF beams).",
+    "leg_interpretation": "Hoop label [a,b]: a is taken as the legs parallel to drawing Y (= model X, frame direction). Basis: C3 (long side along drawing X) and the C2 sub-ties are drawn parallel to drawing Y and carry the larger count. Interpretation, not stated in the table."
+  },
+  "hinges": {
+    "material": "IMKPeakOriented",
+    "equations": "Haselton et al. (2016) ACI SJ 113(6) / PEER 2007/03 empirical RC column equations; applied to beams with nu = 0 and to wall weak-axis piers without separate calibration.",
+    "bond_slip_a_sl": 1,
+    "stiffness_basis": "EIstf40",
+    "stiffness_scale": 1.0,
+    "residual_strength_ratio": 0.2,
+    "ultimate_rotation_rad": 0.2,
+    "cyclic_rate_c": 1.0,
+    "n_factor": 10.0,
+    "yield_concrete_strain_factor": 1.8,
+    "//stiffness_basis": "Default EIstf40 (secant at 40% My, Haselton initial stiffness for dynamic analysis): T1 = 0.829 s vs measured 0.85 s; EIy gives 1.080 s. EIy = secant to yield, Haselton eq. EIy/EIg = -0.07 + 0.59 nu + 0.07 Ls/H, bounded 0.2-0.6; EIstf40 = -0.02 + 0.98 nu + 0.09 Ls/H, bounded 0.35-0.8. stiffness_scale multiplies the chosen basis for period calibration.",
+    "//residual": "Residual strength and ultimate rotation are not given by Haselton; assumed."
+  },
+  "slab_flange_in_beam_strength": true,
+  "joint": "rigid panel (stiff elastic links from joint centre to member faces); no shear or bond-slip flexibility",
+  "analysis": {
+    "gravity_steps": 10,
+    "tolerance_mm": 1e-6,
+    "max_iterations": 50,
+    "num_modes": 5,
+    "damping_ratio": 0.05,
+    "damping_anchor_period_ratio": 0.2,
+    "damping_note": "Same 5% Rayleigh assumption as the 3D model (anchored at T1 and 0.2 T1). Mass term on floor nodes; stiffness term on elastic members only, scaled (n+1)/n (Zareian & Medina 2010). Hinges and rigid links undamped.",
+    "min_dt_s": 0.0003125,
+    "pushover_roof_drift": 0.03,
+    "pushover_step_mm": 1.0
+  }
+}

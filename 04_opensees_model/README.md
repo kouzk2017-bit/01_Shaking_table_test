@@ -4,6 +4,8 @@
 
 当前状态见 [TRIAL_STATUS](docs/TRIAL_STATUS.md)：模型可以完成 20 s 的 Case 13，但比实测刚 4–5 倍，**还不能和试验定量对比**。建模检查清单见 [MODEL_REVIEW](docs/MODEL_REVIEW.md)，参数来源见 [PARAMETER_SOURCES](docs/PARAMETER_SOURCES.md)。
 
+框架方向另有二维 IMK 集中塑性模型，见 [imk2d/README](imk2d/README.md)。
+
 ## 工作流程
 
 ```
