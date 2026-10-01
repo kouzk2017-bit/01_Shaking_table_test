@@ -268,9 +268,10 @@ def plot_rebar_strain_figure(
     *,
     title: str | None = None,
     time_window: tuple[float, float] = (10.0, 30.0),
+    mode: str = "paper",
 ) -> tuple[Path, ...]:
     """Draw one shared 4F/6F rebar-strain figure for either test year."""
-    style = apply_style("paper")
+    style = apply_style(mode)
     mask = (time >= time_window[0]) & (time <= time_window[1])
     fig, ax = plt.subplots(figsize=style.figure_size)
     ax.plot(
@@ -299,7 +300,7 @@ def plot_rebar_strain_figure(
     ax.set_ylim(-3.0, 8.0)
     ax.set_yticks(np.arange(-3.0, 8.1, 1.0))
     ax.margins(x=0.0, y=0.0)
-    return save_figure(fig, output_stem, formats=("png",), mode="paper")
+    return save_figure(fig, output_stem, formats=("png",), mode=mode)
 
 
 def _write_selected_peaks(path: Path, rows: list[dict]) -> Path:

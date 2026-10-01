@@ -20,7 +20,7 @@
     }
   },
   "figure": {
-    "style_mode": "paper",
+    "style_mode": "presentation",
     "format": "png"
   },
   "figure_overrides": {}

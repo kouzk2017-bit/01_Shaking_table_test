@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 import sys
 
@@ -23,8 +24,7 @@ sys.path.insert(0, str(COMMON_PYTHON))
 sys.path.insert(0, str(CODE_2018))
 
 from plot_csv_results import plot_case, plot_rebar_strain_figure  # noqa: E402
-from publication_style import apply_style  # noqa: E402
-from plot_rebar_strain import _plot_floor, _trace  # noqa: E402
+from plot_rebar_strain import _trace  # noqa: E402
 from ten_story_pipeline import load_csv  # noqa: E402
 
 
@@ -38,6 +38,12 @@ CASES = (
         "name": "20190109-2(JMAKobe100%)",
     },
 )
+
+
+def _style_mode() -> str:
+    """Figure style from the shared plot config (paper or presentation)."""
+    config = json.loads(SHARED_PLOT_CONFIG.read_text(encoding="utf-8"))
+    return config["figure"]["style_mode"]
 
 
 def regenerate_standard_figures() -> list[Path]:
@@ -78,7 +84,7 @@ def regenerate_2015_rebar_figures() -> list[Path]:
         beam = data[:, headers.index(f"{floor}F_Beam_Longitudinal_Rebar_Col{44 if floor == 4 else 179}")]
         column = data[:, headers.index(f"{floor}F_Column_Longitudinal_Rebar_Col{105 if floor == 4 else 185}")]
         stem = target / f"chart_{chart_index:03d}_{case_name} {floor}F Rebar Strain"
-        outputs.extend(plot_rebar_strain_figure(time, beam, column, stem))
+        outputs.extend(plot_rebar_strain_figure(time, beam, column, stem, mode=_style_mode()))
     return outputs
 
 
@@ -88,20 +94,20 @@ def regenerate_2018_rebar_figures() -> list[Path]:
     target = WORKSPACE_DIRECTORY / "06_results" / "experiment" / "2018" / case_name
     if not source.is_file():
         raise FileNotFoundError(f"Archived rebar data not found: {source}")
-    apply_style("paper")
     outputs: list[Path] = []
     with np.load(source) as data:
         time = data["time"]
         for chart_index, floor in enumerate((4, 6), start=7):
             stem = target / f"chart_{chart_index:03d}_{case_name} {floor}F Rebar Strain"
-            _plot_floor(
-                time,
-                _trace(data, f"{floor}F_beam"),
-                _trace(data, f"{floor}F_column"),
-                floor,
-                stem,
+            outputs.extend(
+                plot_rebar_strain_figure(
+                    time,
+                    _trace(data, f"{floor}F_beam"),
+                    _trace(data, f"{floor}F_column"),
+                    stem,
+                    mode=_style_mode(),
+                )
             )
-            outputs.append(stem.with_suffix(".png"))
     return outputs
 
 
