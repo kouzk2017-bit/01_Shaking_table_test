@@ -32,6 +32,7 @@ RESULTS = WORKSPACE / "06_results" / "diana" / "shell"
 # v2018 uses a different mesh's node numbers for the same physical layout.
 JOINT_ANGLE_ARGS = {
     "origin": dict(input_dir="05_joint_models/diana_shell/data/raw/origin_2015", ul=623, ur=620, ll=639, lr=636),
+    "origin_history": dict(input_dir="05_joint_models/diana_shell/data/raw/origin_2015_history", ul=623, ur=620, ll=639, lr=636),
     "j16_l":  dict(input_dir="05_joint_models/diana_shell/data/raw/J16-L",       ul=623, ur=620, ll=639, lr=636),
     "j12_h":  dict(input_dir="05_joint_models/diana_shell/data/raw/J12-H",       ul=623, ur=620, ll=639, lr=636),
     "j12_m":  dict(input_dir="05_joint_models/diana_shell/data/raw/J12-M",       ul=623, ur=620, ll=639, lr=636),

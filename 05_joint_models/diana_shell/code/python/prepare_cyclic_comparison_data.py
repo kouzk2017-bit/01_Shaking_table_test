@@ -39,6 +39,15 @@ CONDITIONS = (
         column_file="EZZ_node_1985.csv",
         shear_file="NX_node_524.csv",
     ),
+    # Same model as origin, driven by the 2015 Kobe 100% 4F measured drift
+    # history (05_joint_models/loading_protocols/) instead of the standard protocol.
+    Condition(
+        name="origin_history",
+        raw_folder="origin_2015_history",
+        beam_file="EXX_node_1628.csv",
+        column_file="EZZ_node_1985.csv",
+        shear_file="NX_node_524.csv",
+    ),
     Condition(
         name="j16_l",
         raw_folder="J16-L",
@@ -250,6 +259,7 @@ def prepare_condition(raw_root: Path, processed_root: Path, condition: Condition
 
 JOINT_STIRRUP_SOURCES = {
     "origin": ("EXX_node_2375.csv", 2375, "EXX node 2375 element 1359", "EXX node 2375 element 1360"),
+    "origin_history": ("EXX_node_2375.csv", 2375, "EXX node 2375 element 1359", "EXX node 2375 element 1360"),
     "j16_l": ("EXX_node_2151.csv", 2151, "EXX node 2151 element 1143", "EXX node 2151 element 1144"),
     "j12_h": ("EXX_node_2381.csv", 2381, "EXX node 2381 element 1364", "EXX node 2381 element 1365"),
     "j12_m": ("EXX_node_2375.csv", 2375, "EXX node 2375 element 1359", "EXX node 2375 element 1360"),
@@ -323,6 +333,7 @@ CURVE_SOURCE_REGISTRY = (
 )
 CONDITION_LABELS = {
     "origin": "原轴力",
+    "origin_history": "原轴力（2015试验历程加载）",
     "j16_l": "J16-L",
     "j12_h": "J12-H",
     "j12_m": "J12-M",
@@ -362,7 +373,7 @@ def _registry_row(
         "有效响应列数": str(len(columns)),
         "重复响应列": "; ".join(columns[1:]),
         "重复列核验": "所有Load-step逐行完全一致",
-        "保留工况步": "11–850",
+        "保留工况步": f"{AXIAL_LOAD_STEPS + 1}–{max(case_id(row) for row in rows)}",
         "排除工况步": "1–10（轴力加载）",
         "换算/归一化": conversion,
     }

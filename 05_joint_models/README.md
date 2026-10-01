@@ -22,6 +22,11 @@
   - `plot_experiment_vs_model_joint_drift.py`：试验（动力时程）与节点数值模型（拟静力）
     对比，把两侧都转换成"节点变形角 vs 层间位移角"的响应-响应曲线后叠加，绕开时程/
     加载步数无法对齐的问题。
+  - `plot_history_vs_standard_protocol.py`：同一层壳模型在标准协议与试验历程协议下的对比
+    （层剪力、节点变形角、钢筋应变、A–D 贡献比），结果见
+    `../06_results/comparison/joint_4F_2015_history_protocol/`。
+  - `plot_history_protocol_vs_test.py`：试验历程协议结果按试验时间叠加到试验数据上
+    （节点变形角、梁/柱纵筋应变、归一化层剪力），同一结果目录。
   - `plot_shell_vs_solid_joint_deformation.py`：层壳与实体两种节点模型的变形角对比，
     按加载步（两侧协议、步数一致，可直接比）。
   - `plot_shell_vs_solid_rebar_strain.py`：层壳与实体的节点箍筋、梁纵筋、柱纵筋应变对比
