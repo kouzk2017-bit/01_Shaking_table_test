@@ -12,6 +12,11 @@
   - `code/python/prepare_rebar_response.py`：沿筋应变和 composed line 剪力的处理脚本；变形角复用
     `diana_shell` 的 `calculate_joint_deformation_angle.py`。`config/` 预留。
   - 跟层壳模型的对比结果在 `../06_results/comparison/joint_shell_vs_solid_origin/`。
+- `loading_protocols/`：按试验实测 4F 层间位移角历程生成的加载协议（每个工况一个目录：
+  `reversal_points.csv`、逐步的 `load_steps.csv`、DIANA 显式步长 `diana_load_steps.txt`），
+  由 `comparison/code/python/make_test_history_protocol.py` 生成，检查图在
+  `../06_results/comparison/loading_protocols/`。步长与标准协议相同（荷载系数 0.1 = 0.0005 rad），
+  第 1–10 步仍为轴力，循环从第 11 步开始。
 - `drawings/`：两个模型共用的节点详图（DWG），不纳入版本控制。
 - `comparison/`：跨模型/跨试验的对比脚本，结果见 `../06_results/comparison/`。
   - `plot_experiment_vs_model_joint_drift.py`：试验（动力时程）与节点数值模型（拟静力）
