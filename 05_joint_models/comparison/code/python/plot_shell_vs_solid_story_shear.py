@@ -7,6 +7,10 @@ restrained in X, so the lower-column shear, element 1764, differs slightly.)
 
 Figure 07: story shear by analysis step. Figure 08: story shear vs story
 drift (load factor x 0.005 rad).
+
+On hold (2026-10-01): the shell model is still being tuned, so shell vs solid is
+not regenerated until it is final; each model is first checked against the test.
+The 2026-09 figures are in 06_results/archive/2026-10-01_shell_vs_solid_preliminary/.
 """
 
 from __future__ import annotations
@@ -33,7 +37,7 @@ def main() -> None:
     parser.add_argument("--solid-csv", type=Path,
                         default=WORKSPACE / "05_joint_models" / "diana_solid" / "data" / "processed" / "origin_2015" / "story_shear_response.csv")
     parser.add_argument("--output-dir", type=Path,
-                        default=WORKSPACE / "06_results" / "comparison" / "joint_shell_vs_solid_origin")
+                        default=WORKSPACE / "06_results" / "comparison" / "shell_vs_solid")
     args = parser.parse_args()
 
     apply_style("paper")

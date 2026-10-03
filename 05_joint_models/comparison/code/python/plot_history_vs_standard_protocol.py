@@ -37,7 +37,7 @@ FLOOR = 4
 PROCESSED = WORKSPACE / "05_joint_models" / "diana_shell" / "data" / "processed"
 EXPERIMENT_CSV = WORKSPACE / "06_results" / "experiment" / "2015" / CASE / "csv"
 REVERSALS = WORKSPACE / "05_joint_models" / "loading_protocols" / f"2015_{CASE}_{FLOOR}F" / "reversal_points.csv"
-OUTPUT = WORKSPACE / "06_results" / "comparison" / "joint_4F_2015_history_protocol"
+OUTPUT = WORKSPACE / "06_results" / "comparison" / "test_vs_shell" / "2015_4F_history_protocol"
 PLOT_CONFIG = WORKSPACE / "08_common" / "config" / "plot_config.json"
 YIELD_STRAIN = 0.002
 

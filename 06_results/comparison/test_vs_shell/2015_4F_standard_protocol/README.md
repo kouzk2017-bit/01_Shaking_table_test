@@ -11,9 +11,11 @@
 - `02_joint_deformation_vs_story_drift_envelope.png`：只保留每个曲线的转折点（层间
   位移角的全部局部极值），作为简化的包络/骨架线对比，避免动力时程本身噪声较大导致
   完整轨迹图不易读。
+- `03_normalized_shear_vs_story_drift.png`：层剪力各自除以自身峰值（试验 4F 整层 3691 kN，
+  模型一个节点 392 kN，只比形状）。
 
 由 `05_joint_models/comparison/code/python/plot_experiment_vs_model_joint_drift.py`
-生成，可重复运行（默认参数即对应此工况/条件）。
+生成：`--model shell`（默认，条件 origin）。
 
 阅读对比时请注意几个没有做修正的物理差异：动力加载应变率高于拟静力，试验强度/刚度
 可能因此偏高；拟静力模型没有惯性力和阻尼；两者的加载幅值序列和圈数不同（地震动不规则，

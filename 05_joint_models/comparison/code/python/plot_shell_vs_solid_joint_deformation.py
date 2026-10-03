@@ -7,6 +7,10 @@ numbering -- shell uses nodes 623/620/639/636, solid uses 3149/3152/3165/3168
 (see 05_joint_models/diana_solid/data/raw/README.md). Same load-step count on
 both sides makes a direct step-for-step comparison meaningful; steps 1-10
 (axial-only) are excluded, matching plot_joint_deformation_angle.py.
+
+On hold (2026-10-01): the shell model is still being tuned, so shell vs solid is
+not regenerated until it is final; each model is first checked against the test.
+The 2026-09 figures are in 06_results/archive/2026-10-01_shell_vs_solid_preliminary/.
 """
 
 from __future__ import annotations
@@ -42,7 +46,7 @@ def main() -> None:
     )
     parser.add_argument(
         "--output-dir", type=Path,
-        default=WORKSPACE / "06_results" / "comparison" / "joint_shell_vs_solid_origin",
+        default=WORKSPACE / "06_results" / "comparison" / "shell_vs_solid",
     )
     args = parser.parse_args()
 

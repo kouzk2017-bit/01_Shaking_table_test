@@ -33,6 +33,8 @@ RESULTS = WORKSPACE / "06_results" / "diana" / "shell"
 JOINT_ANGLE_ARGS = {
     "origin": dict(input_dir="05_joint_models/diana_shell/data/raw/origin_2015", ul=623, ur=620, ll=639, lr=636),
     "origin_history": dict(input_dir="05_joint_models/diana_shell/data/raw/origin_2015_history", ul=623, ur=620, ll=639, lr=636),
+    # Remeshed slab model: its measuring frame is 375 x 361.42 mm.
+    "origin_history_slab": dict(input_dir="05_joint_models/diana_shell/data/raw/origin_2015_history_slab", ul=242, ur=248, ll=278, lr=279, a=375.0, b=361.42, suffix="242_248_278_279"),
     "j16_l":  dict(input_dir="05_joint_models/diana_shell/data/raw/J16-L",       ul=623, ur=620, ll=639, lr=636),
     "j12_h":  dict(input_dir="05_joint_models/diana_shell/data/raw/J12-H",       ul=623, ur=620, ll=639, lr=636),
     "j12_m":  dict(input_dir="05_joint_models/diana_shell/data/raw/J12-M",       ul=623, ur=620, ll=639, lr=636),
@@ -81,9 +83,10 @@ def main() -> int:
             CODE / "calculate_joint_deformation_angle.py",
             "--input-dir", cfg["input_dir"],
             "--output", PROCESSED / code / "joint_deformation_angle.csv",
-            "--a-mm", A_MM, "--b-mm", B_MM,
+            "--a-mm", cfg.get("a", A_MM), "--b-mm", cfg.get("b", B_MM),
             "--upper-left", cfg["ul"], "--upper-right", cfg["ur"],
             "--lower-left", cfg["ll"], "--lower-right", cfg["lr"],
+            *(("--node-file-suffix", cfg["suffix"]) if "suffix" in cfg else ()),
         )
 
     for comparison in COMPARISONS:

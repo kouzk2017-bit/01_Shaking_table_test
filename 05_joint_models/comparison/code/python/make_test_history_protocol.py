@@ -17,7 +17,7 @@ Outputs per case (``05_joint_models/loading_protocols/<name>/``):
   reversal_points.csv   measured and rounded reversal points
   load_steps.csv        every analysis step with its load factor and drift
   diana_load_steps.txt  explicit step sizes in DIANA ``size(count)`` form
-Figures go to ``06_results/comparison/loading_protocols/``.
+Figures go to ``06_results/loading_protocols/``.
 """
 
 from __future__ import annotations
@@ -46,7 +46,7 @@ from publication_style import (  # noqa: E402
 
 ARCHIVE = WORKSPACE / "06_results" / "archive" / "2026-07-30_before_cleanup"
 PROTOCOL_ROOT = WORKSPACE / "05_joint_models" / "loading_protocols"
-FIGURE_ROOT = WORKSPACE / "06_results" / "comparison" / "loading_protocols"
+FIGURE_ROOT = WORKSPACE / "06_results" / "loading_protocols"
 PLOT_CONFIG = WORKSPACE / "08_common" / "config" / "plot_config.json"
 STANDARD_PROTOCOL = (
     WORKSPACE / "05_joint_models" / "diana_shell" / "data" / "processed" / "origin" / "cyclic_response.csv"

@@ -48,6 +48,15 @@ CONDITIONS = (
         column_file="EZZ_node_1985.csv",
         shear_file="NX_node_524.csv",
     ),
+    # origin_history with the 4F slab as an equivalent flange (120 mm slab,
+    # 400 mm AIJ overhang, 2-D10 per layer).  Remeshed, so new node numbers.
+    Condition(
+        name="origin_history_slab",
+        raw_folder="origin_2015_history_slab",
+        beam_file="EXX_node_1254.csv",
+        column_file="EZZ_node_1559.csv",
+        shear_file="NX_node_196.csv",
+    ),
     Condition(
         name="j16_l",
         raw_folder="J16-L",
@@ -260,6 +269,7 @@ def prepare_condition(raw_root: Path, processed_root: Path, condition: Condition
 JOINT_STIRRUP_SOURCES = {
     "origin": ("EXX_node_2375.csv", 2375, "EXX node 2375 element 1359", "EXX node 2375 element 1360"),
     "origin_history": ("EXX_node_2375.csv", 2375, "EXX node 2375 element 1359", "EXX node 2375 element 1360"),
+    "origin_history_slab": ("EXX_nodes_1254_2126_2127.csv", 2127, "EXX node 2127 element 1975", "EXX node 2127 element 1976"),
     "j16_l": ("EXX_node_2151.csv", 2151, "EXX node 2151 element 1143", "EXX node 2151 element 1144"),
     "j12_h": ("EXX_node_2381.csv", 2381, "EXX node 2381 element 1364", "EXX node 2381 element 1365"),
     "j12_m": ("EXX_node_2375.csv", 2375, "EXX node 2375 element 1359", "EXX node 2375 element 1360"),
@@ -334,6 +344,7 @@ CURVE_SOURCE_REGISTRY = (
 CONDITION_LABELS = {
     "origin": "原轴力",
     "origin_history": "原轴力（2015试验历程加载）",
+    "origin_history_slab": "原轴力（2015试验历程加载，含楼板翼缘）",
     "j16_l": "J16-L",
     "j12_h": "J12-H",
     "j12_m": "J12-M",
@@ -355,9 +366,12 @@ def _registry_row(
     filename: str,
     output_csv: str,
     conversion: str,
+    node: int | None = None,
 ) -> dict[str, str]:
     source = raw_root / condition.raw_folder / filename
     headers, rows = load_diana_rows(source)
+    if node is not None:  # the file may hold several nodes; keep the one used
+        headers = [h for h in headers if f"node {node} " in h or not h.startswith(("EXX", "EZZ", "NX"))]
     columns = verified_response_columns(headers, rows)
     selected = columns[0]
     node_tag, element_tag = _node_element_metadata(selected)
@@ -387,7 +401,7 @@ def write_curve_source_registry(raw_root: Path) -> Path:
             _registry_row(raw_root, condition, "层剪力—层间位移角", condition.shear_file, "story_shear_response.csv", "剪力 N → kN；层间位移角 = load factor × 0.005 rad"),
             _registry_row(raw_root, condition, "梁纵筋应变", condition.beam_file, "beam_rebar_response.csv", "应变 / 0.002"),
             _registry_row(raw_root, condition, "柱纵筋应变", condition.column_file, "column_rebar_response.csv", "应变 / 0.002"),
-            _registry_row(raw_root, condition, "节点箍筋应变", JOINT_STIRRUP_SOURCES[condition.name][0], "joint_stirrup_response.csv", "EXX / 0.002"),
+            _registry_row(raw_root, condition, "节点箍筋应变", JOINT_STIRRUP_SOURCES[condition.name][0], "joint_stirrup_response.csv", "EXX / 0.002", JOINT_STIRRUP_SOURCES[condition.name][1]),
         ))
     CURVE_SOURCE_REGISTRY.parent.mkdir(parents=True, exist_ok=True)
     with CURVE_SOURCE_REGISTRY.open("w", newline="", encoding="utf-8-sig") as stream:

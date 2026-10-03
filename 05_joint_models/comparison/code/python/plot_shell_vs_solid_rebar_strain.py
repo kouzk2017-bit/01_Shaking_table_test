@@ -11,6 +11,10 @@ One solid curve per figure, chosen by the user (2026-09-28): stirrup node
 (next to the right column face 10402, <-> shell 1628), column bar node
 11295 / element 3839 (next to the upper face 11296, <-> shell 1985). The
 element right at a face carries a compressive spike, hence the adjacent node.
+
+On hold (2026-10-01): the shell model is still being tuned, so shell vs solid is
+not regenerated until it is final; each model is first checked against the test.
+The 2026-09 figures are in 06_results/archive/2026-10-01_shell_vs_solid_preliminary/.
 """
 
 from __future__ import annotations
@@ -65,7 +69,7 @@ def main() -> None:
     parser.add_argument("--solid-dir", type=Path,
                         default=WORKSPACE / "05_joint_models" / "diana_solid" / "data" / "processed" / "origin_2015")
     parser.add_argument("--output-dir", type=Path,
-                        default=WORKSPACE / "06_results" / "comparison" / "joint_shell_vs_solid_origin")
+                        default=WORKSPACE / "06_results" / "comparison" / "shell_vs_solid")
     args = parser.parse_args()
 
     apply_style("paper")

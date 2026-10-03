@@ -23,7 +23,7 @@ bar corresponds to the G2 east-end bottom bar of the 4F interior joint.
       bar from nodes 1418-1436 (1418 at the column face, 100 mm spacing)
       and the spacing taken as BAR_SPACING_MM (assumed, to be confirmed).
 
-Outputs go to ``06_results/comparison/joint_4F_2015_history_protocol/``.
+Outputs go to ``06_results/comparison/test_vs_shell/2015_4F_history_protocol/``.
 """
 
 from __future__ import annotations

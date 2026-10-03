@@ -39,11 +39,11 @@ LOAD_FACTOR_PATTERN = re.compile(r"Load-factor\s+(-?[\d.]+(?:[eE][+-]?\d+)?)")
 PROFILES = {
     "beam_bar_profile.csv": "EXX_nodes_10380_",
     "column_bar_profile.csv": "EZZ_nodes_11285_",
-    "joint_stirrup_profile.csv": "EXX_nodes_10106_",
-    "joint_stirrup_y_profile.csv": "EYY_nodes_10122_",
+    "joint_stirrup_profile.csv": "EXX_nodes_1010",  # 10106_ (x-legs) or 10105_ (whole hoop)
+    "joint_stirrup_y_profile.csv": "EYY_nodes_101",  # 10122_ (one y-leg) or 10105_ (whole hoop)
 }
 OPTIONAL_PROFILES = {"joint_stirrup_y_profile.csv"}
-SHEAR_FILES = {"column": "NX_nodes_9149_9159_9169_9189.csv", "beam": "NZ_nodes_9190_9224_9226_9243.csv"}
+SHEAR_FILES = {"column": "NX_nodes_", "beam": "NZ_nodes_"}  # prefixes; a run may export only some of the nodes
 
 
 def long_path(path: Path) -> str:
@@ -109,11 +109,11 @@ def main() -> int:
         print(f"Wrote {len(table)} rows x {table.shape[1] - 3} strain columns: {args.output_dir / output_name}")
 
     shear = None
-    for member, filename in SHEAR_FILES.items():
-        if args.partial and filename not in available:
-            print(f"Skipped {member} shear: no {filename}")
+    for member, prefix in SHEAR_FILES.items():
+        if args.partial and not any(n.startswith(prefix) for n in available):
+            print(f"Skipped {member} shear: no '{prefix}*' export")
             continue
-        frame = load_export(args.input_dir / filename)
+        frame = load_export(find_raw(args.input_dir, prefix))
         columns = response_columns(frame)
         kept, seen = {}, set()
         for raw, short in columns.items():
