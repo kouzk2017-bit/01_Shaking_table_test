@@ -54,6 +54,7 @@ sys.path.insert(0, str(WORKSPACE / "08_common" / "python"))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from publication_style import COLORS, apply_style, figure_size, format_axis, reference_line_kwargs, save_figure  # noqa: E402
+import final_cases  # noqa: E402
 from plot_history_protocol_vs_test import PROTOCOL, TIME_WINDOW, map_steps_to_time, read_group, test_series  # noqa: E402
 
 FLOOR = 4
@@ -186,13 +187,14 @@ def plot_summary(table: pd.DataFrame) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("--case", action="append", help="solid case folder(s); default: every case in CASES")
+    parser.add_argument("--case", action="append", help="solid case folder(s); default: the final case in final_cases.json")
     args = parser.parse_args()
 
     apply_style("paper")
     drift_t, drift = test_series("story_drift_y.csv", f"{FLOOR}F_rad")
     mapping = map_steps_to_time(drift_t, drift)
-    for case in args.case or [case for case, _ in CASES if (SOLID / case).exists()]:
+    # per-case figures: the final case only (intermediate cases are archived); the summary uses all CASES
+    for case in args.case or [final_cases.case("solid")]:
         plot_case(case, mapping)
     plot_summary(reversal_table())
 

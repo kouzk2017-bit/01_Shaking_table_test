@@ -1,6 +1,6 @@
 # Results
 
-先看各模型自己的结果，再看模型跟试验的对比。
+先看各模型自己的结果，再看模型跟试验的对比。结果层只放最终版（`../final_cases.json`），中间工况在 `archive/`；汇报用图在 `PPT_<日期>/`。
 
 - `experiment/2015/<case>/`、`experiment/2018/<case>/`：2015、2018 两套十层振动台试验的当前图片，年份下一级直接是工况，图片直接放在工况目录中。每幅保存为 600 dpi PNG。分析程序从 `02_10-story_2015/` 和 `03_10-story_2018/` 中的只读原始数据读取输入。
 - `diana/shell/`：`05_joint_models/diana_shell/` 层壳节点模型的结果包（每个 `*_comparison/` 是一个变体对 origin 的完整结果包，含 `curve-source-registry.csv`）。

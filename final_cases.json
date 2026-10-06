@@ -1,0 +1,10 @@
+{
+  "//": "Which case is the current final version of each model. Change one line here to switch; every figure/summary script reads this file (08_common/python/final_cases.py).",
+  "solid": {"case": "origin_2015_parabolic_gc61_residual20_history", "protocol": "history",
+            "note": "parabolic, Gc 61 N/mm, residual compressive strength 20 MPa"},
+  "solid_standard": {"case": "origin_2015", "protocol": "standard"},
+  "shell": {"case": "origin", "raw": "origin_2015", "protocol": "standard"},
+  "shell_history": {"case": "origin_history", "raw": "origin_2015_history", "protocol": "history"},
+  "test_joint": {"joint": 4, "note": "top of story 4 = 5F floor, JNT4; see 02_10-story_2015/REBAR_GAUGES.md section 5"},
+  "ppt_folder": "06_results/PPT_20261006"
+}

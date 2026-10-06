@@ -51,6 +51,8 @@ sys.path.insert(0, str(JOINT / "diana_solid" / "code" / "python"))
 sys.path.insert(0, str(WORKSPACE / "02_10-story_2015" / "code" / "python"))
 
 from prepare_rebar_response import find_raw, load_export  # noqa: E402
+sys.path.insert(0, str(WORKSPACE / "08_common" / "python"))
+import final_cases  # noqa: E402
 from survey_4f_joint_rebar_gauges import read_group  # noqa: E402
 from workflow_config import CASES, SPEC  # noqa: E402
 from ten_story_pipeline import DT, OUTPUT_DT, _time, read_channels  # noqa: E402
@@ -65,8 +67,8 @@ NODE = re.compile(r"node (\d+) element (\d+)")
 # bar line: (raw prefix, face_a, face_b); interior = strictly between the faces
 MODELS = {
     "solid": dict(
-        raw=JOINT / "diana_solid" / "data" / "raw" / "origin_2015_parabolic_gc61_residual20_history",
-        processed=JOINT / "diana_solid" / "data" / "processed" / "origin_2015_parabolic_gc61_residual20_history",
+        raw=JOINT / "diana_solid" / "data" / "raw" / final_cases.case("solid"),
+        processed=JOINT / "diana_solid" / "data" / "processed" / final_cases.case("solid"),
         shear_file="story_shear_response.csv", shear="column_e1783_shear_kN",
         beams=[("EXX_nodes_10380", 10397, 10402), ("EXX_nodes_10128", 10145, 10150)],
         columns=[("EZZ_nodes_11145", 11156, 11162), ("EZZ_nodes_11285", 11296, 11302)],
@@ -74,8 +76,8 @@ MODELS = {
                "EYY_nodes_10061", "EYY_nodes_10083", "EYY_nodes_10105"],
     ),
     "shell": dict(
-        raw=JOINT / "diana_shell" / "data" / "raw" / "origin_2015_history",
-        processed=JOINT / "diana_shell" / "data" / "processed" / "origin_history",
+        raw=JOINT / "diana_shell" / "data" / "raw" / final_cases.raw("shell_history"),
+        processed=JOINT / "diana_shell" / "data" / "processed" / final_cases.case("shell_history"),
         shear_file="cyclic_response.csv", shear="story_shear_kN",
         beams=[("EXX_nodes_1606", 1623, 1628), ("EXX_nodes_1396", 1413, 1418)],
         columns=[("EZZ_nodes_1829", 1839, 1845), ("EZZ_nodes_1969", 1979, 1985)],
