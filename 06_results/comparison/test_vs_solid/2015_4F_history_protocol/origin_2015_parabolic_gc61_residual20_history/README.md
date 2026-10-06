@@ -26,3 +26,5 @@
 - 本次箍筋只导出了 x 肢 2663–2667 和右侧 y 肢 2679–2684（左侧 y 肢 2668–2673、另一 x 肢没有导出）。
 
 生成：`python 05_joint_models/comparison/code/python/plot_experiment_vs_model_joint_drift.py --model solid --protocol history --diana-condition origin_2015_parabolic_gc61_residual20_history --diana-label "DIANA solid, Gc 61 + residual 20 MPa, test-history"`
+
+时程对比 `04`–`08`（层间位移角、节点变形角、归一化层剪力、梁下筋、柱筋应变时程）由 `plot_solid_history_vs_test.py` 生成，图的说明见上一级 README。

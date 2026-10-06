@@ -22,12 +22,14 @@ Bar strains (DIANA right = test WEST; gauge mapping in
 gauge is compared with the node at the member face and the node 100 mm
 away; the gauge distance is unknown (about 50 mm for beams and 80 mm for
 columns in the 2018 drawing):
-  08  4G2A-STR-E01 (G2 east-end bottom bar)  vs right-beam bottom bar,
+  08  5G21-STR-E01 (G2 east-end bottom bar)  vs right-beam bottom bar,
       nodes 1628 (column face) and 1629 (100 mm into the beam)
-  09  4F2AC-STR-02 (4F column bottom, east)  vs upper-column left bar,
+  09  5F2AC-STR-02 (5th-story column foot, east)  vs upper-column left bar,
       nodes 1839 (beam face) and 1838 (100 mm above)
-  12  3F2AC-STR-18 (3F column top, west)     vs lower-column right bar,
+  12  4F2AC-STR-18 (4th-story column head, west) vs lower-column right bar,
       node 1985
+Since 2026-10-06 the gauges are those of joint 4 (top of story 4, 5F floor), the joint of JNT4;
+before, the 4F-floor joint's gauges were used by mistake (one floor too low).
 Test strains are read from the raw records with the same baseline and
 averaging as the 4F gauge survey; the model starts at 0.
 """
@@ -136,27 +138,27 @@ def main() -> None:
     model = read_response(CONDITION)
     model_t = np.asarray([mapping[int(step)] for step in model["load_step"]])
     angle_t, angle = test_series("joint_rotation.csv", f"{FLOOR}F_rad")
-    beam_t, beam = read_group(5, range(6, 7))                    # 4G2A-STR-E01
-    upper_t, upper = read_group(6, range(2, 3))                  # 4F2AC-STR-02
-    lower_t, lower = read_group(4, range(28, 29))                # 3F2AC-STR-18
+    beam_t, beam = read_group(6, range(20, 21))                  # 5G21-STR-E01
+    upper_t, upper = read_group(16, range(2, 3))                 # 5F2AC-STR-02
+    lower_t, lower = read_group(6, range(13, 14))                # 4F2AC-STR-18
     steps = model["load_step"]
     shear_t, shear = test_series("story_shear_y.csv", f"{FLOOR}F_kN")
 
     time_overlay(angle_t, angle, model_t, model["deformation_angle_rad"],
                  "Joint deformation angle (rad)", "07_joint_deformation_time_history", mode)
     strain = r" $\epsilon/\epsilon_y$"
-    time_overlay(beam_t, beam["4G2A-STR-E01"], model_t, None, "Beam bottom bar strain" + strain,
-                 "08_beam_bar_strain_time_history", mode, "Test 4G2A-STR-E01", [
+    time_overlay(beam_t, beam["5G21-STR-E01"], model_t, None, "Beam bottom bar strain" + strain,
+                 "08_beam_bar_strain_time_history", mode, "Test 5G21-STR-E01", [
                      (diana_node("EXX_node_1628.csv", 1628, steps) / YIELD_STRAIN, "DIANA 1628 (column face)"),
                      (diana_node("EXX_node_1629.csv", 1629, steps) / YIELD_STRAIN, "DIANA 1629 (100 mm from face)"),
                  ])
-    time_overlay(upper_t, upper["4F2AC-STR-02"], model_t, None, "Upper column bar strain" + strain,
-                 "09_column_bar_strain_time_history", mode, "Test 4F2AC-STR-02", [
+    time_overlay(upper_t, upper["5F2AC-STR-02"], model_t, None, "Upper column bar strain" + strain,
+                 "09_column_bar_strain_time_history", mode, "Test 5F2AC-STR-02", [
                      (diana_node("EZZ_nodes_1838_1839.csv", 1839, steps) / YIELD_STRAIN, "DIANA 1839 (beam face)"),
                      (diana_node("EZZ_nodes_1838_1839.csv", 1838, steps) / YIELD_STRAIN, "DIANA 1838 (100 mm above)"),
                  ])
-    time_overlay(lower_t, lower["3F2AC-STR-18"], model_t, None, "Lower column bar strain" + strain,
-                 "12_lower_column_bar_strain_time_history", mode, "Test 3F2AC-STR-18", [
+    time_overlay(lower_t, lower["4F2AC-STR-18"], model_t, None, "Lower column bar strain" + strain,
+                 "12_lower_column_bar_strain_time_history", mode, "Test 4F2AC-STR-18", [
                      (diana_node("EZZ_node_1985.csv", 1985, steps) / YIELD_STRAIN, "DIANA 1985"),
                  ])
 

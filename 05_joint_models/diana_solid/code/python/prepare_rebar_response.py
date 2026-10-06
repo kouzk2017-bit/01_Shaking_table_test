@@ -38,11 +38,12 @@ LOAD_FACTOR_PATTERN = re.compile(r"Load-factor\s+(-?[\d.]+(?:[eE][+-]?\d+)?)")
 # output file -> raw file prefix
 PROFILES = {
     "beam_bar_profile.csv": "EXX_nodes_10380_",
-    "column_bar_profile.csv": "EZZ_nodes_11285_",
+    "column_bar_profile.csv": "EZZ_nodes_11285_",  # right column bar (DIANA right = test west)
+    "column_bar_left_profile.csv": "EZZ_nodes_11145_",  # left column bar (test east), exported from 2026-10-03
     "joint_stirrup_profile.csv": "EXX_nodes_1010",  # 10106_ (x-legs) or 10105_ (whole hoop)
     "joint_stirrup_y_profile.csv": "EYY_nodes_101",  # 10122_ (one y-leg) or 10105_ (whole hoop)
 }
-OPTIONAL_PROFILES = {"joint_stirrup_y_profile.csv"}
+OPTIONAL_PROFILES = {"joint_stirrup_y_profile.csv", "column_bar_left_profile.csv"}
 SHEAR_FILES = {"column": "NX_nodes_", "beam": "NZ_nodes_"}  # prefixes; a run may export only some of the nodes
 
 

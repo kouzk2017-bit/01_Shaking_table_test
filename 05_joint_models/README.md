@@ -28,6 +28,8 @@
     `../06_results/comparison/test_vs_shell/2015_4F_history_protocol/`。
   - `plot_history_protocol_vs_test.py`：试验历程协议结果按试验时间叠加到试验数据上
     （节点变形角、梁/柱纵筋应变、归一化层剪力），同一结果目录。
+  - `plot_solid_history_vs_test.py`：实体各试验历程协议工况按试验时间叠加（层间位移角、节点变形角、归一化层剪力、梁/柱筋应变）
+    并汇总各工况在转折点的 V/Vmax、节点占比，结果在 `../06_results/comparison/test_vs_solid/2015_4F_history_protocol/`。
   - `plot_shell_vs_solid_*.py`（变形角、钢筋应变、层剪力，按加载步）：层壳 vs 实体。**暂停**，壳模型
     定稿后再跑，输出到 `../06_results/comparison/shell_vs_solid/`；2026-09 的图留档在
     `../06_results/archive/2026-10-01_shell_vs_solid_preliminary/`。

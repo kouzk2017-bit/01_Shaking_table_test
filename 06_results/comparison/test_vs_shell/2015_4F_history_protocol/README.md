@@ -1,5 +1,8 @@
 # 4F joint: standard vs test-history loading protocol (DIANA shell, origin)
 
+
+> **2026-10-06 更正**：试验钢筋应变片改为节点 4（第 4 层顶部 = 5F 楼板，与位移计 JNT4 同一节点）：梁 5G21-E01（右梁下筋）、5G11-W01（左梁下筋，新增图 10）、上柱脚 5F2AC-02、下柱头 4F2AC-18。此前用的 4G2A-E01 / 4F2AC-02 / 3F2AC-18 在 4F 楼板节点（低一层），相关旧结论作废。节点变形角维持 Kang 系数（`joint_rotation.csv`）。
+
 同一个层壳节点模型（origin），两种加载协议：
 
 - 标准协议（`origin`，原始结果）：±0.005/0.01/0.02/0.03/0.04 rad 各一圈。

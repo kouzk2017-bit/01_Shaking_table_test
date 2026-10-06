@@ -6,7 +6,7 @@ bar corresponds to the G2 east-end bottom bar of the 4F interior joint.
 
   13  bar strain against distance from the column face at the six large
       test peaks and at the end of the run; the strain gauge
-      4G2A-STR-E01 (distance unknown, about 50 mm in the 2018 analogue)
+      5G21-STR-E01 (joint 4 = JNT4 joint since 2026-10-06; distance unknown, about 50 mm in the 2018 analogue)
       is marked at 50 mm.
   14  elongation over 0-1000 mm from the column face against time: the
       DIANA bar strain integrated over nodes 1628-1638 vs the wire sensor
@@ -24,6 +24,11 @@ bar corresponds to the G2 east-end bottom bar of the 4F interior joint.
       and the spacing taken as BAR_SPACING_MM (assumed, to be confirmed).
 
 Outputs go to ``06_results/comparison/test_vs_shell/2015_4F_history_protocol/``.
+
+CAUTION (2026-10-06): the beam-end and column-end displacement sensors (JB12 G1/G2 E/W U/L,
+3C2T/4C2B) are at the 4F-floor joint = joint 3 (設置位置一覧 p.19, "3F天井面"), one floor BELOW
+the modelled joint 4 (JNT4, 5F floor). Joint 4 has no such sensors, so figures 14/15 compare the
+model with the neighbouring joint and are indicative only.
 """
 
 from __future__ import annotations
@@ -86,8 +91,8 @@ def main() -> None:
     # 13: strain profile at the test peaks (reversal steps) and at the end.
     reversals = read_rows(PROTOCOL / "reversal_points.csv")
     reversal_times = np.asarray([float(r["time_s"]) for r in reversals])
-    gauge_t, gauge = read_group(5, range(6, 7))
-    gauge = gauge["4G2A-STR-E01"]
+    gauge_t, gauge = read_group(6, range(20, 21))
+    gauge = gauge["5G21-STR-E01"]
     fig, ax = plt.subplots(figsize=figure_size(mode))
     for k, time in enumerate(PEAK_TIMES_S):
         row = reversals[int(np.argmin(np.abs(reversal_times - time)))]
@@ -100,7 +105,7 @@ def main() -> None:
     ax.plot(distance, strain[-1] / YIELD_STRAIN, color="0.4", linestyle=":", marker="o", label="End of run")
     ax.axhline(0.0, **reference_line_kwargs(), zorder=0)
     format_axis(ax, xlabel="Distance from column face (mm)", ylabel=r"Bottom bar strain $\epsilon/\epsilon_y$", legend=True)
-    ax.set_title("Lines: DIANA nodes 1628-1646; stars: test 4G2A-STR-E01 at assumed 50 mm")
+    ax.set_title("Lines: DIANA nodes 1628-1646; stars: test 5G21-STR-E01 at assumed 50 mm")
     save_figure(fig, OUTPUT / "13_beam_bottom_bar_strain_profile", formats=("png",), mode=mode)
 
     # 14: elongation over 0-1000 mm vs the wire sensor G2EL-DY-1.

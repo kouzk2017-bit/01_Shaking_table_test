@@ -15,11 +15,12 @@ interim export):
   05  joint stirrup x-leg               (node 10108 / element 2665)
   06  joint stirrup y-leg, largest of nodes 10122-10126 (EYY)
   07  beam bar next to the right column face   (node 10403 / element 2954)
-  08  column bar next to the upper beam face   (node 11295 / element 3839)
+  08  right column bar just below the beam-bottom face (node 11295 / element 3839; lower column)
   09  beam bar strain along the bar (nodes 10380-10419), first peak of each amplitude
   10  column bar strain along the bar (nodes 11285-11312), same peaks
 The element right at a face carries a compressive spike, hence the adjacent
-node in 07/08 (chosen by the user 2026-09-28). In 09/10 each bar element is
+node in 07/08 (chosen by the user 2026-09-28). Column bar nodes are numbered upward
+(faces 11296 bottom / 11302 top, confirmed 2026-10-03). In 09/10 each bar element is
 drawn as its own segment, so a jump at a shared node is the inter-element
 discontinuity, not noise; the x-axis is node sequence, not distance.
 """
@@ -46,8 +47,7 @@ YIELD_STRAIN = 0.002
 AXIAL_LOAD_STEPS = 10
 SHEAR_COLUMN = "column_e1783_shear_kN"
 COLUMN_PATTERN = re.compile(r"^n(\d+)_e(\d+)$")
-PALETTE = [COLORS["sky"], COLORS["primary"], COLORS["orange"], COLORS["accent"],
-           COLORS["green"], "#006D4F", COLORS["purple"], COLORS["black"]]  # +/- drift pairs: light/dark of one hue
+AMPLITUDE_COLORS = [COLORS["primary"], COLORS["accent"], COLORS["green"], COLORS["purple"]]  # one colour per drift amplitude; +/- by line style
 
 # stem, processed csv, column (or None = max over n* columns), y label
 STRAIN_BY_STEP = (
@@ -154,7 +154,8 @@ def plot_profiles(folder: Path, output: Path) -> None:
         last_node = max(node for ends in elements.values() for node, _ in ends)
 
         fig, ax = new_axes()
-        for (label, step), color in zip(first_peak_steps(frame), PALETTE):
+        for index_peak, (label, step) in enumerate(first_peak_steps(frame)):
+            color = AMPLITUDE_COLORS[index_peak // 2]
             linestyle = "-" if label.startswith("+") else "--"
             for index, (_, ends) in enumerate(sorted(elements.items())):
                 ax.plot([node - first_node for node, _ in ends], [frame.loc[step, c] / YIELD_STRAIN for _, c in ends],

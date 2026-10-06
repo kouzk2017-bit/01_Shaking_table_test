@@ -146,6 +146,20 @@ def hinge_peaks(domain, history):
     return rows
 
 
+def write_spring_history(domain, history, times, out):
+    """Moment time history of every column spring (per column, i.e. divided by multiplicity), for
+    inflection-point and moment-distribution checks. Columns: spring_columns.csv describes each one."""
+    arr = np.asarray(history)
+    keep = [k for k, (_, member, _) in enumerate(domain['springs']) if 'story' in member]
+    meta = [{'column': i, 'frame': domain['springs'][k][1]['frame'], 'member': domain['springs'][k][1]['member'],
+             'story': domain['springs'][k][1]['story'], 'grid': domain['springs'][k][1]['ix'],
+             'end': domain['springs'][k][2]['end'], 'clear_mm': domain['springs'][k][1].get('clear_mm', '')}
+            for i, k in enumerate(keep)]
+    write_csv(out / 'spring_columns.csv', meta)
+    moments = arr[:, keep, 1] / np.asarray([domain['springs'][k][1]['multiplicity'] for k in keep]) / 1e6
+    np.savez_compressed(out / 'column_spring_moment_kNm.npz', time_s=np.asarray(times), moment_kNm=moments)
+
+
 def pushover(table, domain, acfg, out, modes):
     # Lateral pattern: first-mode shape x floor mass.
     ops.timeSeries('Linear', 2)
@@ -254,6 +268,7 @@ def transient(table, domain, acfg, modes, times, acc, out):
         write_csv(out / 'solver_recovery.csv', events)
         if history:
             write_csv(out / 'hinge_peaks.csv', hinge_peaks(domain, history))
+            write_spring_history(domain, history, [r['time_s'] for r in base], out)
     peaks = []
     for s in range(1, 11):
         rows = [r for r in response if r['story'] == s]

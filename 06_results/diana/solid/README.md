@@ -25,7 +25,11 @@
 
 `concrete_variants/`：四个工况叠在一起比较，见其中 README。
 
-## 当前问题
+## 收尾状态（2026-10-06）
+
+最终采用 `origin_2015_parabolic_gc61_residual20_history`（Gc 61 N/mm、残余抗压强度 20 MPa）。对比对象为试验节点 4（第 4 层顶部，JNT4），节点变形占比、层剪力、对角线膨胀与试验吻合；钢筋只比较屈服与否和时间。结论与局限见 `../../comparison/failure_mechanism/README.md`。
+
+## 当前问题（历史记录）
 
 `origin_2015_parabolic_gc61_residual20_history`（2026-10-03 整理）：大位移角正负向强度和节点变形占比都跟试验吻合（见对比 README）；
 剩余差异：起始两个转折点偏刚偏强、小幅循环偏强，柱纵筋在梁面单元 8–12εy（试验约 5.4εy）。

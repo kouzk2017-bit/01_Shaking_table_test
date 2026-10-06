@@ -1,0 +1,14 @@
+source,group,first_yield_step,drift_rad,leg,time_s
+solid,column_face,56.0,-0.009,2.0,
+solid,beam_face,65.0,-0.0135,2.0,
+solid,hoop,57.0,-0.0095,2.0,
+solid,column_in_joint,57.0,-0.0095,2.0,
+solid,beam_in_joint,218.0,-0.007,4.0,
+shell,column_face,56.0,-0.009,2.0,
+shell,beam_face,60.0,-0.011,2.0,
+shell,hoop,20.0,0.005,1.0,
+shell,column_in_joint,59.0,-0.0105,2.0,
+shell,beam_in_joint,125.0,0.0165,3.0,
+test,column_face_upper,,0.0006,,13.2645
+test,column_face_lower,,0.0061,,13.3145
+test,beam_face,,-0.01,,12.8745
