@@ -3,7 +3,7 @@
 梁柱节点局部数值模型，区别于试验目录（`01_4-story/`、`02_10-story_2015/`、`03_10-story_2018/`）和整体建筑
 数值模型（`04_opensees_model/`）。
 
-- `diana_shell/`：DIANA 层壳节点模型，代码见 `code/python/`，结果见 `../06_results/diana/shell/`。
+- `diana_shell/`：DIANA 层壳节点模型，代码见 `code/python/`，结果见 `../06_results/comparison/`（对试验：`test_vs_shell/`；工况之间：`shell_variants/`）。
 - `diana_solid/`：DIANA 实体节点模型。
   - `model/`：模型本体和原生分析数据库（`.dpf`/`.dnb`/`.out`，`.dnb` 体积很大 ~15.8 GB），
     整个目录已被 `.gitignore` 排除。
@@ -25,7 +25,7 @@
     加载步数无法对齐的问题；结果在 `../06_results/comparison/test_vs_<model>/2015_4F_standard_protocol/`。
   - `plot_history_vs_standard_protocol.py`：同一层壳模型在标准协议与试验历程协议下的对比
     （层剪力、节点变形角、钢筋应变、A–D 贡献比），结果见
-    `../06_results/comparison/test_vs_shell/2015_4F_history_protocol/`。
+    `../06_results/comparison/test_vs_shell/2015_4F_history_protocol/origin_history/`。
   - `plot_history_protocol_vs_test.py`：试验历程协议结果按试验时间叠加到试验数据上
     （节点变形角、梁/柱纵筋应变、归一化层剪力），同一结果目录。
   - `plot_solid_history_vs_test.py`：实体各试验历程协议工况按试验时间叠加（层间位移角、节点变形角、归一化层剪力、梁/柱筋应变）

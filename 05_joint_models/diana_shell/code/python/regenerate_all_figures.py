@@ -1,7 +1,7 @@
 """Regenerate every DIANA cyclic-comparison figure package end to end.
 
 One command rebuilds 05_joint_models/diana_shell/data/processed/ and every
-06_results/diana/shell/*_comparison/ package from the raw exports under
+06_results/comparison/shell_variants/<variant>_vs_<baseline>/ package from the raw exports under
 05_joint_models/diana_shell/data/raw/. Run this any time raw data changes,
 instead of re-typing the individual prepare/calculate/plot commands.
 
@@ -25,7 +25,7 @@ from pathlib import Path
 WORKSPACE = Path(__file__).resolve().parents[4]
 CODE = WORKSPACE / "05_joint_models" / "diana_shell" / "code" / "python"
 PROCESSED = WORKSPACE / "05_joint_models" / "diana_shell" / "data" / "processed"
-RESULTS = WORKSPACE / "06_results" / "diana" / "shell"
+RESULTS = WORKSPACE / "06_results" / "comparison" / "shell_variants"
 
 # Joint-panel dimensions and 4-node layout confirmed 2026-09-04:
 # a (horizontal) = 300 mm, b (vertical) = 366.67 mm, applies to ALL conditions.
@@ -35,6 +35,7 @@ JOINT_ANGLE_ARGS = {
     "origin_history": dict(input_dir="05_joint_models/diana_shell/data/raw/origin_2015_history", ul=623, ur=620, ll=639, lr=636),
     # Remeshed slab model: its measuring frame is 375 x 361.42 mm.
     "origin_history_slab": dict(input_dir="05_joint_models/diana_shell/data/raw/origin_2015_history_slab", ul=242, ur=248, ll=278, lr=279, a=375.0, b=361.42, suffix="242_248_278_279"),
+    "origin_slab": dict(input_dir="05_joint_models/diana_shell/data/raw/origin_2015_slab", ul=242, ur=248, ll=278, lr=279, a=375.0, b=361.42, suffix="242_248_278_279"),
     "j16_l":  dict(input_dir="05_joint_models/diana_shell/data/raw/J16-L",       ul=623, ur=620, ll=639, lr=636),
     "j12_h":  dict(input_dir="05_joint_models/diana_shell/data/raw/J12-H",       ul=623, ur=620, ll=639, lr=636),
     "j12_m":  dict(input_dir="05_joint_models/diana_shell/data/raw/J12-M",       ul=623, ur=620, ll=639, lr=636),
@@ -46,12 +47,13 @@ A_MM = 300.0
 B_MM = 366.67
 
 COMPARISONS = [
-    dict(output="j16_l_comparison", baseline="origin", baseline_label="Original", variant="j16_l", variant_label="J16-L"),
-    dict(output="j12_h_comparison", baseline="origin", baseline_label="Original", variant="j12_h", variant_label="J12-H"),
-    dict(output="j12_m_comparison", baseline="origin", baseline_label="Original", variant="j12_m", variant_label="J12-M"),
-    dict(output="j16_m_comparison", baseline="origin", baseline_label="Original", variant="j16_m", variant_label="J16-M"),
-    dict(output="j16_h_comparison", baseline="origin", baseline_label="Original", variant="j16_h", variant_label="J16-H"),
-    dict(output="v2018_vs_j16h_comparison", baseline="j16_h", baseline_label="J16-H", variant="v2018", variant_label="2018 Validation"),
+    dict(output="origin_slab_vs_origin", baseline="origin", baseline_label="Original", variant="origin_slab", variant_label="With slab flange"),
+    dict(output="j16_l_vs_origin", baseline="origin", baseline_label="Original", variant="j16_l", variant_label="J16-L"),
+    dict(output="j12_h_vs_origin", baseline="origin", baseline_label="Original", variant="j12_h", variant_label="J12-H"),
+    dict(output="j12_m_vs_origin", baseline="origin", baseline_label="Original", variant="j12_m", variant_label="J12-M"),
+    dict(output="j16_m_vs_origin", baseline="origin", baseline_label="Original", variant="j16_m", variant_label="J16-M"),
+    dict(output="j16_h_vs_origin", baseline="origin", baseline_label="Original", variant="j16_h", variant_label="J16-H"),
+    dict(output="v2018_vs_j16_h", baseline="j16_h", baseline_label="J16-H", variant="v2018", variant_label="2018 Validation"),
 ]
 
 

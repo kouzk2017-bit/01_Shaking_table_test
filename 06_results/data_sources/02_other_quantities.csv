@@ -1,0 +1,6 @@
+Quantity,Test,Shell,Shell + slab,Solid
+"Story drift","story_drift_y.csv 4F_rad (Y = frame direction)","standard: load factor x 0.005; history: protocol","same as shell","same as shell"
+"Story shear","story_shear_y.csv 4F_kN, whole story 4 (compared as V/Vmax)","NX node 524, element 156 (upper column)","NX node 196, element 751","composed line e1783 (nodes 9169/9189)"
+"Joint deformation angle","joint_rotation.csv 4F_rad = JNT4 (JB11 ch7/ch8), Kang coeff., 270 x 270 mm","corners 623/620/639/636 (UL/UR/LL/LR), 300 x 366.67 mm","242/248/278/279, 375 x 361.42 mm","3149/3152/3165/3168, 300 x 366.67 mm"
+"Joint diagonal strain","JNT4 ch7/ch8, no high-pass, anchors 286 x 420 mm (diag. 508 mm)","from the corners above","from the corners above","from the corners above"
+"Beam-end elongation / rotation","G2EL-DY-1 / G2EU-DY-1 (at joint 3, one floor below: reference only)","bottom bar 1628-1638, top bar 1418-1436","-","-"

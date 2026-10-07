@@ -22,7 +22,7 @@
   - `drawings/`：节点详图等 DWG 图纸（原顶层 `drawings/`）。
 - `06_results/`：
   - `experiment/2015/`、`experiment/2018/`：试验当前图片，按年份和工况组织。
-  - `diana/shell/`、`diana/solid/`：DIANA 层壳/实体节点模型的对比结果。
+  - `diana/solid/`：实体节点模型自己的结果；`comparison/`：所有对比（模型 vs 试验、壳工况之间、破坏机理）；`data_sources/`：每条曲线出自哪个节点、哪个应变片。
   - `opensees/`：整体 OpenSees 模型结果，每个阶段一个固定文件夹（`model_info/`、`modal/`、`trial_case13_20s/`）。
   - `comparison/`：试验时程与节点数值模型（拟静力）的响应-响应曲线对比结果。
   - `archive/`：整理前结果、历史基准和中间文件的日期化归档。

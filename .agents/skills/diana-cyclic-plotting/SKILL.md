@@ -42,7 +42,7 @@ For the joint displacement exports named `TDtX_nodes_620_623_636_639.csv` and
 
 When plotting joint deformation angle, exclude load steps 1--10 and verify its
 remaining load-step range matches `cyclic_response.csv`. Write two figures to
-the same `06_results/diana/shell/<comparison-name>/` directory used by the cyclic-response figures: joint angle versus analysis step, and
+the same `06_results/comparison/shell_variants/<comparison-name>/` directory used by the cyclic-response figures: joint angle versus analysis step, and
 joint angle (solid) versus story drift (dashed). Both figures overlay the
 `origin` and the selected variant condition, use radian units, and export
 600 dpi PNG only. Do not export SVG.
@@ -52,12 +52,12 @@ processing change. Run it without `--dry-run` to produce standardized `cyclic_re
 
 ## Curve-source registry
 
-Every non-dry processing run must refresh `06_results/diana/shell/cyclic_axial_force_comparison/curve-source-registry.csv`. It is a filterable CSV and records, for both conditions, each plotted response's raw CSV, selected response column, node and element identifiers, duplicate-column verification, case-ID filter, output CSV, and unit/normalization or derived-value rules. Do not hand-edit it or reuse a stale mapping.
+Every non-dry processing run must refresh `06_results/comparison/shell_variants/curve-source-registry.csv`. It is a filterable CSV and records, for both conditions, each plotted response's raw CSV, selected response column, node and element identifiers, duplicate-column verification, case-ID filter, output CSV, and unit/normalization or derived-value rules. Do not hand-edit it or reuse a stale mapping.
 
 ## Plotting requirements
 
 When the user asks for figures, compare `origin` with the selected variant condition. Generate story shear versus story drift, beam longitudinal-strain ratio versus analysis step, column longitudinal-strain ratio versus analysis step, per-condition beam-versus-column strain figures, and joint-stirrup strain when its mapping is available.
 
-Keep the two compared conditions on identical axes, exclude the first ten axial-load cases, and export 600 dpi PNG only (no SVG) to one shared `06_results/diana/shell/<variant_code>_comparison/` directory. This directory is the complete result package for one variant: do not split it by figure type, and do not encode the condition name in individual figure stems. Pass that exact directory to both plotting commands. Use the existing sequence: `01`–`06` for cyclic-response figures, `07_joint_deformation_angle_by_step`, and `08_joint_deformation_angle_vs_story_drift`. Include a `curve-source-registry.csv` containing only `origin` and the selected variant. Use integer strain-ratio ticks and yield reference lines at -1 and +1. Use upright subscripts in $\epsilon_{\mathrm{s}}/\epsilon_{\mathrm{y}}$ and label the x-axis `Analysis step`.
+Keep the two compared conditions on identical axes, exclude the first ten axial-load cases, and export 600 dpi PNG only (no SVG) to one shared `06_results/comparison/shell_variants/<variant_code>_vs_<baseline>/` directory. This directory is the complete result package for one variant: do not split it by figure type, and do not encode the condition name in individual figure stems. Pass that exact directory to both plotting commands. Use the existing sequence: `01`–`06` for cyclic-response figures, `07_joint_deformation_angle_by_step`, and `08_joint_deformation_angle_vs_story_drift`. Include a `curve-source-registry.csv` containing only `origin` and the selected variant. Use integer strain-ratio ticks and yield reference lines at -1 and +1. Use upright subscripts in $\epsilon_{\mathrm{s}}/\epsilon_{\mathrm{y}}$ and label the x-axis `Analysis step`.
 
 Read [the source and output schema](references/data_contract.md) before selecting mappings, deriving outputs, or plotting.

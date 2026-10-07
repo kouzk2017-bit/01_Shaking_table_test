@@ -1,0 +1,10 @@
+Position,Test gauge (joint 4),Shell (origin / origin_history),Shell + slab (origin_slab / _history_slab),Solid
+"Right beam bottom bar, right column face","5G21-STR-E01 (G2 east end, JB06 ch20)","1628 face / 1629 at 100 mm","1254 at ~60 mm (no node on face)","10402 face / 10403 at 100 mm*"
+"Left beam bottom bar, left column face","5G11-STR-W01 (G1 west end, JB06 ch15)","1623 face","? (in 1232-1268)","10397 face / 10396 at 100 mm*"
+"Beam top bar, column faces","not used","1413 / 1418 face","? (in 898-925)","10145 / 10150 face"
+"Upper column left bar, beam top face","5F2AC-STR-02 (5th-story column foot, east, JB16 ch2)","1839 face / 1838 at 100 mm","1559 face / 1560 at 100 mm","11162 face / 11163 at 100 mm*"
+"Lower column right bar, beam bottom face","4F2AC-STR-18 (4th-story column head, west, JB06 ch13)","1985 face","1724 face / 1725 at 100 mm","11296 face / 11295 at 100 mm*"
+"Lower column left bar, beam bottom face","not used","1845 face","? (in 1550-1580)","11156 face"
+"Joint hoop","not gauged","2375 (EXX, = solid 10108)","2127 (lower hoop)","10108 (bottom hoop, x leg)"
+"Column through bars in joint","not gauged","1829-1856, 1969-1996 interior","1550-1580, 1705-1735 interior","11145-11172, 11285-11312 interior"
+"Slab bar","not used","no slab","3241-3274 (one bar, along beam)","no slab"

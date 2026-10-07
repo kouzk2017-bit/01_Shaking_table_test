@@ -1,0 +1,8 @@
+Case,Right beam bottom bar (column face / 100 mm),Upper column left bar (beam face / 100 mm),Joint hoop (not unified),Story shear,Joint corners
+"origin","1628 / 1629","1839 / 1838","2375","NX 524","623/620/639/636"
+"origin_slab","1254 (~60 mm, no face node)","1559 / 1560","2127 lower hoop","NX 196","242/248/278/279"
+"j12_h","1628 / 1629","1839 / 1838","2381 ?","NX 524","as origin"
+"j12_m","1628 / 1629","1839 / 1838","2375","NX 524","as origin"
+"j16_l / j16_m / j16_h","1628 / 1629","1783 / 1782","2151 ?","NX 524","as origin"
+"v2018","1377 / 1378","1532 / 1531","2178 bottom hoop","NX 109","840/837/852/849"
+"Test (joint 4)","5G21-STR-E01","5F2AC-STR-02","not gauged","story_shear_y 4F","JNT4"

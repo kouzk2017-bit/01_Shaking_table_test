@@ -5,7 +5,7 @@
 
 所有实体工况都用同一个试验历程协议（2015 Kobe 100% 4F 实测层间位移角转折点，1119 步，
 `05_joint_models/loading_protocols/2015_20151211-2(JMAKobe100%)_4F/`），所以每个分析步都能按加载段映射到试验时间
-（跟层壳 `test_vs_shell/2015_4F_history_protocol/` 同一映射）。
+（跟层壳 `test_vs_shell/2015_4F_history_protocol/origin_history/` 同一映射）。
 
 ## 工况（每个一个子文件夹，名字同 `diana/solid/`）
 

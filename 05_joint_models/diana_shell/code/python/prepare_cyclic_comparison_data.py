@@ -29,15 +29,25 @@ class Condition:
     beam_file: str
     column_file: str
     shear_file: str
+    # Set when beam_file/column_file hold a whole bar: the node used for the curve.
+    beam_node: int | None = None
+    column_node: int | None = None
 
 
+# Every condition uses the same two positions (user, 2026-10-07): the RIGHT beam
+# bottom bar at the column face and the UPPER-column LEFT bar at the beam-top face,
+# the same positions as the test gauges 5G21-STR-E01 and 5F2AC-STR-02.  Face nodes
+# here; the node 100 mm away (second node in each file) is for the test comparison.
+# Joint hoop nodes are not yet at one common position (JOINT_STIRRUP_SOURCES).
 CONDITIONS = (
     Condition(
         name="origin",
         raw_folder="origin_2015",
-        beam_file="EXX_node_1628.csv",
-        column_file="EZZ_node_1985.csv",
+        beam_file="EXX_nodes_1628_1629_1838_1839.csv",
+        column_file="EZZ_nodes_1628_1629_1838_1839.csv",
         shear_file="NX_node_524.csv",
+        beam_node=1628,     # 1629: 100 mm into the beam
+        column_node=1839,   # 1838: 100 mm above
     ),
     # Same model as origin, driven by the 2015 Kobe 100% 4F measured drift
     # history (05_joint_models/loading_protocols/) instead of the standard protocol.
@@ -45,8 +55,9 @@ CONDITIONS = (
         name="origin_history",
         raw_folder="origin_2015_history",
         beam_file="EXX_node_1628.csv",
-        column_file="EZZ_node_1985.csv",
+        column_file="EZZ_nodes_1838_1839.csv",
         shear_file="NX_node_524.csv",
+        column_node=1839,
     ),
     # origin_history with the 4F slab as an equivalent flange (120 mm slab,
     # 400 mm AIJ overhang, 2-D10 per layer).  Remeshed, so new node numbers.
@@ -57,47 +68,74 @@ CONDITIONS = (
         column_file="EZZ_node_1559.csv",
         shear_file="NX_node_196.csv",
     ),
+    # Same slab-flange model as origin_history_slab (same mesh), standard protocol.
+    # 1254 = right-beam bottom bar ~60 mm from the column face (60 mm mesh, no node
+    # on the face); 1559 = upper-column left bar at the beam face, 1560 100 mm above.
     Condition(
-        name="j16_l",
-        raw_folder="J16-L",
-        beam_file="EXX_node_1628.csv",
-        column_file="EZZ_node_1845.csv",
-        shear_file="NX_node_524.csv",
+        name="origin_slab",
+        raw_folder="origin_2015_slab",
+        beam_file="EXX_beam_bottom_nodes_1232-1268.csv",
+        column_file="EZZ_column_left_nodes_1550-1580.csv",
+        shear_file="NX_node_196.csv",
+        beam_node=1254,
+        column_node=1559,
     ),
     Condition(
         name="j12_h",
         raw_folder="J12-H",
-        beam_file="EXX_node_1628.csv",
-        column_file="EZZ_node_1985.csv",
+        beam_file="EXX_nodes_1628_1629.csv",
+        column_file="EZZ_nodes_1838_1839.csv",
         shear_file="NX_node_524.csv",
+        beam_node=1628,
+        column_node=1839,
     ),
     Condition(
         name="j12_m",
         raw_folder="J12-M",
-        beam_file="EXX_node_1628.csv",
-        column_file="EZZ_node_1985.csv",
+        beam_file="EXX_nodes_1628_1629.csv",
+        column_file="EZZ_nodes_1838_1839.csv",
         shear_file="NX_node_524.csv",
+        beam_node=1628,
+        column_node=1839,
+    ),
+    # J16 meshes: upper-column left bar 1783 at the beam face, 1782 100 mm above.
+    Condition(
+        name="j16_l",
+        raw_folder="J16-L",
+        beam_file="EXX_nodes_1628_1629.csv",
+        column_file="EZZ_nodes_1782_1783.csv",
+        shear_file="NX_node_524.csv",
+        beam_node=1628,
+        column_node=1783,
     ),
     Condition(
         name="j16_m",
         raw_folder="J16-M",
-        beam_file="EXX_node_1628.csv",
-        column_file="EZZ_node_1845.csv",
+        beam_file="EXX_nodes_1628_1629.csv",
+        column_file="EZZ_nodes_1782_1783.csv",
         shear_file="NX_node_524.csv",
+        beam_node=1628,
+        column_node=1783,
     ),
     Condition(
         name="j16_h",
         raw_folder="J16-H",
-        beam_file="EXX_node_1628.csv",
-        column_file="EZZ_node_1845.csv",
+        beam_file="EXX_nodes_1628_1629.csv",
+        column_file="EZZ_nodes_1782_1783.csv",
         shear_file="NX_node_524.csv",
+        beam_node=1628,
+        column_node=1783,
     ),
+    # 2018 mesh: right-beam bottom bar 1377 at the column face (1378 100 mm in);
+    # upper-column left bar 1532 at the beam face (1531 100 mm above).
     Condition(
         name="v2018",
         raw_folder="origin_2018",
-        beam_file="EXX_node_1377.csv",
-        column_file="EZZ_node_1843.csv",
+        beam_file="EXX_nodes_1377_1378.csv",
+        column_file="EZZ_nodes_1531_1532.csv",
         shear_file="NX_node_109.csv",
+        beam_node=1377,
+        column_node=1532,
     ),
 )
 
@@ -188,6 +226,16 @@ def first_response_column(headers: Iterable[str], rows: list[dict[str, str]]) ->
     """Return the canonical first response after generic duplicate verification."""
     return verified_response_columns(headers, rows)[0]
 
+
+def node_headers(headers: Iterable[str], node: int | None) -> list[str]:
+    """Keep only one node's columns of a whole-bar export (all columns if node is None)."""
+    if node is None:
+        return list(headers)
+    kept = [h for h in headers if f"node {node} " in h or not h.startswith(("EXX", "EZZ", "NX"))]
+    if len(kept) == len([h for h in headers if not h.startswith(("EXX", "EZZ", "NX"))]):
+        raise ValueError(f"Node {node} not found in export")
+    return kept
+
 def indexed_rows(rows: list[dict[str, str]]) -> dict[int, dict[str, str]]:
     values = {case_id(row): row for row in rows}
     if len(values) != len(rows):
@@ -202,8 +250,8 @@ def prepare_condition(raw_root: Path, processed_root: Path, condition: Condition
     column_headers, column_rows = load_diana_rows(source / condition.column_file)
     shear_headers, shear_rows = load_diana_rows(source / condition.shear_file)
 
-    beam_column = first_response_column(beam_headers, beam_rows)
-    column_column = first_response_column(column_headers, column_rows)
+    beam_column = first_response_column(node_headers(beam_headers, condition.beam_node), beam_rows)
+    column_column = first_response_column(node_headers(column_headers, condition.column_node), column_rows)
     shear_column = first_response_column(shear_headers, shear_rows)
     beam_by_case = indexed_rows(beam_rows)
     column_by_case = indexed_rows(column_rows)
@@ -275,6 +323,7 @@ JOINT_STIRRUP_SOURCES = {
     "j12_m": ("EXX_node_2375.csv", 2375, "EXX node 2375 element 1359", "EXX node 2375 element 1360"),
     "j16_m": ("EXX_node_2151.csv", 2151, "EXX node 2151 element 1143", "EXX node 2151 element 1144"),
     "j16_h": ("EXX_node_2151.csv", 2151, "EXX node 2151 element 1143", "EXX node 2151 element 1144"),
+    "origin_slab": ("EXX_hoop_lower_nodes_2124-2132_2160-2168.csv", 2127, "EXX node 2127 element 1975", "EXX node 2127 element 1976"),
     "v2018": ("EXX_node_2178.csv", 2178, "EXX node 2178 element 1252", "EXX node 2178 element 1253"),
 }
 
@@ -337,14 +386,15 @@ def prepare_joint_stirrup_condition(
 CURVE_SOURCE_REGISTRY = (
     Path(__file__).resolve().parents[4]
     / "06_results"
-    / "diana"
-    / "shell"
+    / "comparison"
+    / "shell_variants"
     / "curve-source-registry.csv"
 )
 CONDITION_LABELS = {
     "origin": "原轴力",
     "origin_history": "原轴力（2015试验历程加载）",
     "origin_history_slab": "原轴力（2015试验历程加载，含楼板翼缘）",
+    "origin_slab": "原轴力（标准协议，含楼板翼缘）",
     "j16_l": "J16-L",
     "j12_h": "J12-H",
     "j12_m": "J12-M",
@@ -399,8 +449,8 @@ def write_curve_source_registry(raw_root: Path) -> Path:
     for condition in CONDITIONS:
         rows.extend((
             _registry_row(raw_root, condition, "层剪力—层间位移角", condition.shear_file, "story_shear_response.csv", "剪力 N → kN；层间位移角 = load factor × 0.005 rad"),
-            _registry_row(raw_root, condition, "梁纵筋应变", condition.beam_file, "beam_rebar_response.csv", "应变 / 0.002"),
-            _registry_row(raw_root, condition, "柱纵筋应变", condition.column_file, "column_rebar_response.csv", "应变 / 0.002"),
+            _registry_row(raw_root, condition, "梁纵筋应变", condition.beam_file, "beam_rebar_response.csv", "应变 / 0.002", condition.beam_node),
+            _registry_row(raw_root, condition, "柱纵筋应变", condition.column_file, "column_rebar_response.csv", "应变 / 0.002", condition.column_node),
             _registry_row(raw_root, condition, "节点箍筋应变", JOINT_STIRRUP_SOURCES[condition.name][0], "joint_stirrup_response.csv", "EXX / 0.002", JOINT_STIRRUP_SOURCES[condition.name][1]),
         ))
     CURVE_SOURCE_REGISTRY.parent.mkdir(parents=True, exist_ok=True)

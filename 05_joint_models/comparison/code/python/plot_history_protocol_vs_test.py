@@ -7,7 +7,7 @@ reaches that step's drift.  Steps whose rounded target lies just beyond the
 measured reversal get the reversal time.  The mapping is written to
 ``processed/origin_history/step_time_map.csv``.
 
-Figures (``06_results/comparison/test_vs_shell/2015_4F_history_protocol/``):
+Figures (``06_results/comparison/test_vs_shell/2015_4F_history_protocol/origin_history/``):
   07  joint deformation angle, test vs model, against time
   08  beam bar strain against time
   09  column bar strain against time (upper column, test-figure position)
@@ -64,7 +64,7 @@ TEST_CSV = WORKSPACE / "06_results" / "archive" / "2026-07-30_before_cleanup" / 
 PROTOCOL = WORKSPACE / "05_joint_models" / "loading_protocols" / f"2015_{CASE}_{FLOOR}F"
 PROCESSED = WORKSPACE / "05_joint_models" / "diana_shell" / "data" / "processed" / CONDITION
 RAW = WORKSPACE / "05_joint_models" / "diana_shell" / "data" / "raw" / "origin_2015_history"
-OUTPUT = WORKSPACE / "06_results" / "comparison" / "test_vs_shell" / "2015_4F_history_protocol"
+OUTPUT = WORKSPACE / "06_results" / "comparison" / "test_vs_shell" / "2015_4F_history_protocol" / CONDITION
 PLOT_CONFIG = WORKSPACE / "08_common" / "config" / "plot_config.json"
 TIME_WINDOW = (10.0, 30.0)
 YIELD_STRAIN = 0.002

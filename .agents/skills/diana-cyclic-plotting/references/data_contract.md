@@ -24,7 +24,7 @@ mapping.
 
 ## Curve-source registry
 
-`prepare_cyclic_comparison_data.py` regenerates `06_results/diana/shell/cyclic_axial_force_comparison/curve-source-registry.csv` on every non-dry processing run after validating the current raw exports. The filterable registry is the maintained record of each curve's selected response, node/element metadata, duplicate-column status, case-ID filter, output CSV, and conversion or normalization.
+`prepare_cyclic_comparison_data.py` regenerates `06_results/comparison/shell_variants/curve-source-registry.csv` on every non-dry processing run after validating the current raw exports. The filterable registry is the maintained record of each curve's selected response, node/element metadata, duplicate-column status, case-ID filter, output CSV, and conversion or normalization.
 
 ## Derived columns
 
@@ -43,12 +43,12 @@ load-factor increment represents 1.3125 mm and 0.0005 rad.
 ## Figure outputs
 
 For `origin` and the selected variant, generate story shear versus story drift, beam longitudinal-strain ratio versus analysis step, column longitudinal-strain ratio versus analysis step, and separate beam-versus-column strain figures.
-Export every figure as 600 dpi PNG only (no SVG) to the same `06_results/diana/shell/<comparison-name>/` directory, including joint-deformation-angle figures; do not create a joint-angle subfolder or produce PDF unless the user explicitly asks. Use y-axis ticks at 1.0 increments
+Export every figure as 600 dpi PNG only (no SVG) to the same `06_results/comparison/shell_variants/<comparison-name>/` directory, including joint-deformation-angle figures; do not create a joint-angle subfolder or produce PDF unless the user explicitly asks. Use y-axis ticks at 1.0 increments
 for every strain figure and highlight the $-1$ and $+1$ yield-ratio lines.
 
 ## Comparison result package
 
-Each `06_results/diana/shell/<variant_code>_comparison/` directory is a complete, self-contained comparison package. Keep all numbered figures (01–08) and a `curve-source-registry.csv` filtered to `origin` plus that variant in this directory. Do not create a figure-type subfolder or add the variant name to individual figure filenames.
+Each `06_results/comparison/shell_variants/<variant_code>_vs_<baseline>/` directory is a complete, self-contained comparison package. Keep all numbered figures (01–08) and a `curve-source-registry.csv` filtered to `origin` plus that variant in this directory. Do not create a figure-type subfolder or add the variant name to individual figure filenames.
 
 ## Integrity checks
 

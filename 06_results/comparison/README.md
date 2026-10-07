@@ -1,17 +1,16 @@
 # Comparisons
 
-主线：每个节点模型先跟试验对比，按模型分目录，下一级 `<试验年份>_<楼层>_<加载协议>`。
+一个对比一个文件夹。所用节点/应变片见 `../data_sources/`（表格图）。
 
-- `test_vs_shell/2015_4F_standard_protocol/`：2015 Kobe 100% 4F vs 层壳 origin（标准协议，按“响应-层间位移角”叠加）。
-- `test_vs_shell/2015_4F_history_protocol/`：同上，层壳用试验历程协议，可按试验时间叠加；含标准 vs 历程协议对比。
-- `test_vs_solid/<协议>/<实体工况>/`：实体每个工况一个子文件夹（名字同 `diana/solid/`）。历程协议下有时程对比（04–08）和全部工况的汇总图，见 `test_vs_solid/2015_4F_history_protocol/README.md`。
-  - `2015_4F_standard_protocol/origin_2015/`：标准协议基准。
-  - `2015_4F_history_protocol/origin_2015_parabolic_history/`：parabolic，+0.016 rad 未收敛后骤降。
-  - `2015_4F_history_protocol/origin_2015_parabolic_residual_history/`：parabolic + 残余强度 9.6 MPa，全部收敛。
-  - `2015_4F_history_protocol/origin_2015_parabolic_gc61_residual_history/`：再加 Gc 61 N/mm，正向大位移角跟试验吻合，负向 −0.022 rad 偏弱。
-  - `2015_4F_history_protocol/origin_2015_parabolic_gc61_residual20_history/`：再把残余强度提到 20 MPa，正负向和节点占比都跟试验吻合（当前最好，1119 步全部完成）。
+| 文件夹 | 对比 | 加载 | 生成脚本（`05_joint_models/`） |
+|---|---|---|---|
+| `test_vs_shell/2015_4F_standard_protocol/origin/` | 试验 vs 壳 origin（响应–位移角） | 标准 | `comparison/code/python/plot_experiment_vs_model_joint_drift.py --model shell` |
+| `test_vs_shell/2015_4F_history_protocol/origin_history/` | 试验 vs 壳 origin_history（含标准 vs 历程、时程、梁端） | 历程 | `plot_history_vs_standard_protocol.py`（01–06）、`plot_history_protocol_vs_test.py`（07–12）、`plot_history_beam_bar_profile.py`（13–15） |
+| `test_vs_shell/2015_4F_history_protocol/origin_history_slab/` | 试验 vs 壳有楼板 / 无楼板（三条线） | 历程 | `plot_history_slab_vs_test.py` |
+| `test_vs_solid/2015_4F_standard_protocol/origin_2015/` | 试验 vs 实体基准 | 标准 | `update_case.py --model solid --case origin_2015` |
+| `test_vs_solid/2015_4F_history_protocol/<工况>/` + 汇总图 | 试验 vs 实体最终版 | 历程 | `update_case.py --model solid --case <工况>` |
+| `shell_variants/<变体>_vs_origin/` | 壳参数分析 j12_h/j12_m/j16_l/j16_m/j16_h、楼板 origin_slab | 标准 | `diana_shell/code/python/regenerate_all_figures.py` |
+| `shell_variants/v2018_vs_j16_h/` | 2018 试件 vs J16-H | 标准 | 同上 |
+| `failure_mechanism/` | 试验 vs 壳 vs 实体，首次屈服与各转折点状态 | 历程 | `comparison/code/python/failure_mechanism_summary.py` |
 
-层壳 vs 实体：暂停，壳模型定稿后再生成，输出到 `shell_vs_solid/`（脚本 `plot_shell_vs_solid_*.py`）。
-2026-09 的初步对比留档在 `../archive/2026-10-01_shell_vs_solid_preliminary/`。
-
-- `failure_mechanism/`：试验 vs 壳 vs 实体的破坏机理诊断（节点 4，收尾版 2026-10-06）。
+壳 vs 实体：暂停，壳模型定稿后输出到 `shell_vs_solid/`（`plot_shell_vs_solid_*.py`）；2026-09 的初步对比在 `../archive/2026-10-01_shell_vs_solid_preliminary/`。

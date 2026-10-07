@@ -1,9 +1,0 @@
-﻿工况,工况代码,曲线,原始CSV,处理后CSV,选用响应列,节点,单元,有效响应列数,重复响应列,重复列核验,保留工况步,排除工况步,换算/归一化
-J16-H,j16_h,层剪力—层间位移角,data/raw/J16-H/NX_node_524.csv,data/processed/j16_h/story_shear_response.csv,NX node 524 element 402,524,402,1,,所有Load-step逐行完全一致,11–850,1–10（轴力加载）,剪力 N → kN；层间位移角 = load factor × 0.005 rad
-J16-H,j16_h,梁纵筋应变,data/raw/J16-H/EXX_node_1628.csv,data/processed/j16_h/beam_rebar_response.csv,EXX node 1628 element 672,1628,672,2,EXX node 1628 element 673,所有Load-step逐行完全一致,11–850,1–10（轴力加载）,应变 / 0.002
-J16-H,j16_h,柱纵筋应变,data/raw/J16-H/EZZ_node_1845.csv,data/processed/j16_h/column_rebar_response.csv,EZZ node 1845 element 883,1845,883,2,EZZ node 1845 element 884,所有Load-step逐行完全一致,11–850,1–10（轴力加载）,应变 / 0.002
-J16-H,j16_h,节点箍筋应变,data/raw/J16-H/EXX_node_2151.csv,data/processed/j16_h/joint_stirrup_response.csv,EXX node 2151 element 1143,2151,1143,2,EXX node 2151 element 1144,所有Load-step逐行完全一致,11–850,1–10（轴力加载）,EXX / 0.002
-2018 Validation,v2018,层剪力—层间位移角,data/raw/origin_2018/NX_node_109.csv,data/processed/v2018/story_shear_response.csv,NX node 109 element 39,109,39,1,,所有Load-step逐行完全一致,11–850,1–10（轴力加载）,剪力 N → kN；层间位移角 = load factor × 0.005 rad
-2018 Validation,v2018,梁纵筋应变,data/raw/origin_2018/EXX_node_1377.csv,data/processed/v2018/beam_rebar_response.csv,EXX node 1377 element 508,1377,508,2,EXX node 1377 element 509,所有Load-step逐行完全一致,11–850,1–10（轴力加载）,应变 / 0.002
-2018 Validation,v2018,柱纵筋应变,data/raw/origin_2018/EZZ_node_1843.csv,data/processed/v2018/column_rebar_response.csv,EZZ node 1843 element 940,1843,940,2,EZZ node 1843 element 941,所有Load-step逐行完全一致,11–850,1–10（轴力加载）,应变 / 0.002
-2018 Validation,v2018,节点箍筋应变,data/raw/origin_2018/EXX_node_2178.csv,data/processed/v2018/joint_stirrup_response.csv,EXX node 2178 element 1252,2178,1252,2,EXX node 2178 element 1253,所有Load-step逐行完全一致,11–850,1–10（轴力加载）,EXX / 0.002

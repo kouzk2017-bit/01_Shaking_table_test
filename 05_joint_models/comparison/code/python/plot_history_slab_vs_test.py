@@ -16,7 +16,7 @@ The two measuring frames differ from each other and from the test anchors
 Each analysis step is placed on the test time axis with the protocol's
 step-time map; the slab run may stop early and is plotted up to its last
 step.  Outputs: 06_results/comparison/test_vs_shell/2015_4F_history_protocol/
-origin_history_slab/.
+origin_history_slab/ (each case in its own subfolder, like origin_history/).
 """
 
 from __future__ import annotations
@@ -33,9 +33,8 @@ HERE = Path(__file__).resolve().parent
 WORKSPACE = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(HERE))
 
-from plot_history_protocol_vs_test import diana_node, map_steps_to_time, test_series  # noqa: E402
+from plot_history_protocol_vs_test import map_steps_to_time, read_group, test_series  # noqa: E402
 from publication_style import COLORS, apply_style, figure_size, format_axis, reference_line_kwargs, save_figure  # noqa: E402
-from survey_4f_joint_rebar_gauges import read_group  # noqa: E402
 
 PROCESSED = WORKSPACE / "05_joint_models" / "diana_shell" / "data" / "processed"
 OUTPUT = WORKSPACE / "06_results" / "comparison" / "test_vs_shell" / "2015_4F_history_protocol" / "origin_history_slab"
@@ -81,20 +80,19 @@ def main() -> None:
     models = {name: read_processed(name) for name, *_ in MODELS}
     for data in models.values():
         data["time"] = np.asarray([mapping[int(s)] for s in data["step"]])
-    # The processed no-slab column is node 1985 (lower column, right); use the
-    # upper-column left bar at the beam face, 1839, the position of 1559.
-    models["origin_history"]["column"] = diana_node(
-        "EZZ_nodes_1838_1839.csv", 1839, models["origin_history"]["step"]) / YIELD_STRAIN
+    # Both processed columns are the upper-column left bar at the beam face (1839 / 1559).
     last_step = int(min(data["step"][-1] for data in models.values()))
     window = (10.0, max(mapping[last_step], 12.0) + 0.3)
 
     angle_t, angle = test_series("joint_rotation.csv", f"{FLOOR}F_rad")
-    beam_t, beam = read_group(5, range(6, 7))
-    column_t, column = read_group(6, range(2, 3))
+    # Joint 4 sits at the 5F floor: same gauges as plot_solid_history_vs_test.py
+    # (G2 east-end bottom bar = DIANA right beam; 5th-story column foot).
+    beam_t, beam = read_group(6, range(20, 21))
+    column_t, column = read_group(16, range(2, 3))
     tests = {
         "joint": (angle_t, angle, "Test JNT (4F)"),
-        "beam": (beam_t, beam["4G2A-STR-E01"], "Test 4G2A-STR-E01"),
-        "column": (column_t, column["4F2AC-STR-02"], "Test 4F2AC-STR-02"),
+        "beam": (beam_t, beam["5G21-STR-E01"], "Test 5G21-STR-E01"),
+        "column": (column_t, column["5F2AC-STR-02"], "Test 5F2AC-STR-02"),
     }
     figures = (
         ("joint", "Joint deformation angle (rad)", "01_joint_deformation_time_history"),
@@ -132,8 +130,8 @@ def main() -> None:
         row = {"point": label, "step": step, "test_time_s": round(time, 2),
                "test_joint_angle": round(float(np.interp(time, angle_t, angle)), 5),
                "test_contribution": round(abs(float(np.interp(time, angle_t, angle) / np.interp(time, drift_t, drift))), 3),
-               "test_beam": round(float(np.interp(time, beam_t, beam["4G2A-STR-E01"])), 2),
-               "test_column": round(float(np.interp(time, column_t, column["4F2AC-STR-02"])), 2)}
+               "test_beam": round(float(np.interp(time, beam_t, beam["5G21-STR-E01"])), 2),
+               "test_column": round(float(np.interp(time, column_t, column["5F2AC-STR-02"])), 2)}
         for condition, model_label, *_ in MODELS:
             data = models[condition]
             index = np.flatnonzero(data["step"] == step)

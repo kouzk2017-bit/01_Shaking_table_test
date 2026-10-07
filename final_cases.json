@@ -6,5 +6,5 @@
   "shell": {"case": "origin", "raw": "origin_2015", "protocol": "standard"},
   "shell_history": {"case": "origin_history", "raw": "origin_2015_history", "protocol": "history"},
   "test_joint": {"joint": 4, "note": "top of story 4 = 5F floor, JNT4; see 02_10-story_2015/REBAR_GAUGES.md section 5"},
-  "ppt_folder": "06_results/PPT_20261006"
+  "ppt_folder": "06_results/PPT_20261007"
 }

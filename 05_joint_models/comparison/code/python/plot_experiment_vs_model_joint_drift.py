@@ -2,8 +2,8 @@
 
 ``--model shell`` (processed ``diana_shell/data/processed/<condition>``) or
 ``--model solid`` (``diana_solid/data/processed/<condition>``); output goes to
-``06_results/comparison/test_vs_<model>/2015_4F_<protocol>_protocol/`` by default,
-with one ``<condition>/`` subfolder per solid case (``--protocol standard|history``
+``06_results/comparison/test_vs_<model>/2015_4F_<protocol>_protocol/<condition>/`` by default
+(one subfolder per case, shell and solid alike (``--protocol standard|history``
 names the loading protocol the condition was run with).
 
 The experiment records a dynamic time-history; the DIANA model is driven by
@@ -135,14 +135,13 @@ def main() -> None:
     parser.add_argument("--protocol", choices=("standard", "history"), default="standard",
                         help="loading protocol of the DIANA run (only names the output folder)")
     parser.add_argument("--output-dir", type=Path,
-                        help="default: 06_results/comparison/test_vs_<model>/2015_4F_<protocol>_protocol[/<condition>]")
+                        help="default: 06_results/comparison/test_vs_<model>/2015_4F_<protocol>_protocol/<condition>")
     args = parser.parse_args()
     condition = args.diana_condition or DEFAULT_CONDITION[args.model]
     args.diana_label = args.diana_label or f"DIANA {args.model}, {condition} (quasi-static)"
     if args.output_dir is None:
         args.output_dir = WORKSPACE / "06_results" / "comparison" / f"test_vs_{args.model}" / f"2015_4F_{args.protocol}_protocol"
-        if args.model == "solid":
-            args.output_dir /= condition
+        args.output_dir /= condition
 
     apply_style("paper")
     experiment = load_experiment_floor(args.experiment_csv_dir, args.experiment_floor)
