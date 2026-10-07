@@ -20,7 +20,7 @@ compared only after dividing each by its own peak (shape, not magnitude).
 Bar strains (DIANA right = test WEST; gauge mapping in
 02_10-story_2015/REBAR_GAUGES.md).  The DIANA mesh is 100 mm, so each test
 gauge is compared with the node at the member face and the node 100 mm
-away; the gauge distance is unknown (about 50 mm for beams and 80 mm for
+away (since 2026-10-07 only the 100 mm node is drawn, as for the solid); the gauge distance is unknown (about 50 mm for beams and 80 mm for
 columns in the 2018 drawing):
   08  5G21-STR-E01 (G2 east-end bottom bar)  vs right-beam bottom bar,
       nodes 1628 (column face) and 1629 (100 mm into the beam)
@@ -149,13 +149,11 @@ def main() -> None:
     strain = r" $\epsilon/\epsilon_y$"
     time_overlay(beam_t, beam["5G21-STR-E01"], model_t, None, "Beam bottom bar strain" + strain,
                  "08_beam_bar_strain_time_history", mode, "Test 5G21-STR-E01", [
-                     (diana_node("EXX_node_1628.csv", 1628, steps) / YIELD_STRAIN, "DIANA 1628 (column face)"),
-                     (diana_node("EXX_node_1629.csv", 1629, steps) / YIELD_STRAIN, "DIANA 1629 (100 mm from face)"),
+                     (diana_node("EXX_node_1629.csv", 1629, steps) / YIELD_STRAIN, "DIANA shell (1629, 100 mm from face)"),
                  ])
     time_overlay(upper_t, upper["5F2AC-STR-02"], model_t, None, "Upper column bar strain" + strain,
                  "09_column_bar_strain_time_history", mode, "Test 5F2AC-STR-02", [
-                     (diana_node("EZZ_nodes_1838_1839.csv", 1839, steps) / YIELD_STRAIN, "DIANA 1839 (beam face)"),
-                     (diana_node("EZZ_nodes_1838_1839.csv", 1838, steps) / YIELD_STRAIN, "DIANA 1838 (100 mm above)"),
+                     (diana_node("EZZ_nodes_1838_1839.csv", 1838, steps) / YIELD_STRAIN, "DIANA shell (1838, 100 mm above face)"),
                  ])
     time_overlay(lower_t, lower["4F2AC-STR-18"], model_t, None, "Lower column bar strain" + strain,
                  "12_lower_column_bar_strain_time_history", mode, "Test 4F2AC-STR-18", [

@@ -33,6 +33,8 @@ Outputs (06_results/experiment/2015/20151211-2(JMAKobe100%)/joints/):
   joint_<n>_01_drift_and_joint_angle.png, _02_diagonal_strain.png, then one figure per beam end / column end
   (03 G1 west end, 04 G2 east end, 05 lower column head, 06 upper column foot) with only the gauges whose
   position is known (beam 01/02 bottom, 04/05 top; column 01/02 & 11/12 east, 08/09 & 18/19 west).
+  Joint 4 also gets 07/08: the two gauges the models are compared with, one curve each.
+  Figure 01 shows the joint angle with the Kang coefficient only (the anchor-geometry angle stays in the CSV).
   Every gauge is in the time-series CSV.
 """
 
@@ -148,6 +150,10 @@ def process_joint(number: int, spec: dict) -> None:
     print(f"joint {number}: {len(rows)} half-cycle peaks, gauges: {sum(len(v) for v in groups.values())}")
 
 
+COMPARED_GAUGES = {4: (("07_right_beam_bottom_bar_5G21-STR-E01", "5G21-STR-E01"),
+                       ("08_upper_column_left_bar_5F2AC-STR-02", "5F2AC-STR-02"))}
+
+
 def time_axes(frame: pd.DataFrame):
     fig, ax = plt.subplots(figsize=figure_size(mode="paper"))
     mask = (frame["Time_s"] >= TIME_WINDOW[0]) & (frame["Time_s"] <= TIME_WINDOW[1])
@@ -166,8 +172,7 @@ def plot_joint(number: int, frame: pd.DataFrame, groups: dict[str, list[str]]) -
     stem = OUTPUT / f"joint_{number}"
     fig, ax, f = time_axes(frame)
     ax.plot(f["Time_s"], f["story_drift_rad"], color=COLORS["primary"], label=f"Story {number} drift")
-    ax.plot(f["Time_s"], f["joint_angle_kang_rad"], color=COLORS["accent"], label="Joint angle (Kang coefficient)")
-    ax.plot(f["Time_s"], f["joint_angle_anchor_rad"], color=COLORS["green"], label="Joint angle (anchor geometry)")
+    ax.plot(f["Time_s"], f["joint_angle_kang_rad"], color=COLORS["accent"], label="Joint deformation angle")
     finish(fig, ax, Path(f"{stem}_01_drift_and_joint_angle"), "Angle (rad)")
     fig, ax, f = time_axes(frame)
     ax.plot(f["Time_s"], f["diag1_strain"], color=COLORS["primary"], label="Diagonal DY-1")
@@ -183,6 +188,11 @@ def plot_joint(number: int, frame: pd.DataFrame, groups: dict[str, list[str]]) -
         fig, ax, f = time_axes(frame)
         for i, tag in enumerate(tags):
             ax.plot(f["Time_s"], f[tag], color=f"C{i}", label=f"{tag} ({POSITION[key][tag[-2:]]})")
+        finish(fig, ax, Path(f"{stem}_{suffix}"), r"Strain, $\epsilon/\epsilon_{\mathrm{y}}$")
+    # The two gauges every model is compared with (06_results/data_sources/), one curve each.
+    for suffix, tag in COMPARED_GAUGES.get(number, ()):
+        fig, ax, f = time_axes(frame)
+        ax.plot(f["Time_s"], f[tag], color=COLORS["primary"], label=tag)
         finish(fig, ax, Path(f"{stem}_{suffix}"), r"Strain, $\epsilon/\epsilon_{\mathrm{y}}$")
 
 
