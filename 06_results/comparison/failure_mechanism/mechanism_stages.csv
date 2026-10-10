@@ -9,6 +9,6 @@ shell,beam_face,60.0,-0.011,2.0,
 shell,hoop,20.0,0.005,1.0,
 shell,column_in_joint,59.0,-0.0105,2.0,
 shell,beam_in_joint,125.0,0.0165,3.0,
-test,column_face_upper,,0.0006,,13.2645
-test,column_face_lower,,0.0061,,13.3145
-test,beam_face,,-0.01,,12.8745
+test,column_face_upper,,0.0001,,13.26
+test,column_face_lower,,0.0067,,13.32
+test,beam_face,,-0.0098,,12.87

@@ -178,7 +178,9 @@ def validate_case(spec: ProjectSpec, case: Case) -> dict:
             ("foundation_displacement_x.csv", foundation, "Disp_X"),
             ("foundation_displacement_y.csv", foundation, "Disp_Y"),
         ])
-    if rebar.is_file():
+    # 2015: the selected gauges are the joint 4 gauges since 2026-10-08 (MATLAB selected
+    # other channels), so there is nothing to compare; 2018 is unchanged.
+    if rebar.is_file() and spec.year != 2015:
         mappings.append((
             "rebar_strain_selected.csv",
             rebar,

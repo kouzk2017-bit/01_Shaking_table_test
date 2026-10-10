@@ -27,7 +27,10 @@ next to the 01-03 response-vs-drift figures):
       bar (identified 2026-10-03 from where each bar yields and from correlation
       with shell nodes 1839 upper-left / 1985 lower-right).
 
-07-09 draw one DIANA curve each, the node 100 mm from the member face: the gauge
+  11  upper-column right bar: test 5F2AC-STR-09 (5th-story column foot, west) vs solid right bar 11303
+      (100 mm above the top face 11302). 10 + 11 = negative-drift pair, 07 + 08 = positive-drift pair.
+
+07-11 draw one DIANA curve each, the node 100 mm from the member face: the gauge
 offset is unknown for 2015 (about 50 mm for beams and 80 mm for columns in the
 2018 drawing), and the element right at the face carries a strain spike from
 localization. The face-node values stay in the processed profiles.
@@ -53,7 +56,7 @@ WORKSPACE = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(WORKSPACE / "08_common" / "python"))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from publication_style import COLORS, apply_style, figure_size, format_axis, reference_line_kwargs, save_figure  # noqa: E402
+from publication_style import TEST_COLOR, ANGLE_YLIM, REBAR_STRAIN_YLIM, PROJECT_MODE, COLORS, apply_style, figure_size, format_axis, reference_line_kwargs, save_figure  # noqa: E402
 import final_cases  # noqa: E402
 from plot_history_protocol_vs_test import PROTOCOL, TIME_WINDOW, map_steps_to_time, read_group, test_series  # noqa: E402
 
@@ -62,7 +65,7 @@ YIELD_STRAIN = 0.002
 SOLID = WORKSPACE / "05_joint_models" / "diana_solid" / "data" / "processed"
 OUTPUT = WORKSPACE / "06_results" / "comparison" / "test_vs_solid" / "2015_4F_history_protocol"
 SHEAR_COLUMN = "column_e1783_shear_kN"
-TEST_COLOR, MODEL_COLOR = COLORS["primary"], COLORS["accent"]  # same pairing as the 01-03 figures
+MODEL_COLOR = COLORS["primary"]  # test grey (TEST_COLOR, plot_config.json), model blue, as in every comparison
 # history-protocol cases, in the order they were run: folder, legend label
 CASES = (
     ("origin_2015_parabolic_history", "Gc 26.6, residual 0"),
@@ -83,7 +86,7 @@ def read_case(case: str) -> pd.DataFrame:
 
 def time_overlay(test_curves, model_t, model_curves, ylabel: str, path: Path) -> None:
     """One test curve (time, values, label) and one model curve on the mapped time axis."""
-    fig, ax = plt.subplots(figsize=figure_size(mode="paper"))
+    fig, ax = plt.subplots(figsize=figure_size(PROJECT_MODE))
     for t, y, label in test_curves:
         mask = (t >= TIME_WINDOW[0]) & (t <= TIME_WINDOW[1])
         ax.plot(t[mask], y[mask], color=TEST_COLOR, label=label)
@@ -92,8 +95,13 @@ def time_overlay(test_curves, model_t, model_curves, ylabel: str, path: Path) ->
         ax.plot(model_t[mask], np.asarray(values)[mask], color=MODEL_COLOR, label=label)
     ax.axhline(0.0, **reference_line_kwargs(), zorder=0)
     ax.set_xlim(TIME_WINDOW)
+    if "strain" in ylabel:  # every rebar figure on the same scale (plot_config.json)
+        ax.set_ylim(REBAR_STRAIN_YLIM)
+    elif "(rad)" in ylabel:  # story drift / joint angle time histories
+        ax.set_ylim(ANGLE_YLIM)
+        ax.tick_params(axis="x", pad=plt.rcParams["xtick.major.pad"] * 2.0)  # keep "-0.04" clear of the first time label
     format_axis(ax, xlabel="Time (s)", ylabel=ylabel, legend=True, legend_location="best")
-    save_figure(fig, path, formats=("png",), mode="paper")
+    save_figure(fig, path, formats=("png",), mode=PROJECT_MODE)
     plt.close(fig)
 
 
@@ -120,26 +128,30 @@ def plot_case(case: str, mapping: dict[int, float]) -> None:
     if beam_file.exists():
         beam = pd.read_csv(beam_file).set_index("case_id").reindex(model.index)
         beam_t, gauges = read_group(6, range(20, 21))
-        time_overlay([(beam_t, gauges["5G21-STR-E01"], "Test 5G21-STR-E01")], model_t, [
-            (beam["n10403_e2954"] / YIELD_STRAIN, "DIANA solid (10403, 100 mm from face)"),
+        time_overlay([(beam_t, gauges["5G21-STR-E01"], "Test")], model_t, [
+            (beam["n10403_e2954"] / YIELD_STRAIN, "DIANA solid"),
         ], "Beam bottom bar strain" + strain, out / "07_beam_bar_strain_time_history")
         left_t, left_gauges = read_group(6, range(15, 16))
-        time_overlay([(left_t, left_gauges["5G11-STR-W01"], "Test 5G11-STR-W01")], model_t, [
-            (beam["n10396_e2947"] / YIELD_STRAIN, "DIANA solid (10396, 100 mm from face)"),
+        time_overlay([(left_t, left_gauges["5G11-STR-W01"], "Test")], model_t, [
+            (beam["n10396_e2947"] / YIELD_STRAIN, "DIANA solid"),
         ], "Left beam bottom bar strain" + strain, out / "10_left_beam_bar_strain_time_history")
     left_file = SOLID / case / "column_bar_left_profile.csv"
     if left_file.exists():
         left = pd.read_csv(left_file).set_index("case_id").reindex(model.index)
         upper_t, upper = read_group(16, range(2, 3))
-        time_overlay([(upper_t, upper["5F2AC-STR-02"], "Test 5F2AC-STR-02")], model_t, [
-            (left["n11163_e3712"] / YIELD_STRAIN, "DIANA solid (11163, 100 mm above face)"),
+        time_overlay([(upper_t, upper["5F2AC-STR-02"], "Test")], model_t, [
+            (left["n11163_e3712"] / YIELD_STRAIN, "DIANA solid"),
         ], "Upper column bar strain" + strain, out / "08_upper_column_bar_strain_time_history")
     if column_file.exists():
         column = pd.read_csv(column_file).set_index("case_id").reindex(model.index)
         lower_t, lower = read_group(6, range(13, 14))
-        time_overlay([(lower_t, lower["4F2AC-STR-18"], "Test 4F2AC-STR-18")], model_t, [
-            (column["n11295_e3838"] / YIELD_STRAIN, "DIANA solid (11295, 100 mm below face)"),
+        time_overlay([(lower_t, lower["4F2AC-STR-18"], "Test")], model_t, [
+            (column["n11295_e3838"] / YIELD_STRAIN, "DIANA solid"),
         ], "Lower column bar strain" + strain, out / "09_lower_column_bar_strain_time_history")
+        upper_right_t, upper_right = read_group(16, range(4, 5))
+        time_overlay([(upper_right_t, upper_right["5F2AC-STR-09"], "Test")], model_t, [
+            (column["n11303_e3846"] / YIELD_STRAIN, "DIANA solid"),
+        ], "Upper column right bar strain" + strain, out / "11_upper_column_right_bar_strain_time_history")
     print(f"{case}: time-history figures in {out}")
 
 
@@ -171,7 +183,7 @@ def plot_summary(table: pd.DataFrame) -> None:
     for stem, key, ylabel in (("summary_01_shear_at_reversals", "V_over_Vmax", r"$|V|/V_{max}$ at reversal"),
                               ("summary_02_joint_ratio_at_reversals", "joint_ratio",
                                "Joint deformation angle / story drift")):
-        fig, ax = plt.subplots(figsize=figure_size(mode="paper"))
+        fig, ax = plt.subplots(figsize=figure_size(PROJECT_MODE))
         x = large["reversal"]
         ax.plot(x, large[f"test_{key}"].abs(), color=COLORS["black"], marker="s", label="Test 2015 4F")
         for (case, label), color in zip(CASES, CASE_COLORS):
@@ -180,7 +192,7 @@ def plot_summary(table: pd.DataFrame) -> None:
                 ax.plot(x, large[column].abs(), color=color, marker="o", label=label)
         ax.set_xticks(x, [f"{r}\n{d:+.4f}" for r, d in zip(x, large["drift_rad"])])
         format_axis(ax, xlabel="Reversal (story drift, rad)", ylabel=ylabel, legend=True, legend_location="best")
-        save_figure(fig, OUTPUT / stem, formats=("png",), mode="paper")
+        save_figure(fig, OUTPUT / stem, formats=("png",), mode=PROJECT_MODE)
         plt.close(fig)
     print(f"Summary in {OUTPUT}")
 
@@ -190,7 +202,7 @@ def main() -> None:
     parser.add_argument("--case", action="append", help="solid case folder(s); default: the final case in final_cases.json")
     args = parser.parse_args()
 
-    apply_style("paper")
+    apply_style(PROJECT_MODE)
     drift_t, drift = test_series("story_drift_y.csv", f"{FLOOR}F_rad")
     mapping = map_steps_to_time(drift_t, drift)
     # per-case figures: the final case only (intermediate cases are archived); the summary uses all CASES

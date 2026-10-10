@@ -202,7 +202,9 @@ def main() -> None:
     mode = json.loads(PLOT_CONFIG.read_text(encoding="utf-8"))["figure"]["style_mode"]
 
     for year, case in CASES.items():
-        headers, data = load_csv(ARCHIVE / year / "python" / case / "csv" / "story_drift_y.csv")
+        # Current run_pipeline.py output; the 2018 case has not been re-run yet, so fall back to the archive.
+        current = WORKSPACE / "06_results" / "experiment" / year / case / "csv" / "story_drift_y.csv"
+        headers, data = load_csv(current if current.exists() else ARCHIVE / year / "python" / case / "csv" / "story_drift_y.csv")
         time = data[:, headers.index("Time_s")]
         drift = data[:, headers.index(f"{args.floor}F_rad")]
         points = round_reversals(extract_reversals(time, drift, args.gate))

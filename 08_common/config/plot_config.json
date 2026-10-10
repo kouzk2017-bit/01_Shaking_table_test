@@ -1,13 +1,24 @@
 {
   "defaults": {
-    "time_window_s": [10.0, 30.0],
+    "time_window_s": [
+      10.0,
+      30.0
+    ],
     "peak_count": 4,
     "peak_significance_fraction": 0.3,
     "peak_minimum_separation_s": 0.5,
-    "floors": [4, 6],
+    "floors": [
+      4,
+      6
+    ],
     "manual_peak_times_s": {
       "20151211-2(JMAKobe100%)": {
-        "6F": [12.99, 14.01, 15.76, 17.29]
+        "6F": [
+          12.99,
+          14.01,
+          15.76,
+          17.29
+        ]
       }
     }
   },
@@ -21,7 +32,16 @@
   },
   "figure": {
     "style_mode": "presentation",
-    "format": "png"
+    "format": "png",
+    "rebar_strain_ylim": [
+      -3.0,
+      10.0
+    ],
+    "angle_ylim": [
+      -0.04,
+      0.04
+    ],
+    "test_color": "0.6"
   },
   "figure_overrides": {}
 }

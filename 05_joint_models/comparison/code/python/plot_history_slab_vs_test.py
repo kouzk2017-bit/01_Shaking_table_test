@@ -34,7 +34,7 @@ WORKSPACE = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(HERE))
 
 from plot_history_protocol_vs_test import map_steps_to_time, read_group, test_series  # noqa: E402
-from publication_style import COLORS, apply_style, figure_size, format_axis, reference_line_kwargs, save_figure  # noqa: E402
+from publication_style import TEST_COLOR, ANGLE_YLIM, REBAR_STRAIN_YLIM, COLORS, apply_style, figure_size, format_axis, reference_line_kwargs, save_figure  # noqa: E402
 
 PROCESSED = WORKSPACE / "05_joint_models" / "diana_shell" / "data" / "processed"
 OUTPUT = WORKSPACE / "06_results" / "comparison" / "test_vs_shell" / "2015_4F_history_protocol" / "origin_history_slab"
@@ -91,8 +91,8 @@ def main() -> None:
     column_t, column = read_group(16, range(2, 3))
     tests = {
         "joint": (angle_t, angle, "Test JNT (4F)"),
-        "beam": (beam_t, beam["5G21-STR-E01"], "Test 5G21-STR-E01"),
-        "column": (column_t, column["5F2AC-STR-02"], "Test 5F2AC-STR-02"),
+        "beam": (beam_t, beam["5G21-STR-E01"], "Test"),
+        "column": (column_t, column["5F2AC-STR-02"], "Test"),
     }
     figures = (
         ("joint", "Joint deformation angle (rad)", "01_joint_deformation_time_history"),
@@ -103,13 +103,18 @@ def main() -> None:
         fig, ax = plt.subplots(figsize=figure_size(mode))
         t, y, label = tests[key]
         mask = (t >= window[0]) & (t <= window[1])
-        ax.plot(t[mask], y[mask], color="0.6", label=label)
+        ax.plot(t[mask], y[mask], color=TEST_COLOR, label=label)
         for condition, model_label, color, style in MODELS:
             data = models[condition]
             keep = (data["step"] <= last_step) & (data["time"] >= window[0])
             ax.plot(data["time"][keep], data[key][keep], color=color, linestyle=style, label=model_label)
         ax.axhline(0.0, **reference_line_kwargs(), zorder=0)
         ax.set_xlim(window)
+        if "(rad)" in ylabel:
+            ax.set_ylim(ANGLE_YLIM)
+            ax.tick_params(axis="x", pad=plt.rcParams["xtick.major.pad"] * 2.0)  # keep "-0.04" clear of the first time label
+        elif "epsilon" in ylabel:
+            ax.set_ylim(REBAR_STRAIN_YLIM)
         format_axis(ax, xlabel="Time (s)", ylabel=ylabel, legend=True)
         save_figure(fig, OUTPUT / name, formats=("png",), mode=mode)
 

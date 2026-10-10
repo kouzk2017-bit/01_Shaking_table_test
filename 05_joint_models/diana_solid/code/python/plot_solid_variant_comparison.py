@@ -33,7 +33,7 @@ import pandas as pd
 WORKSPACE = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(WORKSPACE / "08_common" / "python"))
 
-from publication_style import apply_style, format_axis, figure_size, save_figure, COLORS, reference_line_kwargs  # noqa: E402
+from publication_style import PROJECT_MODE, apply_style, format_axis, figure_size, save_figure, COLORS, reference_line_kwargs  # noqa: E402
 
 YIELD_STRAIN = 0.002
 SOLID = WORKSPACE / "05_joint_models" / "diana_solid" / "data" / "processed"
@@ -80,9 +80,9 @@ def main() -> None:
                         default=WORKSPACE / "06_results" / "diana" / "solid" / "concrete_variants")
     args = parser.parse_args()
 
-    apply_style("paper")
+    apply_style(PROJECT_MODE)
     for stem, x_label, y_label, (source, x_column, y_function) in FIGURES:
-        fig, ax = plt.subplots(figsize=figure_size(mode="paper"))
+        fig, ax = plt.subplots(figsize=figure_size(PROJECT_MODE))
         for folder, label, color in VARIANTS:
             if x_column != "story_drift_rad" and folder in BY_DRIFT_ONLY:
                 continue
@@ -99,7 +99,7 @@ def main() -> None:
         if x_column == "story_drift_rad":
             ax.axvline(0.0, **reference_line_kwargs(), zorder=0)
         format_axis(ax, xlabel=x_label, ylabel=y_label, legend=True, legend_location="best")
-        save_figure(fig, args.output_dir / stem, formats=("png",), mode="paper")
+        save_figure(fig, args.output_dir / stem, formats=("png",), mode=PROJECT_MODE)
         plt.close(fig)
     print(f"Wrote figures to {args.output_dir}")
 

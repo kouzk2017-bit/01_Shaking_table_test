@@ -416,7 +416,23 @@ def process_joint_rotation(spec: ProjectSpec, case: Case) -> dict[str, np.ndarra
                 coefficient * (displacement[:, low] - displacement[:, high])
             )
         rotation = np.column_stack(rotation_columns)
-    return {"time": _time(rotation.shape[0]), "joint_rotation": rotation}
+    # Unfiltered diagonal displacements (only the offset of the first 1000 samples
+    # removed): the 0.05 Hz high-pass above also removes the slow joint expansion
+    # (both diagonals lengthening), which the joint-expansion analysis needs.
+    pairs = 5 if spec.year == 2015 else 6
+    diagonal = resample_decimate(raw[:, : 2 * pairs] - raw[:1000, : 2 * pairs].mean(axis=0), DT, OUTPUT_DT)
+    result = {"time": _time(rotation.shape[0]), "joint_rotation": rotation,
+              "joint_diagonal_displacement": diagonal[: rotation.shape[0]]}
+    # 2015: member-end displacement transducers at the 4F-floor joint (joint 3) in JB12 -- beam ends
+    # G1/G2 E/W U/L, column ends 3C2T / 4C2B, slab 4SLB -- unfiltered, offset of the first 1000 samples removed.
+    if spec.year == 2015 and _raw_path(spec, case, 12).is_file():
+        names = [n for n in _channel_names(spec, case, 12)[:64]]
+        keep = [i for i, n in enumerate(names, start=1) if n and not n.endswith("-0")]
+        member = read_channels(spec, case, 12, keep)
+        member = resample_decimate(member - member[:1000].mean(axis=0), DT, OUTPUT_DT)
+        result["member_end_displacement"] = member[: rotation.shape[0]]
+        result["member_end_names"] = [names[i - 1].split("-", 1)[1] for i in keep]
+    return result
 
 
 def process_foundation_displacement(
@@ -454,6 +470,43 @@ def _read_rebar_matrix_2015(spec: ProjectSpec, case: Case) -> np.ndarray:
     return _interpolate_nonfinite(np.column_stack([part[:length] for part in parts]))
 
 
+REBAR_JB_CHANNELS_2015 = ((4, 52), (5, 50), (6, 62), (16, 22))
+# rebar_strain_selected.csv (2015): the joint 4 gauges, header -> gauge tag
+REBAR_2015_SELECTED = (
+    ("Joint4_RightBeamBottom_5G21-STR-E01", "5G21-STR-E01"),     # G2 east end = DIANA right beam
+    ("Joint4_UpperColumnLeft_5F2AC-STR-02", "5F2AC-STR-02"),     # 5th-story column foot, east = DIANA left
+    ("Joint4_LeftBeamBottom_5G11-STR-W01", "5G11-STR-W01"),      # G1 west end = DIANA left beam
+    ("Joint4_LowerColumnRight_4F2AC-STR-18", "4F2AC-STR-18"),    # 4th-story column head, west = DIANA right
+)
+REBAR_2015_SELECTED_TAGS = tuple(tag for _, tag in REBAR_2015_SELECTED)
+
+
+def _channel_names(spec: ProjectSpec, case: Case, jb: int) -> list[str]:
+    """Channel names from the second header line of a raw file (Shift-JIS)."""
+    with _raw_path(spec, case, jb).open("rb") as stream:
+        stream.readline()
+        line = stream.readline()
+    for encoding in ("shift_jis", "cp932", "latin1"):
+        try:
+            return line.decode(encoding).strip().split(",")[1:]
+        except UnicodeDecodeError:
+            continue
+    return []
+
+
+def _rebar_channel_map_2015(spec: ProjectSpec, case: Case) -> list[tuple[str, int, int, str]]:
+    """(CH column, JB, channel, gauge tag) in the column order of rebar_strain_all.csv."""
+    rows, column = [], 0
+    for jb, count in REBAR_JB_CHANNELS_2015:
+        names = _channel_names(spec, case, jb)
+        for channel in range(1, count + 1):
+            column += 1
+            name = names[channel - 1] if channel - 1 < len(names) else ""
+            tag = name.split("-", 1)[1] if "-" in name else name
+            rows.append((f"CH{column:03d}", jb, channel, tag))
+    return rows
+
+
 def _process_rebar_2015(
     spec: ProjectSpec,
     case: Case,
@@ -469,18 +522,20 @@ def _process_rebar_2015(
     time = _time(strain.shape[0])
     window = (time >= 10.0) & (time <= 30.0)
     normalized = strain[window] / 2000.0
-    # 4F/6F interior joint (column 2-A) bars, see
-    # 02_10-story_2015/REBAR_GAUGES.md:
-    #   57  4G2A-STR-E01  4F G2 east-end bottom bar (was 42 = 4G1A-STR-E01,
-    #                     the G1 east end at the CORNER column; changed 2026-10-01)
-    #   103 4F2AC-STR-02  4F column bottom, east face
-    #   177 6G21-STR-E01  6F G2 east-end bottom bar
-    #   183 6F2AC-STR-02  6F column bottom, east face
-    selected_indices = (57, 103, 177, 183)
+    # Joint 4 (top of story 4 = 5F floor, the JNT4 joint compared with the DIANA joint
+    # models; 02_10-story_2015/REBAR_GAUGES.md section 5), selected by gauge tag.
+    # Until 2026-10-08 this held 4G2A-E01 / 4F2AC-02 / 6G21-E01 / 6F2AC-02, i.e. the
+    # 4F- and 6F-floor joints, one floor below the JNT joints of the same name.
+    channel_map = _rebar_channel_map_2015(spec, case)
+    column_of = {tag: index for index, (_, _, _, tag) in enumerate(channel_map)}
+    selected_indices = tuple(column_of[tag] for tag in REBAR_2015_SELECTED_TAGS)
+    carried = previous_residual if previous_residual is not None else np.zeros(raw.shape[1])
     return ({
         "time": time[window],
         "rebar_strain_all": normalized,
         "rebar_strain_selected": normalized[:, selected_indices],
+        "channel_map": channel_map,
+        "previous_residual": carried / 2000.0,
     }, residual)
 
 
@@ -599,6 +654,19 @@ def export_case_csv(
             ["Time_s", *[f"{label}_rad" for label in labels[:count]]],
             np.column_stack((joint["time"], joint["joint_rotation"])),
         ))
+        if "member_end_displacement" in joint:
+            outputs.append(_write_csv(
+                csv_directory / "member_end_displacement.csv",
+                ["Time_s", *[f"{name}_mm" for name in joint["member_end_names"]]],
+                np.column_stack((joint["time"], joint["member_end_displacement"])),
+            ))
+        if "joint_diagonal_displacement" in joint:
+            pairs = joint["joint_diagonal_displacement"].shape[1] // 2
+            outputs.append(_write_csv(
+                csv_directory / "joint_diagonal_displacement.csv",
+                ["Time_s", *[f"{label}_DY{k}_mm" for label in labels[:pairs] for k in (1, 2)]],
+                np.column_stack((joint["time"], joint["joint_diagonal_displacement"])),
+            ))
     foundation = results.get("foundation", {})
     if foundation:
         x_names = ("SLP-DX-SSW", "SLP-DX-NNW", "SLP-DX-NNE", "SLP-DX-SSE",
@@ -618,12 +686,7 @@ def export_case_csv(
     if rebar:
         if spec.year == 2015:
             all_headers = [f"CH{i:03d}_eps_over_epsy" for i in range(1, 187)]
-            selected_headers = (
-                "4F_Beam_Longitudinal_Rebar_Col59",
-                "4F_Column_Longitudinal_Rebar_Col105",
-                "6F_Beam_Longitudinal_Rebar_Col179",
-                "6F_Column_Longitudinal_Rebar_Col185",
-            )
+            selected_headers = tuple(header for header, _ in REBAR_2015_SELECTED)
         else:
             all_headers = [f"CH{i:03d}_microstrain" for i in range(1, 193)]
             selected_headers = REBAR_2018_HEADERS
@@ -637,6 +700,16 @@ def export_case_csv(
             ["Time_s", *selected_headers],
             np.column_stack((rebar["time"], rebar["rebar_strain_selected"])),
         ))
+        if "channel_map" in rebar:
+            # Which gauge each CH column is, and the residual strain carried over from the
+            # earlier runs (already included in rebar_strain_all; subtract it to start from 0).
+            path = csv_directory / "rebar_channel_map.csv"
+            with path.open("w", newline="", encoding="utf-8") as stream:
+                writer = csv.writer(stream)
+                writer.writerow(["column", "jb", "channel", "tag", "previous_runs_residual_eps_over_epsy"])
+                for (column, jb, channel, tag), carried in zip(rebar["channel_map"], rebar["previous_residual"]):
+                    writer.writerow([column, jb, channel, tag, f"{carried:.6g}"])
+            outputs.append(path)
     return outputs
 
 

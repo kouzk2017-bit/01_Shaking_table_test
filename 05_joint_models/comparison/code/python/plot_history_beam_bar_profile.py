@@ -17,8 +17,9 @@ bar corresponds to the G2 east-end bottom bar of the 4F interior joint.
       bar elongation; the comparison is of order, not exact.
 
   15  beam-end rotation over 0-1000 mm against time.  Test: (G2EL - G2EU)
-      / 370 mm, with G2EU on the beam side 50 mm below the slab soffit
-      (180 mm below the top of the 550 mm beam) and G2EL at the soffit.
+      / 350 mm, with G2EU on the beam side 80 mm below the slab soffit
+      (200 mm below the top of the 550 mm beam, slab 120 mm; 設置位置一覧 p.2-20
+      red correction, confirmed 2026-10-10) and G2EL at the soffit.
       DIANA: (bottom-bar - top-bar elongation) / bar spacing, with the top
       bar from nodes 1418-1436 (1418 at the column face, 100 mm spacing)
       and the spacing taken as BAR_SPACING_MM (assumed, to be confirmed).
@@ -61,7 +62,7 @@ PROFILE_FILE = "EXX_nodes_" + "_".join(str(n) for n in NODES) + ".csv"
 TOP_NODES = list(range(1418, 1437))
 TOP_PROFILE_FILE = "EXX_nodes_" + "_".join(str(n) for n in TOP_NODES) + ".csv"
 BAR_SPACING_MM = 450.0     # top-to-bottom bar centres in DIANA (assumed: 550 beam, ~50 mm to each face)
-SENSOR_SPACING_MM = 370.0  # G2EU (550 - 130 slab - 50) above G2EL (soffit)
+SENSOR_SPACING_MM = 350.0  # G2EU (550 - 120 slab - 80) above G2EL (soffit)
 TEST_RAW = WORKSPACE / "02_10-story_2015" / "data" / "raw" / "2015-1211" / "2015-1211-006-1"
 PEAK_TIMES_S = (13.57, 14.02, 14.86, 15.68, 16.37, 17.31)
 
@@ -129,7 +130,7 @@ def main() -> None:
     test_rotation = (sensor - np.interp(sensor_t, upper_t, upper)) / SENSOR_SPACING_MM
     fig, ax = plt.subplots(figsize=figure_size(mode))
     mask = (sensor_t >= TIME_WINDOW[0]) & (sensor_t <= TIME_WINDOW[1])
-    ax.plot(sensor_t[mask], test_rotation[mask], color="0.6", label="Test (G2EL - G2EU) / 370 mm")
+    ax.plot(sensor_t[mask], test_rotation[mask], color="0.6", label=f"Test (G2EL - G2EU) / {SENSOR_SPACING_MM:.0f} mm")
     mask = (model_t >= TIME_WINDOW[0]) & (model_t <= TIME_WINDOW[1])
     ax.plot(model_t[mask], model_rotation[mask], color=COLORS["primary"], label=f"DIANA (bottom - top bar) / {BAR_SPACING_MM:.0f} mm")
     ax.axhline(0.0, **reference_line_kwargs(), zorder=0)

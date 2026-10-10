@@ -30,7 +30,7 @@ import pandas as pd
 WORKSPACE = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(WORKSPACE / "08_common" / "python"))
 
-from publication_style import apply_style, format_axis, figure_size, save_figure, COLORS, reference_line_kwargs  # noqa: E402
+from publication_style import PROJECT_MODE, apply_style, format_axis, figure_size, save_figure, COLORS, reference_line_kwargs  # noqa: E402
 
 YIELD_STRAIN = 0.002
 SOLID_COLORS = (COLORS["accent"], COLORS["green"], COLORS["orange"], COLORS["purple"])
@@ -72,14 +72,14 @@ def main() -> None:
                         default=WORKSPACE / "06_results" / "comparison" / "shell_vs_solid")
     args = parser.parse_args()
 
-    apply_style("paper")
+    apply_style(PROJECT_MODE)
     for stem, shell_file, shell_column, shell_label, solid_file, solid_columns, y_label in FIGURES:
         shell = pd.read_csv(args.shell_dir / shell_file)
         solid = pd.read_csv(args.solid_dir / solid_file)
         if not shell["case_id"].equals(solid["case_id"]):
             raise ValueError(f"Shell and solid case ids differ for {stem}")
 
-        fig, ax = plt.subplots(figsize=figure_size(mode="paper"))
+        fig, ax = plt.subplots(figsize=figure_size(PROJECT_MODE))
         ax.plot(shell["case_id"], shell[shell_column] / YIELD_STRAIN,
                 color=COLORS["primary"], label=shell_label)
         for (column, label), color in zip(solid_columns, SOLID_COLORS):
@@ -92,7 +92,7 @@ def main() -> None:
         ax.axhline(0.0, **reference_line_kwargs(), zorder=0)
         ax.set_yticks(integer_strain_ticks(min(values.min(), -1.0), max(values.max(), 1.0)))
         format_axis(ax, xlabel="Analysis step", ylabel=y_label, legend=True, legend_location="best")
-        save_figure(fig, args.output_dir / stem, formats=("png",), mode="paper")
+        save_figure(fig, args.output_dir / stem, formats=("png",), mode=PROJECT_MODE)
         plt.close(fig)
 
     print(f"Wrote figures to {args.output_dir}")

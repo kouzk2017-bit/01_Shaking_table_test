@@ -1,7 +1,7 @@
-case,beam_first_yield_drift_rad,column_first_yield_drift_rad
-Original,0.01,0.009
-J12-M,0.01,0.009
-J12-H,0.0095,0.0085
-J16-L,0.0115,0.0115
-J16-M,0.011,0.011
-J16-H,0.01,0.011
+case,neg_left_beam,neg_upper_column_right,pos_right_beam,pos_upper_column_left
+Original,0.0155,0.009,0.014,0.009
+J12-M,0.0195,0.009,0.0135,0.009
+J12-H,0.0165,0.009,0.014,0.0085
+J16-L,0.0125,0.0095,0.0115,0.0115
+J16-M,0.013,0.0095,0.011,0.011
+J16-H,0.0125,0.0095,0.012,0.011

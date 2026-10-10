@@ -47,7 +47,7 @@ def update_solid(case: str, protocol: str) -> None:
         "--output", processed / "joint_deformation_angle.csv", *SOLID_CORNERS)
     run(SOLID_PY / "plot_solid_results.py", "--case", case)
     run(PY / "plot_experiment_vs_model_joint_drift.py", "--model", "solid", "--protocol", protocol,
-        "--diana-condition", case, "--diana-label", f"DIANA solid, {case}")
+        "--diana-condition", case, "--diana-label", "DIANA solid")
     if protocol == "history":
         run(PY / "plot_solid_history_vs_test.py", "--case", case)
 

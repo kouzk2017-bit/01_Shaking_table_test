@@ -23,6 +23,7 @@
 **/documents/
 /05_joint_models/drawings/
 /05_joint_models/diana_solid/model/
+/05_joint_models/diana_shell/model/
 
 # Deprecated build scripts kept only for local traceability
 /07_scripts/deprecated/

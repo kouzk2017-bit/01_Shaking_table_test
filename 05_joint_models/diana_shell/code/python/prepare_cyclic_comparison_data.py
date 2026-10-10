@@ -32,6 +32,12 @@ class Condition:
     # Set when beam_file/column_file hold a whole bar: the node used for the curve.
     beam_node: int | None = None
     column_node: int | None = None
+    # Negative-drift pair (2026-10-09): left beam bottom bar at the left column face and the
+    # upper-column right bar at the beam-top face. beam/column above = positive-drift pair.
+    left_beam_file: str | None = None
+    left_beam_node: int | None = None
+    right_column_file: str | None = None
+    right_column_node: int | None = None
 
 
 # Every condition uses the same two positions (user, 2026-10-07): the RIGHT beam
@@ -39,6 +45,9 @@ class Condition:
 # the same positions as the test gauges 5G21-STR-E01 and 5F2AC-STR-02.  Face nodes
 # here; the node 100 mm away (second node in each file) is for the test comparison.
 # Joint hoop nodes are not yet at one common position (JOINT_STIRRUP_SOURCES).
+# Negative-drift pair (left beam bottom @ column face, upper-column right @ beam face), user 2026-10-09:
+# origin mesh 1623 / 1979 (1622 / 1978 at 100 mm); J16 1623 / 1839 (1838); v2018 1372 / 1838 (1371 / 1837);
+# slab mesh 1246 / 1715 (1245 / 1714).
 CONDITIONS = (
     Condition(
         name="origin",
@@ -48,6 +57,10 @@ CONDITIONS = (
         shear_file="NX_node_524.csv",
         beam_node=1628,     # 1629: 100 mm into the beam
         column_node=1839,   # 1838: 100 mm above
+        left_beam_file="EXX_nodes_1622_1623.csv",
+        left_beam_node=1623,
+        right_column_file="EZZ_nodes_1978_1979.csv",
+        right_column_node=1979,
     ),
     # Same model as origin, driven by the 2015 Kobe 100% 4F measured drift
     # history (05_joint_models/loading_protocols/) instead of the standard protocol.
@@ -58,6 +71,10 @@ CONDITIONS = (
         column_file="EZZ_nodes_1838_1839.csv",
         shear_file="NX_node_524.csv",
         column_node=1839,
+        left_beam_file="EXX_nodes_1622_1623.csv",
+        left_beam_node=1623,
+        right_column_file="EZZ_nodes_1978_1979.csv",
+        right_column_node=1979,
     ),
     # origin_history with the 4F slab as an equivalent flange (120 mm slab,
     # 400 mm AIJ overhang, 2-D10 per layer).  Remeshed, so new node numbers.
@@ -67,6 +84,10 @@ CONDITIONS = (
         beam_file="EXX_node_1254.csv",
         column_file="EZZ_node_1559.csv",
         shear_file="NX_node_196.csv",
+        left_beam_file="EXX_nodes_1245_1246.csv",
+        left_beam_node=1246,
+        right_column_file="EZZ_nodes_1714_1715.csv",
+        right_column_node=1715,
     ),
     # Same slab-flange model as origin_history_slab (same mesh), standard protocol.
     # 1254 = right-beam bottom bar ~60 mm from the column face (60 mm mesh, no node
@@ -79,6 +100,58 @@ CONDITIONS = (
         shear_file="NX_node_196.csv",
         beam_node=1254,
         column_node=1559,
+        left_beam_file="EXX_beam_bottom_nodes_1232-1268.csv",
+        left_beam_node=1246,
+        right_column_file="EZZ_column_right_nodes_1705-1735.csv",
+        right_column_node=1715,
+    ),
+    # origin with the real beam reinforcement (bars cut at +-1000 mm from the joint centre; left beam
+    # top one bar fewer), axial 243 kN, standard protocol, no slab; model diana_shell/model/test.dpf,
+    # 8-node elements (rerun 2026-10-10; the 4-node run is in raw/.../superseded_4node, invalid).
+    # Faces: left beam bottom 2985, right beam bottom 3014, upper-column left 1497, upper-column right 1637.
+    Condition(
+        name="beam_rebar",
+        raw_folder="origin_2015_beam_rebar",
+        beam_file="EXX_nodes_2984_2985_3014_3015.csv",
+        column_file="EZZ_nodes_1496_1497_1636_1637.csv",
+        shear_file="NX_node_524.csv",
+        beam_node=3014,
+        column_node=1497,
+        left_beam_file="EXX_nodes_2984_2985_3014_3015.csv",
+        left_beam_node=2985,
+        right_column_file="EZZ_nodes_1496_1497_1636_1637.csv",
+        right_column_node=1637,
+    ),
+    # beam_rebar with the beam-end axial restraint released (same model test.dpf, same nodes);
+    # run 2026-10-10 14:14-16:52, step 608 not converged.
+    Condition(
+        name="beam_rebar_free",
+        raw_folder="origin_2015_beam_rebar_free_axial",
+        beam_file="EXX_nodes_2984_2985_3014_3015.csv",
+        column_file="EZZ_nodes_1496_1497_1636_1637.csv",
+        shear_file="NX_node_524.csv",
+        beam_node=3014,
+        column_node=1497,
+        left_beam_file="EXX_nodes_2984_2985_3014_3015.csv",
+        left_beam_node=2985,
+        right_column_file="EZZ_nodes_1496_1497_1636_1637.csv",
+        right_column_node=1637,
+    ),
+    # Joint 3 (top of story 3, 4F floor), real reinforcement, axial 343/393 kN, standard protocol,
+    # no slab; model diana_shell/model/JNT3.dpf, 8-node elements (rerun 2026-10-10).
+    # Faces: left beam bottom 2810, right beam bottom 2839, upper-column left 1497, upper-column right 1637.
+    Condition(
+        name="joint3",
+        raw_folder="joint3_2015",
+        beam_file="EXX_nodes_2809_2810_2839_2840.csv",
+        column_file="EZZ_nodes_1496_1497_1636_1637.csv",
+        shear_file="NX_node_524.csv",
+        beam_node=2839,
+        column_node=1497,
+        left_beam_file="EXX_nodes_2809_2810_2839_2840.csv",
+        left_beam_node=2810,
+        right_column_file="EZZ_nodes_1496_1497_1636_1637.csv",
+        right_column_node=1637,
     ),
     Condition(
         name="j12_h",
@@ -88,6 +161,10 @@ CONDITIONS = (
         shear_file="NX_node_524.csv",
         beam_node=1628,
         column_node=1839,
+        left_beam_file="EXX_nodes_1622_1623.csv",
+        left_beam_node=1623,
+        right_column_file="EZZ_nodes_1978_1979.csv",
+        right_column_node=1979,
     ),
     Condition(
         name="j12_m",
@@ -97,6 +174,10 @@ CONDITIONS = (
         shear_file="NX_node_524.csv",
         beam_node=1628,
         column_node=1839,
+        left_beam_file="EXX_nodes_1622_1623.csv",
+        left_beam_node=1623,
+        right_column_file="EZZ_nodes_1978_1979.csv",
+        right_column_node=1979,
     ),
     # J16 meshes: upper-column left bar 1783 at the beam face, 1782 100 mm above.
     Condition(
@@ -107,6 +188,10 @@ CONDITIONS = (
         shear_file="NX_node_524.csv",
         beam_node=1628,
         column_node=1783,
+        left_beam_file="EXX_nodes_1622_1623.csv",
+        left_beam_node=1623,
+        right_column_file="EZZ_nodes_1838_1839.csv",
+        right_column_node=1839,
     ),
     Condition(
         name="j16_m",
@@ -116,6 +201,10 @@ CONDITIONS = (
         shear_file="NX_node_524.csv",
         beam_node=1628,
         column_node=1783,
+        left_beam_file="EXX_nodes_1622_1623.csv",
+        left_beam_node=1623,
+        right_column_file="EZZ_nodes_1838_1839.csv",
+        right_column_node=1839,
     ),
     Condition(
         name="j16_h",
@@ -125,6 +214,10 @@ CONDITIONS = (
         shear_file="NX_node_524.csv",
         beam_node=1628,
         column_node=1783,
+        left_beam_file="EXX_nodes_1622_1623.csv",
+        left_beam_node=1623,
+        right_column_file="EZZ_nodes_1838_1839.csv",
+        right_column_node=1839,
     ),
     # 2018 mesh: right-beam bottom bar 1377 at the column face (1378 100 mm in);
     # upper-column left bar 1532 at the beam face (1531 100 mm above).
@@ -136,6 +229,10 @@ CONDITIONS = (
         shear_file="NX_node_109.csv",
         beam_node=1377,
         column_node=1532,
+        left_beam_file="EXX_nodes_1371_1372.csv",
+        left_beam_node=1372,
+        right_column_file="EZZ_nodes_1837_1838.csv",
+        right_column_node=1838,
     ),
 )
 
@@ -149,6 +246,10 @@ def as_float(value: str | None) -> float | None:
 
 def load_diana_rows(path: Path) -> tuple[list[str], list[dict[str, str]]]:
     """Read a DIANA CSV and discard its units row and non-analysis records."""
+    # DIANA names whole-bar exports after every node, which can exceed the Windows 260-character
+    # path limit; the extended-length prefix lifts it.
+    if len(str(path.resolve())) > 240 and not str(path).startswith("\\\\?\\"):
+        path = Path("\\\\?\\" + str(path.resolve()))
     with path.open(newline="", encoding="utf-8-sig") as stream:
         reader = csv.DictReader(stream)
         headers = reader.fieldnames or []
@@ -261,6 +362,14 @@ def prepare_condition(raw_root: Path, processed_root: Path, condition: Condition
     if not analysis_cases:
         raise ValueError(f"No cyclic cases remain for {condition.name}")
 
+    negative = {}
+    for key, filename, node in (("left_beam", condition.left_beam_file, condition.left_beam_node),
+                                ("column_right", condition.right_column_file, condition.right_column_node)):
+        if filename:
+            headers, rows = load_diana_rows(source / filename)
+            column = first_response_column(node_headers(headers, node), rows)
+            negative[key] = {case_id(row): as_float(row.get(column)) for row in rows}
+
     prepared: list[dict[str, float | int]] = []
     for identifier in analysis_cases:
         shear_row = shear_by_case[identifier]
@@ -279,6 +388,7 @@ def prepare_condition(raw_root: Path, processed_root: Path, condition: Condition
             "beam_strain_over_0p002": beam_strain / YIELD_STRAIN,
             "column_strain": column_strain,
             "column_strain_over_0p002": column_strain / YIELD_STRAIN,
+            **{f"{key}_strain_over_0p002": values[identifier] / YIELD_STRAIN for key, values in negative.items()},
         })
 
     output = processed_root / condition.name / "cyclic_response.csv"
@@ -318,6 +428,9 @@ JOINT_STIRRUP_SOURCES = {
     "origin": ("EXX_node_2375.csv", 2375, "EXX node 2375 element 1359", "EXX node 2375 element 1360"),
     "origin_history": ("EXX_node_2375.csv", 2375, "EXX node 2375 element 1359", "EXX node 2375 element 1360"),
     "origin_history_slab": ("EXX_nodes_1254_2126_2127.csv", 2127, "EXX node 2127 element 1975", "EXX node 2127 element 1976"),
+    "beam_rebar": ("EXX_node_2033.csv", 2033, "EXX node 2033 element 1023", "EXX node 2033 element 1024"),
+    "beam_rebar_free": ("EXX_node_2033.csv", 2033, "EXX node 2033 element 1023", "EXX node 2033 element 1024"),
+    "joint3": ("EXX_node_2033.csv", 2033, "EXX node 2033 element 1023", "EXX node 2033 element 1024"),
     "j16_l": ("EXX_node_2151.csv", 2151, "EXX node 2151 element 1143", "EXX node 2151 element 1144"),
     "j12_h": ("EXX_node_2381.csv", 2381, "EXX node 2381 element 1364", "EXX node 2381 element 1365"),
     "j12_m": ("EXX_node_2375.csv", 2375, "EXX node 2375 element 1359", "EXX node 2375 element 1360"),
@@ -395,6 +508,9 @@ CONDITION_LABELS = {
     "origin_history": "原轴力（2015试验历程加载）",
     "origin_history_slab": "原轴力（2015试验历程加载，含楼板翼缘）",
     "origin_slab": "原轴力（标准协议，含楼板翼缘）",
+    "beam_rebar": "原轴力（梁配筋修改，标准协议）",
+    "beam_rebar_free": "原轴力（梁配筋修改，梁轴向不约束，标准协议）",
+    "joint3": "节点3（第3层顶，标准协议）",
     "j16_l": "J16-L",
     "j12_h": "J12-H",
     "j12_m": "J12-M",

@@ -25,7 +25,7 @@ import pandas as pd
 WORKSPACE = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(WORKSPACE / "08_common" / "python"))
 
-from publication_style import apply_style, format_axis, figure_size, save_figure, COLORS, reference_line_kwargs  # noqa: E402
+from publication_style import PROJECT_MODE, apply_style, format_axis, figure_size, save_figure, COLORS, reference_line_kwargs  # noqa: E402
 
 
 def load_deformation_angle(path: Path) -> pd.DataFrame:
@@ -50,20 +50,20 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    apply_style("paper")
+    apply_style(PROJECT_MODE)
     shell = load_deformation_angle(args.shell_csv)
     solid = load_deformation_angle(args.solid_csv)
     if not shell["load_step"].equals(solid["load_step"]):
         raise ValueError("Shell and solid load-step sequences do not match; check both raw exports.")
 
-    fig, ax = plt.subplots(figsize=figure_size(mode="paper"))
+    fig, ax = plt.subplots(figsize=figure_size(PROJECT_MODE))
     ax.plot(shell["load_step"], shell["deformation_angle_rad"],
             color=COLORS["primary"], label="Shell (origin)")
     ax.plot(solid["load_step"], solid["deformation_angle_rad"],
             color=COLORS["accent"], label="Solid (origin_2015, hinged beam ends)")
     ax.axhline(0.0, **reference_line_kwargs(), zorder=0)
     format_axis(ax, xlabel="Analysis step", ylabel="Deformation angle (rad)", legend=True)
-    save_figure(fig, args.output_dir / "01_joint_deformation_angle_by_step", formats=("png",), mode="paper")
+    save_figure(fig, args.output_dir / "01_joint_deformation_angle_by_step", formats=("png",), mode=PROJECT_MODE)
 
     print(f"Wrote figure to {args.output_dir}")
 

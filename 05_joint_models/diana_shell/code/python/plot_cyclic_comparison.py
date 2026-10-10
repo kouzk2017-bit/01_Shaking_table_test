@@ -15,6 +15,7 @@ WORKSPACE = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(WORKSPACE / "08_common" / "python"))
 
 from publication_style import (  # noqa: E402
+    PROJECT_MODE,
     COLORS,
     add_panel_label,
     apply_style,
@@ -69,8 +70,8 @@ def draw_comparison(
     panel_label: str,
 ) -> tuple[Path, ...]:
     """Draw one consistently formatted two-condition comparison figure."""
-    style = apply_style("paper")
-    fig, ax = plt.subplots(figsize=figure_size("paper"))
+    style = apply_style(PROJECT_MODE)
+    fig, ax = plt.subplots(figsize=figure_size(PROJECT_MODE))
     for condition, label, color, line_style in CONDITIONS:
         source = WORKSPACE / "05_joint_models" / "diana_shell" / "data" / "processed" / condition / "cyclic_response.csv"
         table = read_table(source)
@@ -96,7 +97,7 @@ def draw_comparison(
         fig,
         output_directory / stem,
         formats=("png",),
-        mode="paper",
+        mode=PROJECT_MODE,
     )
 
 
@@ -107,8 +108,8 @@ def draw_beam_column_comparison(
     output_stem: str,
 ) -> tuple[Path, ...]:
     """Compare beam and column strain ratios within one axial-force condition."""
-    style = apply_style("paper")
-    fig, ax = plt.subplots(figsize=figure_size("paper"))
+    style = apply_style(PROJECT_MODE)
+    fig, ax = plt.subplots(figsize=figure_size(PROJECT_MODE))
     source = WORKSPACE / "05_joint_models" / "diana_shell" / "data" / "processed" / condition / "cyclic_response.csv"
     table = read_table(source)
     ax.plot(
@@ -142,7 +143,7 @@ def draw_beam_column_comparison(
         fig,
         output_directory / output_stem,
         formats=("png",),
-        mode="paper",
+        mode=PROJECT_MODE,
     )
 
 
@@ -150,8 +151,8 @@ def draw_beam_column_comparison(
 
 def draw_joint_stirrup_comparison(output_directory: Path) -> tuple[Path, ...]:
     """Overlay the canonical joint-stirrup response for the configured conditions."""
-    style = apply_style("paper")
-    fig, ax = plt.subplots(figsize=figure_size("paper"))
+    style = apply_style(PROJECT_MODE)
+    fig, ax = plt.subplots(figsize=figure_size(PROJECT_MODE))
     for condition, label, color, line_style in CONDITIONS:
         source = WORKSPACE / "05_joint_models" / "diana_shell" / "data" / "processed" / condition / "joint_stirrup_response.csv"
         table = read_table(source)
@@ -178,7 +179,7 @@ def draw_joint_stirrup_comparison(output_directory: Path) -> tuple[Path, ...]:
         fig,
         output_directory / "06_joint_stirrup_strain_vs_case_id",
         formats=("png",),
-        mode="paper",
+        mode=PROJECT_MODE,
     )
 
 def main() -> int:

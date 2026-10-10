@@ -39,7 +39,7 @@ import pandas as pd
 WORKSPACE = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(WORKSPACE / "08_common" / "python"))
 
-from publication_style import apply_style, format_axis, figure_size, save_figure, COLORS, reference_line_kwargs  # noqa: E402
+from publication_style import PROJECT_MODE, apply_style, format_axis, figure_size, save_figure, COLORS, reference_line_kwargs  # noqa: E402
 
 PROCESSED = WORKSPACE / "05_joint_models" / "diana_solid" / "data" / "processed"
 RESULTS = WORKSPACE / "06_results" / "diana" / "solid"
@@ -91,7 +91,7 @@ def first_peak_steps(frame: pd.DataFrame) -> list[tuple[str, int]]:
 
 
 def new_axes():
-    return plt.subplots(figsize=figure_size(mode="paper"))
+    return plt.subplots(figsize=figure_size(PROJECT_MODE))
 
 
 def finish(fig, ax, output: Path, stem: str, x_label: str, y_label: str, legend: bool = False) -> None:
@@ -99,7 +99,7 @@ def finish(fig, ax, output: Path, stem: str, x_label: str, y_label: str, legend:
     if "drift" in x_label.lower():
         ax.axvline(0.0, **reference_line_kwargs(), zorder=0)
     format_axis(ax, xlabel=x_label, ylabel=y_label, legend=legend, legend_location="best")
-    save_figure(fig, output / stem, formats=("png",), mode="paper")
+    save_figure(fig, output / stem, formats=("png",), mode=PROJECT_MODE)
     plt.close(fig)
 
 
@@ -179,7 +179,7 @@ def main() -> None:
 
     folder = PROCESSED / args.case
     output = args.output_dir or RESULTS / args.case
-    apply_style("paper")
+    apply_style(PROJECT_MODE)
     plot_shear_and_joint(folder, output)
     plot_strain_by_step(folder, output)
     plot_profiles(folder, output)

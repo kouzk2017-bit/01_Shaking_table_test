@@ -1,0 +1,12 @@
+{
+  "//": "Switches for how the processed test CSVs (06_results/experiment/2015/<case>/csv, written by run_pipeline.py) are read by every figure / comparison script, via code/python/test_data.py. Change a value here and re-run the figure scripts; the CSVs themselves never change.",
+
+  "rebar_include_previous_runs_residual": false,
+  "//rebar": "true: strain as in rebar_strain_all.csv, i.e. including the residual strain carried over from the earlier runs (pipeline default). false: subtract that residual (rebar_channel_map.csv), so every run starts from 0. Decided 2026-10-08: false -- all analyses and the DIANA models start from this run only (no damage of the earlier runs), and Kang EESD Fig.16 is reproduced this way. Difference for joint 4: 0.03-0.15 eps_y.",
+
+  "joint_angle_geometry": "kang_270x270",
+  "//joint_angle": "Gauge frame for the joint deformation angle. kang_270x270: joint_rotation.csv as is (pipeline / Kang Fig.13 coefficient 0.002619). anchor_286x420: anchors 107 mm from the column faces, 50 mm below the slab top, 80 mm above the beam bottom (paper Fig.2) = 0.81 x the former. Decided 2026-10-08: kang_270x270.",
+
+  "joint_diagonal_geometry": "kang_270x270",
+  "//joint_diagonal": "Diagonal length used for the diagonal strain d/L: kang_270x270 -> L = 381.8 mm, anchor_286x420 -> L = 508.1 mm. Decided 2026-10-08: kang_270x270, same frame as the joint angle (before: anchor, 25 % smaller strains)."
+}

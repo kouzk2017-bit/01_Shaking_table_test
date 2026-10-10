@@ -25,7 +25,7 @@ import pandas as pd
 WORKSPACE = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(WORKSPACE / "08_common" / "python"))
 
-from publication_style import apply_style, format_axis, figure_size, save_figure, COLORS, reference_line_kwargs  # noqa: E402
+from publication_style import PROJECT_MODE, apply_style, format_axis, figure_size, save_figure, COLORS, reference_line_kwargs  # noqa: E402
 
 SOLID_COLUMNS = (("column_e1783_shear_kN", "Solid", COLORS["accent"]),)
 
@@ -40,7 +40,7 @@ def main() -> None:
                         default=WORKSPACE / "06_results" / "comparison" / "shell_vs_solid")
     args = parser.parse_args()
 
-    apply_style("paper")
+    apply_style(PROJECT_MODE)
     shell = pd.read_csv(args.shell_csv)
     solid = pd.read_csv(args.solid_csv)
     if not shell["case_id"].equals(solid["case_id"]):
@@ -48,7 +48,7 @@ def main() -> None:
 
     for stem, x_column, x_label in (("07_story_shear_by_step", "case_id", "Analysis step"),
                                     ("08_story_shear_vs_story_drift", "story_drift_rad", "Story drift (rad)")):
-        fig, ax = plt.subplots(figsize=figure_size(mode="paper"))
+        fig, ax = plt.subplots(figsize=figure_size(PROJECT_MODE))
         ax.plot(shell[x_column], shell["story_shear_kN"], color=COLORS["primary"], label="Shell")
         for column, label, color in SOLID_COLUMNS:
             ax.plot(solid[x_column], solid[column], color=color, label=label)
@@ -56,7 +56,7 @@ def main() -> None:
         if x_column == "story_drift_rad":
             ax.axvline(0.0, **reference_line_kwargs(), zorder=0)
         format_axis(ax, xlabel=x_label, ylabel="Story shear (kN)", legend=True, legend_location="best")
-        save_figure(fig, args.output_dir / stem, formats=("png",), mode="paper")
+        save_figure(fig, args.output_dir / stem, formats=("png",), mode=PROJECT_MODE)
         plt.close(fig)
     print(f"Wrote figures to {args.output_dir}")
 

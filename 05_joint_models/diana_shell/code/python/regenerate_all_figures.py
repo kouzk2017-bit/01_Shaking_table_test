@@ -36,6 +36,9 @@ JOINT_ANGLE_ARGS = {
     # Remeshed slab model: its measuring frame is 375 x 361.42 mm.
     "origin_history_slab": dict(input_dir="05_joint_models/diana_shell/data/raw/origin_2015_history_slab", ul=242, ur=248, ll=278, lr=279, a=375.0, b=361.42, suffix="242_248_278_279"),
     "origin_slab": dict(input_dir="05_joint_models/diana_shell/data/raw/origin_2015_slab", ul=242, ur=248, ll=278, lr=279, a=375.0, b=361.42, suffix="242_248_278_279"),
+    "beam_rebar": dict(input_dir="05_joint_models/diana_shell/data/raw/origin_2015_beam_rebar", ul=623, ur=620, ll=639, lr=636),
+    "beam_rebar_free": dict(input_dir="05_joint_models/diana_shell/data/raw/origin_2015_beam_rebar_free_axial", ul=623, ur=620, ll=639, lr=636),
+    "joint3": dict(input_dir="05_joint_models/diana_shell/data/raw/joint3_2015", ul=623, ur=620, ll=639, lr=636),
     "j16_l":  dict(input_dir="05_joint_models/diana_shell/data/raw/J16-L",       ul=623, ur=620, ll=639, lr=636),
     "j12_h":  dict(input_dir="05_joint_models/diana_shell/data/raw/J12-H",       ul=623, ur=620, ll=639, lr=636),
     "j12_m":  dict(input_dir="05_joint_models/diana_shell/data/raw/J12-M",       ul=623, ur=620, ll=639, lr=636),
@@ -47,6 +50,8 @@ A_MM = 300.0
 B_MM = 366.67
 
 COMPARISONS = [
+    dict(output="beam_rebar_vs_origin", baseline="origin", baseline_label="Original", variant="beam_rebar", variant_label="Modified beam rebar"),
+    dict(output="beam_rebar_free_vs_beam_rebar", baseline="beam_rebar", baseline_label="Beam axial restrained", variant="beam_rebar_free", variant_label="Beam axial free"),
     dict(output="origin_slab_vs_origin", baseline="origin", baseline_label="Original", variant="origin_slab", variant_label="With slab flange"),
     dict(output="j16_l_vs_origin", baseline="origin", baseline_label="Original", variant="j16_l", variant_label="J16-L"),
     dict(output="j12_h_vs_origin", baseline="origin", baseline_label="Original", variant="j12_h", variant_label="J12-H"),

@@ -54,9 +54,7 @@ from prepare_rebar_response import find_raw, load_export  # noqa: E402
 sys.path.insert(0, str(WORKSPACE / "08_common" / "python"))
 import final_cases  # noqa: E402
 from survey_4f_joint_rebar_gauges import read_group  # noqa: E402
-from workflow_config import CASES, SPEC  # noqa: E402
-from ten_story_pipeline import DT, OUTPUT_DT, _time, read_channels  # noqa: E402
-from legacy_signal import fft_filter, resample_decimate  # noqa: E402
+import test_data  # noqa: E402
 
 YIELD_STRAIN = 0.002
 OUTPUT = WORKSPACE / "06_results" / "comparison" / "failure_mechanism"
@@ -138,25 +136,12 @@ def test_stages(drift_t: np.ndarray, drift: np.ndarray) -> dict[str, float]:
         f"{k}_time_s": v for k, v in first.items()}
 
 
-TEST_DIAGONAL_MM = float(np.hypot(500 - 2 * 107, 550 - 50 - 80))
-PIPELINE_COEFFICIENT = np.sqrt(270.0**2 + 270.0**2) / (2 * 270.0 * 270.0)
 
 
 def test_diagonals() -> pd.DataFrame:
     """4F joint diagonal displacements (JB11 ch7, ch8) as strains, on the 100 Hz pipeline time axis."""
-    case = next(c for c in CASES if c.name == "20151211-2(JMAKobe100%)")
-    raw = read_channels(SPEC, case, 11, range(7, 9))
-    unfiltered = resample_decimate(raw - raw[:1000].mean(axis=0), DT, OUTPUT_DT)
-    displacement = resample_decimate(fft_filter(raw, 1 / DT, (0.05, 100.0), "fft_BPF"), DT, OUTPUT_DT)
-    frame = pd.DataFrame({"Time_s": _time(unfiltered.shape[0]),
-                          "ch7_strain": unfiltered[:, 0] / TEST_DIAGONAL_MM,
-                          "ch8_strain": unfiltered[:, 1] / TEST_DIAGONAL_MM})
-    rotation = pd.read_csv(TEST_CSV / "joint_rotation.csv")["4F_rad"].to_numpy()
-    rebuilt = PIPELINE_COEFFICIENT * (displacement[:, 0] - displacement[:, 1])
-    n = min(rotation.size, rebuilt.size)
-    if not np.allclose(rebuilt[:n], rotation[:n], atol=1e-6):
-        raise ValueError("JNT ch7/ch8 do not reproduce joint_rotation.csv 4F; check the channel pair")
-    return frame
+    time, d1, d2 = test_data.joint_diagonal_strain("4F")  # pipeline CSV, length per test_data_options.json
+    return pd.DataFrame({"Time_s": time, "ch7_strain": d1, "ch8_strain": d2})
 
 
 def main() -> None:

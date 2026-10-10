@@ -72,13 +72,24 @@ def regenerate_2015_rebar_figures() -> list[Path]:
     source = target / "csv" / "rebar_strain_selected.csv"
     if not source.is_file():
         raise FileNotFoundError(f"2015 rebar data not found (run run_pipeline.py --analyses rebar): {source}")
-    headers, data = load_csv(source)
-    time = data[:, headers.index("Time_s")]
+    # Read through test_data so the residual switch (02_10-story_2015/config/test_data_options.json)
+    # applies here too; the selected CSV itself always carries the residual of the earlier runs.
+    sys.path.insert(0, str(WORKSPACE_DIRECTORY / "02_10-story_2015" / "code" / "python"))
+    import test_data
+    tags = {"Joint4_RightBeamBottom_5G21-STR-E01": "5G21-STR-E01", "Joint4_UpperColumnLeft_5F2AC-STR-02": "5F2AC-STR-02",
+            "Joint4_LeftBeamBottom_5G11-STR-W01": "5G11-STR-W01", "Joint4_LowerColumnRight_4F2AC-STR-18": "4F2AC-STR-18"}
+    time, series = test_data.rebar_gauges(list(tags.values()), case_name)
+    headers = list(tags)
+    data = np.column_stack([series[tags[h]] for h in headers])
     outputs: list[Path] = []
-    for chart_index, floor in enumerate((4, 6), start=7):
-        beam = data[:, headers.index(f"{floor}F_Beam_Longitudinal_Rebar_Col{59 if floor == 4 else 179}")]
-        column = data[:, headers.index(f"{floor}F_Column_Longitudinal_Rebar_Col{105 if floor == 4 else 185}")]
-        stem = target / f"chart_{chart_index:03d}_{case_name} {floor}F Rebar Strain"
+    # Joint 4 (5F floor, JNT4) gauges since 2026-10-08: 007 = the two positions compared with
+    # the DIANA models, 008 = the other beam end and column end.
+    pairs = ((7, "right beam + upper column", "Joint4_RightBeamBottom_5G21-STR-E01", "Joint4_UpperColumnLeft_5F2AC-STR-02"),
+             (8, "left beam + lower column", "Joint4_LeftBeamBottom_5G11-STR-W01", "Joint4_LowerColumnRight_4F2AC-STR-18"))
+    for chart_index, title, beam_header, column_header in pairs:
+        beam = data[:, headers.index(beam_header)]
+        column = data[:, headers.index(column_header)]
+        stem = target / f"chart_{chart_index:03d}_{case_name} Joint 4 Rebar Strain ({title})"
         outputs.extend(plot_rebar_strain_figure(time, beam, column, stem, mode=_style_mode()))
     return outputs
 

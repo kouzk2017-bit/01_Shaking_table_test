@@ -16,7 +16,7 @@ import pandas as pd
 
 WORKSPACE = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(WORKSPACE / "08_common" / "python"))
-from publication_style import COLORS, apply_style, save_figure  # noqa: E402
+from publication_style import PROJECT_MODE, COLORS, apply_style, save_figure  # noqa: E402
 
 FOLDER = WORKSPACE / "06_results" / "data_sources"
 WRAP = 28              # characters per line in a cell
@@ -27,8 +27,8 @@ CELL_PAD_LINES = 0.8   # vertical padding per row, in lines
 NOTES = {
     "01_rebar_strain": "Joint 4 = top of story 4 (5F floor, JNT4). DIANA right = test west. "
                        "* = node used against the test (about 100 mm from the face). ? = position not confirmed.",
-    "03_shell_variants": "All cases use the same two positions (2026-10-07). Model vs model: face node; model vs test: the 100 mm node. "
-                         "Joint hoop nodes are not yet at one common position. ? = position not confirmed.",
+    "03_shell_variants": "One beam + one column per loading direction (2026-10-09). Model vs model: face node; "
+                         "model vs test: the 100 mm node. Joint hoop nodes are not yet at one common position.",
 }
 
 
@@ -63,13 +63,13 @@ def render(csv_path: Path) -> None:
     if note:
         fig.text(0.005, 0.5 * LINE_HEIGHT_EM * font_in / fig.get_figheight(), note_lines,
                  ha="left", va="bottom", style="italic")
-    save_figure(fig, csv_path.with_suffix(""), formats=("png",), mode="paper")
+    save_figure(fig, csv_path.with_suffix(""), formats=("png",), mode=PROJECT_MODE)
     plt.close(fig)
     print(f"Wrote {csv_path.with_suffix('.png')}")
 
 
 def main() -> None:
-    apply_style("paper")
+    apply_style(PROJECT_MODE)
     for csv_path in sorted(FOLDER.glob("[0-9][0-9]_*.csv")):
         render(csv_path)
 

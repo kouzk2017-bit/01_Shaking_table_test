@@ -28,6 +28,9 @@ columns in the 2018 drawing):
       nodes 1839 (beam face) and 1838 (100 mm above)
   12  4F2AC-STR-18 (4th-story column head, west) vs lower-column right bar,
       node 1985
+  16  5G11-STR-W01 (G1 west-end bottom bar) vs left-beam bottom bar, node 1622 (100 mm from the face 1623)
+  17  5F2AC-STR-09 (5th-story column foot, west) vs upper-column right bar, node 1978 (100 mm above 1979)
+      16/17 = the negative-drift pair, 08/09 = the positive-drift pair (model comparison gauges)
 Since 2026-10-06 the gauges are those of joint 4 (top of story 4, 5F floor), the joint of JNT4;
 before, the 4F-floor joint's gauges were used by mistake (one floor too low).
 Test strains are read from the raw records with the same baseline and
@@ -50,7 +53,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 sys.path.insert(0, str(WORKSPACE / "02_10-story_2015" / "code" / "python"))
 
 from ten_story_pipeline import load_csv  # noqa: E402
-from publication_style import COLORS, apply_style, figure_size, format_axis, reference_line_kwargs, save_figure  # noqa: E402
+from publication_style import TEST_COLOR, ANGLE_YLIM, REBAR_STRAIN_YLIM, COLORS, apply_style, figure_size, format_axis, reference_line_kwargs, save_figure  # noqa: E402
 from plot_history_vs_standard_protocol import read_response  # noqa: E402
 from survey_4f_joint_rebar_gauges import read_group  # noqa: E402
 
@@ -60,7 +63,7 @@ from prepare_cyclic_comparison_data import case_id, first_response_column, as_fl
 CASE = "20151211-2(JMAKobe100%)"
 FLOOR = 4
 CONDITION = "origin_history"
-TEST_CSV = WORKSPACE / "06_results" / "archive" / "2026-07-30_before_cleanup" / "2015" / "python" / CASE / "csv"
+TEST_CSV = WORKSPACE / "06_results" / "experiment" / "2015" / CASE / "csv"  # run_pipeline.py output
 PROTOCOL = WORKSPACE / "05_joint_models" / "loading_protocols" / f"2015_{CASE}_{FLOOR}F"
 PROCESSED = WORKSPACE / "05_joint_models" / "diana_shell" / "data" / "processed" / CONDITION
 RAW = WORKSPACE / "05_joint_models" / "diana_shell" / "data" / "raw" / "origin_2015_history"
@@ -109,16 +112,21 @@ def diana_node(filename: str, node: int, steps: np.ndarray) -> np.ndarray:
 
 
 def time_overlay(test_t, test_y, model_t, model_y, ylabel: str, name: str, mode: str,
-                 test_label: str = TEST_LABEL, model_curves=None) -> None:
+                 test_label: str = TEST_LABEL, model_curves=None, ylim=None) -> None:
     """Test against one model curve, or several given as (values, label) pairs."""
     fig, ax = plt.subplots(figsize=figure_size(mode))
     mask = (test_t >= TIME_WINDOW[0]) & (test_t <= TIME_WINDOW[1])
-    ax.plot(test_t[mask], test_y[mask], color="0.6", label=test_label)
+    ax.plot(test_t[mask], test_y[mask], color=TEST_COLOR, label=test_label)
     mask = (model_t >= TIME_WINDOW[0]) & (model_t <= TIME_WINDOW[1])
     for (values, label), color, style in zip(model_curves or [(model_y, MODEL_LABEL)], ("C0", "C1", "C2"), ("-", "--", ":")):
         ax.plot(model_t[mask], values[mask], color=color, linestyle=style, label=label)
     ax.axhline(0.0, **reference_line_kwargs(), zorder=0)
     ax.set_xlim(TIME_WINDOW)
+    if ylim is not None:
+        ax.set_ylim(ylim)
+    elif "(rad)" in ylabel:  # story drift / joint angle time histories
+        ax.set_ylim(ANGLE_YLIM)
+        ax.tick_params(axis="x", pad=plt.rcParams["xtick.major.pad"] * 2.0)  # keep "-0.04" clear of the first time label
     format_axis(ax, xlabel="Time (s)", ylabel=ylabel, legend=True)
     save_figure(fig, OUTPUT / name, formats=("png",), mode=mode)
 
@@ -148,17 +156,30 @@ def main() -> None:
                  "Joint deformation angle (rad)", "07_joint_deformation_time_history", mode)
     strain = r" $\epsilon/\epsilon_y$"
     time_overlay(beam_t, beam["5G21-STR-E01"], model_t, None, "Beam bottom bar strain" + strain,
-                 "08_beam_bar_strain_time_history", mode, "Test 5G21-STR-E01", [
-                     (diana_node("EXX_node_1629.csv", 1629, steps) / YIELD_STRAIN, "DIANA shell (1629, 100 mm from face)"),
-                 ])
+                 "08_beam_bar_strain_time_history", mode, "Test", [
+                     (diana_node("EXX_node_1629.csv", 1629, steps) / YIELD_STRAIN, "DIANA shell"),
+                 ], ylim=REBAR_STRAIN_YLIM)
     time_overlay(upper_t, upper["5F2AC-STR-02"], model_t, None, "Upper column bar strain" + strain,
-                 "09_column_bar_strain_time_history", mode, "Test 5F2AC-STR-02", [
-                     (diana_node("EZZ_nodes_1838_1839.csv", 1838, steps) / YIELD_STRAIN, "DIANA shell (1838, 100 mm above face)"),
-                 ])
+                 "09_column_bar_strain_time_history", mode, "Test", [
+                     (diana_node("EZZ_nodes_1838_1839.csv", 1838, steps) / YIELD_STRAIN, "DIANA shell"),
+                 ], ylim=REBAR_STRAIN_YLIM)
     time_overlay(lower_t, lower["4F2AC-STR-18"], model_t, None, "Lower column bar strain" + strain,
-                 "12_lower_column_bar_strain_time_history", mode, "Test 4F2AC-STR-18", [
-                     (diana_node("EZZ_node_1985.csv", 1985, steps) / YIELD_STRAIN, "DIANA 1985"),
-                 ])
+                 "12_lower_column_bar_strain_time_history", mode, "Test", [
+                     (diana_node("EZZ_node_1985.csv", 1985, steps) / YIELD_STRAIN, "DIANA shell"),
+                 ], ylim=REBAR_STRAIN_YLIM)
+    # Negative-drift pair (2026-10-09): left beam bottom bar and upper-column right bar.
+    raw_beam = next(RAW.glob("EXX_nodes_1606_*.csv")).name      # bottom bar 1606-1645, faces 1623/1628
+    raw_right = next(RAW.glob("EZZ_nodes_1969_*.csv")).name     # right column 1969-1996, top face 1979
+    left_t, left = read_group(6, range(15, 16))                 # 5G11-STR-W01
+    time_overlay(left_t, left["5G11-STR-W01"], model_t, None, "Left beam bottom bar strain" + strain,
+                 "16_left_beam_bar_strain_time_history", mode, "Test", [
+                     (diana_node(raw_beam, 1622, steps) / YIELD_STRAIN, "DIANA shell"),
+                 ], ylim=REBAR_STRAIN_YLIM)
+    right_t, right = read_group(16, range(4, 5))                # 5F2AC-STR-09
+    time_overlay(right_t, right["5F2AC-STR-09"], model_t, None, "Upper column right bar strain" + strain,
+                 "17_upper_column_right_bar_strain_time_history", mode, "Test", [
+                     (diana_node(raw_right, 1978, steps) / YIELD_STRAIN, "DIANA shell"),
+                 ], ylim=REBAR_STRAIN_YLIM)
 
     test_norm = shear / np.max(np.abs(shear))
     model_norm = model["story_shear_kN"] / np.max(np.abs(model["story_shear_kN"]))

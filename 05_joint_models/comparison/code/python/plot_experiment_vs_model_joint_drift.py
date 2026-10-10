@@ -46,11 +46,12 @@ sys.path.insert(0, str(WORKSPACE / "08_common" / "python"))
 sys.path.insert(0, str(WORKSPACE / "05_joint_models" / "diana_shell" / "code" / "python"))
 
 from ten_story_pipeline import load_csv  # noqa: E402
-from publication_style import apply_style, format_axis, figure_size, save_figure, COLORS, reference_line_kwargs, line_width  # noqa: E402
+from publication_style import TEST_COLOR, PROJECT_MODE, apply_style, format_axis, figure_size, save_figure, COLORS, reference_line_kwargs, line_width  # noqa: E402
 from plot_csv_results import _column, select_peaks  # noqa: E402
 from plot_joint_deformation_angle import read_condition  # noqa: E402
 
 AXIS_LIMIT_RAD = 0.045
+MODEL_COLOR = COLORS["primary"]  # test grey, model blue in every model comparison
 PROCESSED = {
     "shell": WORKSPACE / "05_joint_models" / "diana_shell" / "data" / "processed",
     "solid": WORKSPACE / "05_joint_models" / "diana_solid" / "data" / "processed",
@@ -143,7 +144,7 @@ def main() -> None:
         args.output_dir = WORKSPACE / "06_results" / "comparison" / f"test_vs_{args.model}" / f"2015_4F_{args.protocol}_protocol"
         args.output_dir /= condition
 
-    apply_style("paper")
+    apply_style(PROJECT_MODE)
     experiment = load_experiment_floor(args.experiment_csv_dir, args.experiment_floor)
     model = read_model(args.model, condition)
 
@@ -154,44 +155,44 @@ def main() -> None:
     )
 
     # Figure 1: full response-vs-response trajectories overlaid.
-    fig, ax = plt.subplots(figsize=figure_size(mode="paper"))
+    fig, ax = plt.subplots(figsize=figure_size(PROJECT_MODE))
     ax.plot(experiment["story_drift_rad"], experiment["deformation_angle_rad"],
-            color=COLORS["primary"], linewidth=line_width(0.5), label=args.experiment_label)
+            color=TEST_COLOR, linewidth=line_width(0.5), label=args.experiment_label)
     ax.plot(model["story_drift_rad"], model["deformation_angle_rad"],
-            color=COLORS["accent"], label=args.diana_label)
+            color=MODEL_COLOR, label=args.diana_label)
     ax.scatter(experiment["story_drift_rad"][selected], experiment["deformation_angle_rad"][selected],
-               color=COLORS["primary"], zorder=5)
+               color=TEST_COLOR, zorder=5)
     for label, index in zip("ABCD", selected):
         ax.annotate(
             label,
             (experiment["story_drift_rad"][index], experiment["deformation_angle_rad"][index]),
-            textcoords="offset points", xytext=(4, 4), color=COLORS["primary"],
+            textcoords="offset points", xytext=(4, 4), color=TEST_COLOR,
         )
     style_hysteresis_axis(ax)
-    save_figure(fig, args.output_dir / "01_joint_deformation_vs_story_drift", formats=("png",), mode="paper")
+    save_figure(fig, args.output_dir / "01_joint_deformation_vs_story_drift", formats=("png",), mode=PROJECT_MODE)
 
     # Figure 2: cycle-reversal envelope only, for a cleaner backbone comparison.
     experiment_envelope = cycle_reversal_indices(experiment["story_drift_rad"])
     model_envelope = cycle_reversal_indices(model["story_drift_rad"])
-    fig, ax = plt.subplots(figsize=figure_size(mode="paper"))
+    fig, ax = plt.subplots(figsize=figure_size(PROJECT_MODE))
     ax.plot(experiment["story_drift_rad"][experiment_envelope], experiment["deformation_angle_rad"][experiment_envelope],
-            color=COLORS["primary"], marker="o", label=f"{args.experiment_label} envelope")
+            color=TEST_COLOR, marker="o", label=f"{args.experiment_label} envelope")
     ax.plot(model["story_drift_rad"][model_envelope], model["deformation_angle_rad"][model_envelope],
-            color=COLORS["accent"], marker="o", label=f"{args.diana_label} envelope")
+            color=MODEL_COLOR, marker="o", label=f"{args.diana_label} envelope")
     style_hysteresis_axis(ax)
-    save_figure(fig, args.output_dir / "02_joint_deformation_vs_story_drift_envelope", formats=("png",), mode="paper")
+    save_figure(fig, args.output_dir / "02_joint_deformation_vs_story_drift_envelope", formats=("png",), mode=PROJECT_MODE)
 
     # Figure 3: story shear normalised by its own peak (test = whole story, model = one joint).
-    fig, ax = plt.subplots(figsize=figure_size(mode="paper"))
+    fig, ax = plt.subplots(figsize=figure_size(PROJECT_MODE))
     ax.plot(experiment["story_drift_rad"], experiment["story_shear_kN"] / np.max(np.abs(experiment["story_shear_kN"])),
-            color=COLORS["primary"], linewidth=line_width(0.5), label=args.experiment_label)
+            color=TEST_COLOR, linewidth=line_width(0.5), label=args.experiment_label)
     ax.plot(model["story_drift_rad"], model["story_shear_kN"] / np.max(np.abs(model["story_shear_kN"])),
-            color=COLORS["accent"], label=args.diana_label)
+            color=MODEL_COLOR, label=args.diana_label)
     ax.axhline(0.0, **reference_line_kwargs(), zorder=0)
     ax.axvline(0.0, **reference_line_kwargs(), zorder=0)
     ax.set_xlim(-AXIS_LIMIT_RAD, AXIS_LIMIT_RAD)
     format_axis(ax, xlabel="Story drift (rad)", ylabel=r"Story shear / peak $V/V_{max}$", legend=True)
-    save_figure(fig, args.output_dir / "03_normalized_shear_vs_story_drift", formats=("png",), mode="paper")
+    save_figure(fig, args.output_dir / "03_normalized_shear_vs_story_drift", formats=("png",), mode=PROJECT_MODE)
     print(f"Peak story shear: test {np.max(np.abs(experiment['story_shear_kN'])):.0f} kN, "
           f"model {np.max(np.abs(model['story_shear_kN'])):.0f} kN")
 

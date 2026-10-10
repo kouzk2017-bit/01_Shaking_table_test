@@ -34,12 +34,12 @@ import pandas as pd
 WORKSPACE = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(WORKSPACE / "08_common" / "python"))
 
+import test_data  # noqa: E402
 from publication_style import COLORS, apply_style, format_axis, reference_line_kwargs, save_figure, standard_size  # noqa: E402
 from ten_story_pipeline import load_csv  # noqa: E402
 
 CASE = "20151211-2(JMAKobe100%)"
-RAW = WORKSPACE / "02_10-story_2015" / "data" / "raw" / "2015-1211" / "2015-1211-006-1"
-DRIFT_CSV = WORKSPACE / "06_results" / "archive" / "2026-07-30_before_cleanup" / "2015" / "python" / CASE / "csv" / "story_drift_y.csv"
+DRIFT_CSV = WORKSPACE / "06_results" / "experiment" / "2015" / CASE / "csv" / "story_drift_y.csv"  # run_pipeline.py output
 OUTPUT = WORKSPACE / "06_results" / "experiment" / "2015" / CASE / "rebar_gauges_4F_joint"
 MODE = "presentation"
 YIELD_MICROSTRAIN = 2000.0
@@ -57,32 +57,14 @@ GROUPS = {
 }
 
 
-def raw_file(jb: int) -> Path:
-    return RAW / f"2015-1211-006-1_ENG_001-{jb:02d}.csv"
-
-
-def channel_names(jb: int) -> list[str]:
-    with raw_file(jb).open("rb") as stream:
-        stream.readline()
-        return stream.readline().decode("shift_jis").strip().split(",")[1:]
-
-
 def read_group(jb: int, channels: range) -> tuple[np.ndarray, dict[str, np.ndarray]]:
-    names = channel_names(jb)
-    columns = [0, *channels]
-    data = pd.read_csv(
-        raw_file(jb), skiprows=3, header=None, usecols=columns, comment="%", encoding="shift_jis",
-    ).apply(pd.to_numeric, errors="coerce").to_numpy(float)
-    data = data[np.all(np.isfinite(data), axis=1)]
-    usable = data.shape[0] // 10 * 10
-    averaged = data[:usable].reshape(-1, 10, data.shape[1]).mean(axis=1)
-    time = averaged[:, 0]
-    series = {}
-    for position, channel in enumerate(channels, start=1):
-        values = averaged[:, position] - data[:1000, position].mean()
-        tag = names[channel - 1].split("-", 1)[1]
-        series[tag] = values / YIELD_MICROSTRAIN
-    return time, series
+    """Strain / eps_y of one gauge group, from the processed CSV (run_pipeline.py) via test_data.
+
+    Until 2026-10-08 this read the raw records itself (own baseline and 10-point averaging);
+    every comparison script calls this function, so they all read the pipeline CSV now.
+    The residual of the earlier runs is a switch in config/test_data_options.json.
+    """
+    return test_data.rebar_channels(jb, channels)
 
 
 def main() -> None:
